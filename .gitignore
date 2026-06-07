@@ -1,0 +1,16 @@
+node_modules
+dist
+dist-ssr
+*.local
+.env
+.env.local
+.DS_Store
+*.log
+
+# Artefacts de build TypeScript
+*.tsbuildinfo
+vite.config.js
+vite.config.d.ts
+
+# Archives livrables
+*.zip
