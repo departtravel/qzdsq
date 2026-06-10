@@ -1,0 +1,797 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>🚚 Mon Parc Roulant</title>
+<style>
+  :root {
+    --blue:#2563eb; --blue-d:#1d4ed8;
+    --green:#16a34a; --green-bg:#dcfce7;
+    --amber:#d97706; --amber-bg:#fef3c7;
+    --red:#dc2626; --red-bg:#fee2e2;
+    --line:#e2e8f0; --muted:#64748b; --slate:#f1f5f9;
+  }
+  * { box-sizing:border-box; font-family:system-ui,-apple-system,"Segoe UI",Roboto,Arial,sans-serif; }
+  body { margin:0; background:#f8fafc; color:#1e293b; }
+  button { font:inherit; cursor:pointer; }
+
+  header.top { background:linear-gradient(90deg,#1e3a8a,#2563eb); color:#fff; padding:12px 20px;
+    display:flex; align-items:center; justify-content:space-between; gap:12px; flex-wrap:wrap; }
+  header.top h1 { font-size:19px; margin:0; }
+  header.top .actions { display:flex; gap:8px; flex-wrap:wrap; }
+  .btn { border:0; border-radius:8px; padding:9px 14px; font-size:14px; font-weight:600; }
+  .btn-primary { background:#fff; color:var(--blue-d); }
+  .btn-ghost { background:rgba(255,255,255,.16); color:#fff; }
+  .btn-ghost:hover { background:rgba(255,255,255,.3); }
+
+  nav.tabs { background:#fff; border-bottom:1px solid var(--line); display:flex; gap:4px; padding:0 16px; }
+  nav.tabs button { background:none; border:0; padding:14px 18px; font-size:15px; font-weight:700; color:var(--muted); border-bottom:3px solid transparent; }
+  nav.tabs button.active { color:var(--blue); border-bottom-color:var(--blue); }
+
+  main { max-width:1180px; margin:0 auto; padding:20px; }
+  h2.section { font-size:22px; margin:0 0 14px; }
+  .muted { color:var(--muted); }
+
+  .kpis { display:grid; grid-template-columns:repeat(auto-fit,minmax(150px,1fr)); gap:12px; margin-bottom:18px; }
+  .kpi { background:#fff; border:1px solid var(--line); border-radius:12px; padding:14px 16px; }
+  .kpi .n { font-size:26px; font-weight:800; line-height:1; }
+  .kpi .l { color:var(--muted); font-size:13px; margin-top:6px; }
+  .kpi.service .n{color:var(--green)} .kpi.repos .n{color:var(--amber)} .kpi.alert .n{color:var(--red)}
+  .kpi.good .n{color:var(--green)} .kpi.bad .n{color:var(--red)}
+
+  .alerts { background:#fff; border:1px solid var(--line); border-left:4px solid var(--red);
+    border-radius:10px; padding:12px 16px; margin-bottom:18px; }
+  .alerts h3 { margin:0 0 8px; font-size:14px; }
+  .alerts ul { margin:0; padding-left:18px; font-size:13px; color:#334155; }
+
+  .toolbar { display:flex; gap:10px; align-items:center; flex-wrap:wrap; margin-bottom:14px; }
+  .toolbar input[type=search], .toolbar select { border:1px solid var(--line); border-radius:8px; padding:9px 12px; font-size:14px; background:#fff; }
+  .toolbar input[type=search] { flex:1; min-width:200px; }
+
+  .grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(340px,1fr)); gap:16px; }
+  .card { background:#fff; border:1px solid var(--line); border-radius:14px; padding:16px; box-shadow:0 1px 2px rgba(0,0,0,.04); display:flex; flex-direction:column; gap:12px; }
+  .card.ring-red{box-shadow:0 0 0 2px var(--red)} .card.ring-amber{box-shadow:0 0 0 2px var(--amber)}
+  .card .head { display:flex; align-items:flex-start; justify-content:space-between; gap:8px; }
+  .title { font-size:18px; font-weight:800; }
+  .sub { color:var(--muted); font-size:13px; }
+  .clickable { cursor:pointer; }
+
+  .pill { display:inline-flex; align-items:center; gap:6px; border-radius:999px; padding:4px 10px; font-size:12px; font-weight:700; border:0; }
+  .p-service{background:var(--green-bg); color:#166534} .p-repos{background:var(--amber-bg); color:#92400e}
+  .p-prop{background:#e0e7ff; color:#3730a3} .p-loc{background:#cffafe; color:#155e75} .p-part{background:#fae8ff; color:#86198f}
+  .dot{width:8px;height:8px;border-radius:50%} .dot-service{background:var(--green)} .dot-repos{background:var(--amber)}
+
+  .badges { display:flex; flex-wrap:wrap; gap:6px; }
+  .badge { font-size:11px; font-weight:600; border-radius:7px; padding:3px 8px; border:1px solid; }
+  .b-ok{color:var(--green);border-color:#86efac;background:#f0fdf4}
+  .b-warn{color:var(--amber);border-color:#fcd34d;background:#fffbeb}
+  .b-danger{color:var(--red);border-color:#fca5a5;background:#fef2f2}
+  .b-unknown{color:var(--muted);border-color:var(--line);background:#f8fafc}
+
+  .econ { background:var(--slate); border-radius:10px; padding:10px 12px; font-size:13px; }
+  .econ .row { display:flex; justify-content:space-between; padding:2px 0; }
+  .econ .row.total { border-top:1px solid #cbd5e1; margin-top:4px; padding-top:6px; font-weight:700; }
+  .verdict { margin-top:8px; font-weight:800; border-radius:8px; padding:7px 8px; text-align:center; }
+  .v-good{background:var(--green-bg); color:#166534} .v-bad{background:var(--red-bg); color:#991b1b} .v-unknown{background:#e2e8f0; color:#475569}
+
+  .empty { text-align:center; color:var(--muted); padding:60px 20px; border:2px dashed var(--line); border-radius:14px; background:#fff; }
+
+  /* Detail */
+  .back { background:none; border:0; color:var(--blue); font-weight:700; font-size:14px; padding:0; margin-bottom:8px; }
+  .panel { background:#fff; border:1px solid var(--line); border-radius:14px; padding:16px; margin-bottom:16px; }
+  .panel h3 { margin:0 0 12px; font-size:16px; }
+  table { width:100%; border-collapse:collapse; font-size:13px; }
+  th,td { text-align:left; padding:7px 8px; border-bottom:1px solid var(--line); }
+  th { font-size:11px; text-transform:uppercase; color:var(--muted); }
+  tr.danger td { background:var(--red-bg); }
+  .addrow { display:flex; gap:8px; flex-wrap:wrap; align-items:flex-end; margin-bottom:10px; }
+  .addrow label { display:flex; flex-direction:column; font-size:11px; color:var(--muted); gap:3px; }
+  .addrow input, .addrow select { border:1px solid var(--line); border-radius:8px; padding:7px 9px; font-size:14px; }
+  .addrow input.sm{width:110px} .addrow input.xs{width:90px}
+  .del { background:none; border:0; color:var(--muted); font-size:12px; }
+  .del:hover{color:var(--red)}
+  .stat-line { display:flex; justify-content:space-between; padding:4px 0; font-size:14px; border-bottom:1px dashed var(--line); }
+  .stat-line:last-child{border-bottom:0}
+
+  /* Analytics bars */
+  .bar-row { display:grid; grid-template-columns:170px 1fr 110px; gap:10px; align-items:center; margin:6px 0; font-size:13px; }
+  .bar { height:18px; border-radius:6px; background:var(--blue); }
+  .bar.green{background:var(--green)} .bar.red{background:var(--red)} .bar.amber{background:var(--amber)}
+  .bar-track { background:var(--slate); border-radius:6px; }
+
+  /* Modal */
+  .overlay { position:fixed; inset:0; background:rgba(15,23,42,.5); display:none; align-items:flex-start; justify-content:center; padding:24px; overflow:auto; z-index:50; }
+  .overlay.open { display:flex; }
+  .modal { background:#fff; border-radius:16px; width:100%; max-width:780px; padding:22px; }
+  .modal h2 { margin:0 0 14px; }
+  fieldset { border:1px solid var(--line); border-radius:12px; padding:12px 14px; margin:0 0 14px; }
+  legend { font-weight:700; font-size:13px; color:#334155; padding:0 6px; }
+  .form-grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(150px,1fr)); gap:10px; }
+  label.field { display:flex; flex-direction:column; font-size:12px; color:var(--muted); gap:4px; }
+  label.field input, label.field select, label.field textarea { border:1px solid var(--line); border-radius:8px; padding:8px 10px; font-size:14px; color:#1e293b; }
+  label.field textarea { resize:vertical; min-height:54px; }
+  .modal .foot { display:flex; justify-content:space-between; gap:8px; margin-top:6px; }
+  .modal .foot .right { display:flex; gap:8px; }
+  .btn-save{background:var(--blue); color:#fff} .btn-save:hover{background:var(--blue-d)}
+  .btn-cancel{background:#fff; border:1px solid var(--line); color:#334155}
+  .link{background:none;border:0;color:var(--blue);font-weight:600;font-size:13px}
+  .link.danger{color:var(--red)}
+  .help{font-size:12px;color:var(--muted);margin:-4px 0 10px}
+  .hidden{display:none !important}
+  footer{text-align:center;color:var(--muted);font-size:12px;padding:24px}
+  @media print { header.top .actions, nav.tabs, .toolbar, .addrow, .del, .foot .right { display:none !important; } }
+</style>
+</head>
+<body>
+<header class="top">
+  <h1>🚚 Mon Parc Roulant</h1>
+  <div class="actions">
+    <button class="btn btn-primary" onclick="openForm()">+ Véhicule</button>
+    <button class="btn btn-ghost" onclick="exportData()">Sauvegarder</button>
+    <button class="btn btn-ghost" onclick="document.getElementById('import').click()">Importer</button>
+    <button class="btn btn-ghost" onclick="window.print()">Imprimer</button>
+    <input id="import" type="file" accept="application/json" class="hidden" onchange="importData(event)" />
+  </div>
+</header>
+
+<nav class="tabs">
+  <button id="tab-fleet" class="active" onclick="go('fleet')">🗂️ Fleet</button>
+  <button id="tab-analytics" onclick="go('analytics')">📊 Analytics</button>
+</nav>
+
+<main id="app"></main>
+<footer>Données enregistrées localement dans ce navigateur. Pensez à « Sauvegarder » régulièrement.</footer>
+
+<!-- Modal véhicule -->
+<div class="overlay" id="overlay">
+  <form class="modal" id="form" onsubmit="saveVehicle(event)">
+    <h2 id="formTitle">Nouveau véhicule</h2>
+    <input type="hidden" name="id" />
+
+    <fieldset>
+      <legend>Identité</legend>
+      <div class="form-grid">
+        <label class="field">Matricule *<input name="matricule" required placeholder="1234-A-56" /></label>
+        <label class="field">Marque<input name="marque" /></label>
+        <label class="field">Modèle<input name="modele" /></label>
+        <label class="field">Année<input name="annee" type="number" min="1980" max="2100" /></label>
+        <label class="field">Type
+          <select name="type"><option value="">—</option><option>Voiture</option><option>Fourgon</option><option>Minibus</option><option>Bus</option><option>4x4</option><option>Camion</option><option>Autre</option></select>
+        </label>
+        <label class="field">Carburant
+          <select name="carburant"><option value="">—</option><option>Diesel</option><option>Essence</option><option>Hybride</option><option>Électrique</option></select>
+        </label>
+        <label class="field">État
+          <select name="etat"><option value="repos">Au repos</option><option value="service">En service</option></select>
+        </label>
+      </div>
+    </fieldset>
+
+    <fieldset>
+      <legend>Chauffeur</legend>
+      <div class="form-grid">
+        <label class="field">Nom<input name="chauffeurNom" /></label>
+        <label class="field">Téléphone<input name="chauffeurTel" /></label>
+        <label class="field">Contact / e-mail<input name="chauffeurContact" /></label>
+      </div>
+    </fieldset>
+
+    <fieldset>
+      <legend>Régime</legend>
+      <div class="form-grid">
+        <label class="field">Statut du véhicule
+          <select name="regime" onchange="toggleRegime(this.value)">
+            <option value="propriete">Propriété (à moi)</option>
+            <option value="location">Location longue durée</option>
+            <option value="particulier">Particulier / ponctuel (affrété à l'excursion)</option>
+          </select>
+        </label>
+      </div>
+      <div id="propFields">
+        <p class="help">Véhicule à vous : l'amortissement de l'achat (optionnel) est compté dans le coût.</p>
+        <div class="form-grid">
+          <label class="field">Date d'acquisition<input name="dateAcquisition" type="date" /></label>
+          <label class="field">Prix d'achat (DH)<input name="prixAchat" type="number" min="0" step="0.01" /></label>
+          <label class="field">Valeur de revente (DH)<input name="valeurResiduelle" type="number" min="0" step="0.01" /></label>
+          <label class="field">Amortissement (mois)<input name="dureeAmortMois" type="number" min="1" placeholder="60" /></label>
+        </div>
+        <p class="help">Si le véhicule est financé via un leasing ou la banque :</p>
+        <div class="form-grid">
+          <label class="field">Financement
+            <select name="financement"><option value="">Comptant</option><option>Leasing</option><option>Crédit bancaire</option></select>
+          </label>
+          <label class="field">Mensualité (DH/mois)<input name="mensualiteFinancement" type="number" min="0" step="0.01" /></label>
+          <label class="field">Échéance leasing / crédit (fin)<input name="leasingFin" type="date" /></label>
+        </div>
+      </div>
+      <div id="locFields" class="hidden">
+        <p class="help">Véhicule loué : le loyer mensuel est compté dans le coût.</p>
+        <div class="form-grid">
+          <label class="field">Loyer mensuel (DH)<input name="locationMensuelle" type="number" min="0" step="0.01" /></label>
+          <label class="field">Loueur / contrat<input name="loueur" /></label>
+        </div>
+      </div>
+      <div id="partFields" class="hidden">
+        <p class="help">Véhicule d'un particulier affrété à l'excursion. Saisissez le loyer d'une LLD équivalente pour savoir si la louer en longue durée serait plus avantageux que de payer à chaque excursion.</p>
+        <div class="form-grid">
+          <label class="field">Propriétaire / contact<input name="proprietaire" /></label>
+          <label class="field">Loyer LLD équivalent estimé (DH/mois)<input name="loyerLLDEstime" type="number" min="0" step="0.01" /></label>
+        </div>
+      </div>
+    </fieldset>
+
+    <fieldset>
+      <legend>Échéances (début → fin)</legend>
+      <div class="form-grid">
+        <label class="field">Visite technique — début<input name="visiteDebut" type="date" /></label>
+        <label class="field">Visite technique — fin<input name="visiteFin" type="date" /></label>
+        <label class="field">Assurance — début<input name="assuranceDebut" type="date" /></label>
+        <label class="field">Assurance — fin<input name="assuranceFin" type="date" /></label>
+        <label class="field">Taxe — début<input name="taxeDebut" type="date" /></label>
+        <label class="field">Taxe — fin<input name="taxeFin" type="date" /></label>
+        <label class="field">Vidange — faite le<input name="vidangeDate" type="date" /></label>
+        <label class="field">Vidange — prochaine<input name="vidangeProchaine" type="date" /></label>
+      </div>
+    </fieldset>
+
+    <fieldset>
+      <legend>Coûts fixes annuels (tarifs)</legend>
+      <div class="form-grid">
+        <label class="field">Taxe / an (DH)<input name="coutTaxe" type="number" min="0" step="0.01" /></label>
+        <label class="field">Assurance / an (DH)<input name="coutAssurance" type="number" min="0" step="0.01" /></label>
+        <label class="field">Visite technique (DH)<input name="coutVisite" type="number" min="0" step="0.01" /></label>
+      </div>
+      <p class="help">Ces montants sont comptés dans le coût, au prorata de la période observée. Les pièces & réparations se saisissent au coup par coup dans l'historique « Entretien ».</p>
+    </fieldset>
+
+    <fieldset>
+      <legend>Consommation de référence (pour repérer les abus)</legend>
+      <div class="form-grid">
+        <label class="field">Conso normale (L/100 km)<input name="consoRef" type="number" min="0" step="0.1" /></label>
+      </div>
+      <p class="help">Si la conso réelle dépasse cette valeur de +15 %, le véhicule est signalé en rouge.</p>
+    </fieldset>
+
+    <fieldset>
+      <legend>Notes</legend>
+      <label class="field"><textarea name="notes"></textarea></label>
+    </fieldset>
+
+    <div class="foot">
+      <button type="button" class="btn link danger" id="deleteBtn" onclick="deleteCurrent()" style="display:none">Supprimer le véhicule</button>
+      <div class="right">
+        <button type="button" class="btn btn-cancel" onclick="closeForm()">Annuler</button>
+        <button type="submit" class="btn btn-save">Enregistrer</button>
+      </div>
+    </div>
+  </form>
+</div>
+
+<script>
+'use strict';
+const STORE='parc-roulant-v1', DAY=86400000, MD=365/12, SEUIL=15;
+let fleet=load();
+let view={tab:'fleet', id:null};
+
+function load(){ try{ const d=JSON.parse(localStorage.getItem(STORE))||[]; return d.map(migrate);}catch{return[]} }
+function migrate(v){ v.fuels??=[]; v.expenses??=[]; v.excursions??=[]; return v; }
+function persist(){ localStorage.setItem(STORE, JSON.stringify(fleet)); }
+function uid(){ return Date.now().toString(36)+Math.random().toString(36).slice(2,7); }
+function num(v){ return v===''||v==null?null:Number(v); }
+function esc(s){ return String(s==null?'':s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c])); }
+function dh(v){ return v==null||isNaN(v)?'—':Math.round(v).toLocaleString('fr-FR')+' DH'; }
+function dh1(v){ return v==null||isNaN(v)?'—':v.toLocaleString('fr-FR',{minimumFractionDigits:1,maximumFractionDigits:1})+' DH'; }
+function dfr(s){ return s? new Date(s+'T00:00:00').toLocaleDateString('fr-FR'):'—'; }
+function sum(arr,f){ return arr.reduce((s,x)=>s+(f(x)||0),0); }
+function vget(id){ return fleet.find(v=>v.id===id); }
+
+// ---- Échéances ----
+function daysUntil(s){ if(!s)return null; const t=new Date(s+'T00:00:00').getTime(); const td=new Date(); td.setHours(0,0,0,0); return Math.round((t-td.getTime())/DAY); }
+function dl(label,fin,warn=30){
+  const d=daysUntil(fin);
+  if(d===null) return {label,sev:'unknown',txt:'Non renseigné'};
+  if(d<0) return {label,sev:'danger',txt:'Dépassé de '+(-d)+' j'};
+  if(d<=warn) return {label,sev:'warn',txt:'Dans '+d+' j'};
+  return {label,sev:'ok',txt:'Dans '+d+' j'};
+}
+function deadlines(v){
+  const list=[ dl('Visite tech.',v.visiteFin), dl('Assurance',v.assuranceFin), dl('Taxe',v.taxeFin), dl('Vidange',v.vidangeProchaine) ];
+  if(v.regime==='propriete' && v.leasingFin) list.push(dl('Leasing',v.leasingFin));
+  return list;
+}
+const RANK={danger:0,warn:1,ok:2,unknown:3};
+function worst(list){ return list.reduce((a,b)=>RANK[a.sev]<=RANK[b.sev]?a:b,{sev:'unknown'}).sev; }
+
+// ---- Consommation ----
+function conso(v){
+  const fs=[...v.fuels].filter(f=>f.km!=null).sort((a,b)=>a.km-b.km);
+  const litresTot=sum(v.fuels,f=>f.litres), coutTot=sum(v.fuels,f=>f.montant);
+  if(fs.length<2) return {l100:null,kmRoules:null,litresTot,coutTot,abus:false};
+  const dist=fs[fs.length-1].km-fs[0].km;
+  const litres=fs.slice(1).reduce((s,f)=>s+(f.litres||0),0);
+  const l100=dist>0?litres/dist*100:null;
+  const abus=l100!=null && v.consoRef!=null && v.consoRef>0 && l100>v.consoRef*(1+SEUIL/100);
+  return {l100,kmRoules:dist>0?dist:null,litresTot,coutTot,abus};
+}
+
+// ---- Économie / rentabilité ----
+function periodDays(v){
+  const ds=[];
+  if(v.dateAcquisition) ds.push(v.dateAcquisition);
+  v.fuels.forEach(f=>f.date&&ds.push(f.date));
+  v.expenses.forEach(e=>e.date&&ds.push(e.date));
+  v.excursions.forEach(x=>x.date&&ds.push(x.date));
+  if(!ds.length) return null;
+  const min=ds.reduce((a,b)=>a<b?a:b);
+  const t=new Date(min+'T00:00:00').getTime(); const td=new Date(); td.setHours(0,0,0,0);
+  return Math.max(1,Math.round((td.getTime()-t)/DAY));
+}
+function econ(v){
+  const days=periodDays(v); const months=days?days/30.44:null;
+  const carburant=sum(v.fuels,f=>f.montant);
+  const entretien=sum(v.expenses,e=>e.montant);
+  const excTot=sum(v.excursions,x=>x.montant);
+  const nbExc=v.excursions.length;
+
+  // Frais fixes annuels (taxe + assurance + visite) au prorata de la période
+  const fraisFixesAnnuels=(v.coutTaxe||0)+(v.coutAssurance||0)+(v.coutVisite||0);
+  const fraisFixes = (days!=null && fraisFixesAnnuels>0) ? fraisFixesAnnuels*(days/365) : 0;
+
+  // ----- Régime "particulier / ponctuel" : on PAIE le propriétaire -----
+  if(v.regime==='particulier'){
+    const paiements=excTot;                       // total payé en ponctuel
+    const coutTotal=paiements+carburant+entretien+fraisFixes;
+    const coutLLD=(v.loyerLLDEstime!=null && months!=null)? v.loyerLLDEstime*months : null;
+    let verdict='unknown', ecartLLD=null;
+    if(coutLLD!=null && paiements>0){ ecartLLD=paiements-coutLLD; verdict=coutLLD<paiements?'lld':'ponctuel'; }
+    return {regime:'particulier',days,months,revenus:0,carburant,entretien,fraisFixes,
+      regimeLabel:'Paiements ponctuels',regimeCout:paiements,coutTotal,profit:-coutTotal,
+      perDay: days?{revenu:0,cout:coutTotal/days,profit:-coutTotal/days,location:null}:null,
+      verdict,paiements,coutLLD,ecartLLD,nbExc};
+  }
+
+  // ----- Régimes "propriété" et "location" : les excursions = revenus -----
+  const revenus=excTot;
+  let regimeCout=0, regimeLabel;
+  if(v.regime==='location'){
+    regimeLabel='Loyer location';
+    regimeCout = (v.locationMensuelle!=null && months!=null) ? v.locationMensuelle*months : 0;
+  } else {
+    regimeLabel='Amortissement';
+    if(v.prixAchat!=null && v.dureeAmortMois && months!=null)
+      regimeCout = ((v.prixAchat-(v.valeurResiduelle||0))/v.dureeAmortMois)*months;
+  }
+  const coutTotal=carburant+entretien+regimeCout+fraisFixes;
+  const profit=revenus-coutTotal;
+  const perDay = days? {
+    revenu:revenus/days, cout:coutTotal/days, profit:profit/days,
+    location: (v.regime==='location'&&v.locationMensuelle!=null)? v.locationMensuelle*12/365 : null
+  } : null;
+  const verdict = (days && (revenus>0||coutTotal>0)) ? (profit>=0?'good':'bad') : 'unknown';
+  return {regime:v.regime,days,months,revenus,carburant,entretien,fraisFixes,regimeCout,regimeLabel,coutTotal,profit,perDay,verdict,nbExc};
+}
+
+function regimeLabelFr(r){ return r==='location'?'Location':r==='particulier'?'Particulier':'Propriété'; }
+function regimePill(r){ return `<span class="pill ${r==='location'?'p-loc':r==='particulier'?'p-part':'p-prop'}">${regimeLabelFr(r)}</span>`; }
+
+function verdictBlock(e){
+  if(e.regime==='particulier'){
+    if(e.verdict==='unknown') return `<div class="verdict v-unknown">Ajoutez excursions + loyer LLD estimé pour comparer</div>`;
+    if(e.verdict==='lld') return `<div class="verdict v-good">💡 LLD plus avantageux : économie de ${dh(e.ecartLLD)} sur la période</div>`;
+    return `<div class="verdict v-bad">👍 Ponctuel avantageux : une LLD coûterait ${dh(-e.ecartLLD)} de plus</div>`;
+  }
+  if(e.verdict==='unknown') return `<div class="verdict v-unknown">Ajoutez excursions & coûts pour le verdict</div>`;
+  if(e.verdict==='good') return `<div class="verdict v-good">✅ Rentable : +${dh1(e.perDay.profit)}/jour</div>`;
+  return `<div class="verdict v-bad">❌ Perte : ${dh1(e.perDay.profit)}/jour</div>`;
+}
+function econBoxCard(e){
+  if(e.regime==='particulier'){
+    return `<div class="econ">
+      <div class="row"><span>Total payé (ponctuel, ${e.nbExc} exc.)</span><b>${dh(e.paiements)}</b></div>
+      <div class="row total"><span>Coût si LLD (estimé)</span><b>${dh(e.coutLLD)}</b></div>
+      ${verdictBlock(e)}</div>`;
+  }
+  return `<div class="econ">
+    <div class="row"><span>Revenu excursions</span><b>${dh(e.revenus)}</b></div>
+    <div class="row"><span>Coûts totaux</span><b>${dh(e.coutTotal)}</b></div>
+    <div class="row total"><span>Résultat</span><b style="color:${e.profit>=0?'var(--green)':'var(--red)'}">${dh(e.profit)}</b></div>
+    ${verdictBlock(e)}</div>`;
+}
+
+// ============ ROUTER ============
+function go(tab){ view={tab,id:null}; sync(); }
+function openVeh(id){ view={tab:'detail',id}; sync(); }
+function sync(){
+  document.getElementById('tab-fleet').classList.toggle('active', view.tab==='fleet'||view.tab==='detail');
+  document.getElementById('tab-analytics').classList.toggle('active', view.tab==='analytics');
+  if(view.tab==='analytics') renderAnalytics();
+  else if(view.tab==='detail') renderDetail(view.id);
+  else renderFleet();
+  window.scrollTo(0,0);
+}
+
+// ============ FLEET ============
+function renderFleet(){
+  const app=document.getElementById('app');
+  const q=(document.getElementById('search')?.value||'').trim().toLowerCase();
+  const fEtat=document.getElementById('fEtat')?.value||'';
+  const fReg=document.getElementById('fReg')?.value||'';
+
+  const total=fleet.length, enSvc=fleet.filter(v=>v.etat==='service').length;
+  let alertN=0; fleet.forEach(v=>deadlines(v).forEach(d=>{ if(d.sev==='danger'||d.sev==='warn')alertN++; }));
+  const profitTot=sum(fleet,v=>econ(v).profit);
+
+  const reminders=[];
+  fleet.forEach(v=>deadlines(v).forEach(d=>{ if(d.sev==='danger'||d.sev==='warn') reminders.push({v,d}); }));
+  conso&&fleet.forEach(v=>{ if(conso(v).abus) reminders.push({v,d:{label:'Surconsommation',sev:'danger',txt:'conso anormale (vol ?)'}}); });
+  reminders.sort((a,b)=>RANK[a.d.sev]-RANK[b.d.sev]);
+
+  let items=fleet.filter(v=>{
+    if(fEtat&&v.etat!==fEtat) return false;
+    if(fReg&&v.regime!==fReg) return false;
+    if(!q) return true;
+    return [v.matricule,v.marque,v.modele,v.chauffeurNom].filter(Boolean).some(s=>s.toLowerCase().includes(q));
+  }).sort((a,b)=>(a.matricule||'').localeCompare(b.matricule||''));
+
+  app.innerHTML=`
+    <div class="kpis">
+      <div class="kpi"><div class="n">${total}</div><div class="l">Véhicules</div></div>
+      <div class="kpi service"><div class="n">${enSvc}</div><div class="l">🟢 En service</div></div>
+      <div class="kpi repos"><div class="n">${total-enSvc}</div><div class="l">🟠 Au repos</div></div>
+      <div class="kpi alert"><div class="n">${alertN}</div><div class="l">⚠️ Échéances</div></div>
+      <div class="kpi ${profitTot>=0?'good':'bad'}"><div class="n" style="font-size:20px">${dh(profitTot)}</div><div class="l">Résultat global</div></div>
+    </div>
+    ${reminders.length?`<div class="alerts"><h3>⚠️ À traiter</h3><ul>${reminders.slice(0,12).map(r=>
+      `<li><b>${esc(r.v.matricule)}</b> — ${r.d.label} : <span style="color:${r.d.sev==='danger'?'var(--red)':'var(--amber)'}">${r.d.txt}</span></li>`).join('')}</ul></div>`:''}
+    <div class="toolbar">
+      <input type="search" id="search" value="${esc(q)}" placeholder="Rechercher (matricule, marque, chauffeur…)" oninput="renderFleet()" />
+      <select id="fEtat" onchange="renderFleet()">
+        <option value="">Tous les états</option>
+        <option value="service"${fEtat==='service'?' selected':''}>En service</option>
+        <option value="repos"${fEtat==='repos'?' selected':''}>Au repos</option>
+      </select>
+      <select id="fReg" onchange="renderFleet()">
+        <option value="">Tous régimes</option>
+        <option value="propriete"${fReg==='propriete'?' selected':''}>Propriété</option>
+        <option value="location"${fReg==='location'?' selected':''}>Location</option>
+      </select>
+    </div>
+    ${items.length===0
+      ? `<div class="empty">${total===0?'Aucun véhicule. Cliquez sur « + Véhicule ».':'Aucun résultat.'}</div>`
+      : `<div class="grid">${items.map(fleetCard).join('')}</div>`}`;
+}
+
+function fleetCard(v){
+  const dls=deadlines(v); const w=worst(dls); const c=conso(v); const e=econ(v);
+  const ring=(w==='danger'||c.abus)?'ring-red':w==='warn'?'ring-amber':'';
+  const badges=dls.map(d=>`<span class="badge b-${d.sev}">${d.label}: ${d.txt}</span>`).join('')
+    + (c.abus?`<span class="badge b-danger">Conso +${SEUIL}% ⚠️</span>`:'');
+  const idline=[v.marque,v.modele,v.annee].filter(Boolean).join(' ');
+  return `
+  <div class="card ${ring}">
+    <div class="head">
+      <div class="clickable" onclick="openVeh('${v.id}')">
+        <div class="title">${esc(v.matricule)}</div>
+        <div class="sub">${esc(idline)}${v.chauffeurNom?' · 👤 '+esc(v.chauffeurNom):''}</div>
+      </div>
+      <button class="pill ${v.etat==='service'?'p-service':'p-repos'}" onclick="toggleEtat('${v.id}')" title="Basculer l'état">
+        <span class="dot ${v.etat==='service'?'dot-service':'dot-repos'}"></span>${v.etat==='service'?'En service':'Au repos'}
+      </button>
+    </div>
+    <div class="badges">
+      ${regimePill(v.regime)}
+      ${c.l100!=null?`<span class="badge b-${c.abus?'danger':'ok'}">${c.l100.toFixed(1)} L/100</span>`:''}
+    </div>
+    <div class="badges">${badges}</div>
+    ${econBoxCard(e)}
+    <div class="head"><button class="link" onclick="openVeh('${v.id}')">Ouvrir la fiche →</button></div>
+  </div>`;
+}
+
+function toggleEtat(id){ const v=vget(id); if(!v)return; v.etat=v.etat==='service'?'repos':'service'; persist(); sync(); }
+
+// ============ DETAIL ============
+function renderDetail(id){
+  const v=vget(id); if(!v){ go('fleet'); return; }
+  const dls=deadlines(v); const c=conso(v); const e=econ(v);
+  const app=document.getElementById('app');
+
+  const part = v.regime==='particulier';
+  const excLabel = part ? 'Excursions effectuées (montant payé)' : 'Excursions honorées (revenus)';
+  const excMontantLabel = part ? 'Montant payé DH' : 'Montant encaissé DH';
+
+  // Corps du panneau rentabilité, adapté au régime
+  let rentBody;
+  if(part){
+    rentBody=`
+      <div class="stat-line"><span>Excursions effectuées</span><b>${e.nbExc}</b></div>
+      <div class="stat-line"><span>Total payé au propriétaire</span><b>${dh(e.paiements)}</b></div>
+      ${e.carburant?`<div class="stat-line"><span>Carburant (si à ta charge)</span><b>${dh(e.carburant)}</b></div>`:''}
+      ${e.entretien?`<div class="stat-line"><span>Entretien (si à ta charge)</span><b>${dh(e.entretien)}</b></div>`:''}
+      ${e.fraisFixes?`<div class="stat-line"><span>Taxe + assurance + visite (période)</span><b>${dh(e.fraisFixes)}</b></div>`:''}
+      <div class="stat-line"><span><b>Coût ponctuel total ${e.days?'('+e.days+' j observés)':''}</b></span><b>${dh(e.coutTotal)}</b></div>
+      <div class="stat-line"><span>Coût si LLD sur la même période</span><b>${dh(e.coutLLD)}</b></div>
+      ${verdictBlock(e)}`;
+  } else {
+    rentBody=`
+      <div class="stat-line"><span>Revenu excursions (${e.nbExc})</span><b>${dh(e.revenus)}</b></div>
+      <div class="stat-line"><span>Coût carburant</span><b>${dh(e.carburant)}</b></div>
+      <div class="stat-line"><span>Coût entretien / réparations</span><b>${dh(e.entretien)}</b></div>
+      <div class="stat-line"><span>${e.regimeLabel}</span><b>${dh(e.regimeCout)}</b></div>
+      ${e.fraisFixes?`<div class="stat-line"><span>Taxe + assurance + visite (période)</span><b>${dh(e.fraisFixes)}</b></div>`:''}
+      <div class="stat-line"><span><b>Résultat ${e.days?'('+e.days+' j observés)':''}</b></span><b style="color:${e.profit>=0?'var(--green)':'var(--red)'}">${dh(e.profit)}</b></div>
+      ${e.perDay?`<div class="stat-line"><span>Revenu / jour</span><b>${dh1(e.perDay.revenu)}</b></div>
+      <div class="stat-line"><span>Coût / jour</span><b>${dh1(e.perDay.cout)}</b></div>
+      ${e.perDay.location!=null?`<div class="stat-line"><span>Loyer location / jour</span><b>${dh1(e.perDay.location)}</b></div>`:''}`:''}
+      ${verdictBlock(e)}`;
+  }
+
+  const dlSpecs=[
+    ['Visite technique',v.visiteDebut,v.visiteFin],
+    ['Assurance',v.assuranceDebut,v.assuranceFin],
+    ['Taxe',v.taxeDebut,v.taxeFin],
+    ['Vidange (faite → prochaine)',v.vidangeDate,v.vidangeProchaine],
+  ];
+  if(v.regime==='propriete' && v.leasingFin) dlSpecs.push(['Leasing / crédit',v.dateAcquisition,v.leasingFin]);
+  const dlCards=dlSpecs.map(([t,deb,fin])=>{ const s=dl(t,fin); return `
+    <div class="econ" style="flex:1;min-width:200px">
+      <div style="font-weight:700">${t}</div>
+      <div class="sub">du ${dfr(deb)} au ${dfr(fin)}</div>
+      <span class="badge b-${s.sev}" style="margin-top:6px;display:inline-block">${s.txt}</span>
+    </div>`; }).join('');
+
+  const fuelRows=[...v.fuels].sort((a,b)=>(b.date||'').localeCompare(a.date||'')).map(f=>`
+    <tr><td>${dfr(f.date)}</td><td>${f.km!=null?Number(f.km).toLocaleString('fr-FR'):'—'}</td>
+    <td>${f.litres??'—'} L</td><td>${dh(f.montant)}</td>
+    <td style="text-align:right"><button class="del" onclick="delFuel('${v.id}','${f.id}')">suppr.</button></td></tr>`).join('');
+
+  const expRows=[...v.expenses].sort((a,b)=>(b.date||'').localeCompare(a.date||'')).map(x=>`
+    <tr><td>${dfr(x.date)}</td><td>${esc(x.categorie)}</td><td>${esc(x.note||'')}</td><td>${dh(x.montant)}</td>
+    <td style="text-align:right"><button class="del" onclick="delExp('${v.id}','${x.id}')">suppr.</button></td></tr>`).join('');
+
+  const excRows=[...v.excursions].sort((a,b)=>(b.date||'').localeCompare(a.date||'')).map(x=>`
+    <tr><td>${dfr(x.date)}</td><td>${esc(x.destination||'')}</td><td>${dh(x.montant)}</td>
+    <td style="text-align:right"><button class="del" onclick="delExc('${v.id}','${x.id}')">suppr.</button></td></tr>`).join('');
+
+  app.innerHTML=`
+    <button class="back" onclick="go('fleet')">← Retour à la flotte</button>
+    <div class="card" style="margin-bottom:16px">
+      <div class="head">
+        <div>
+          <div class="title">${esc(v.matricule)}
+            <span class="pill ${v.regime==='location'?'p-loc':v.regime==='particulier'?'p-part':'p-prop'}" style="vertical-align:middle">${v.regime==='location'?'Location longue durée':v.regime==='particulier'?'Particulier / ponctuel':'Propriété'}</span>
+          </div>
+          <div class="sub">${esc([v.marque,v.modele,v.annee,v.type,v.carburant].filter(Boolean).join(' · '))}</div>
+        </div>
+        <button class="pill ${v.etat==='service'?'p-service':'p-repos'}" onclick="toggleEtat('${v.id}')">
+          <span class="dot ${v.etat==='service'?'dot-service':'dot-repos'}"></span>${v.etat==='service'?'En service':'Au repos'}
+        </button>
+      </div>
+      ${(v.chauffeurNom||v.chauffeurTel||v.chauffeurContact)?`<div class="sub">👤 ${esc(v.chauffeurNom||'')} ${v.chauffeurTel?'· 📞 '+esc(v.chauffeurTel):''} ${v.chauffeurContact?'· '+esc(v.chauffeurContact):''}</div>`:''}
+      ${(v.regime==='propriete'&&v.financement)?`<div class="sub">🏦 ${esc(v.financement)}${v.mensualiteFinancement?' · '+dh(v.mensualiteFinancement)+'/mois':''}${v.leasingFin?' · échéance '+dfr(v.leasingFin):''}</div>`:''}
+      ${v.notes?`<div class="sub">📝 ${esc(v.notes)}</div>`:''}
+      <div class="head"><button class="link" onclick="openForm('${v.id}')">Modifier les infos</button></div>
+    </div>
+
+    <div class="panel">
+      <h3>Échéances</h3>
+      <div style="display:flex;gap:10px;flex-wrap:wrap">${dlCards}</div>
+    </div>
+
+    <div class="panel">
+      <h3>💰 Rentabilité ${part?'(ponctuel vs location longue durée)':v.regime==='location'?'(location vs excursions)':'(propriété)'}</h3>
+      ${rentBody}
+    </div>
+
+    <div class="panel">
+      <h3>⛽ Carburant & consommation</h3>
+      <div style="display:flex;gap:18px;flex-wrap:wrap;margin-bottom:12px">
+        <div><div class="sub">Km roulés</div><b>${c.kmRoules!=null?c.kmRoules.toLocaleString('fr-FR')+' km':'—'}</b></div>
+        <div><div class="sub">Conso moyenne</div><b style="color:${c.abus?'var(--red)':'inherit'}">${c.l100!=null?c.l100.toFixed(1)+' L/100':'—'}${c.abus?' ⚠️ abus possible':''}</b></div>
+        <div><div class="sub">Litres total</div><b>${c.litresTot?c.litresTot.toLocaleString('fr-FR')+' L':'—'}</b></div>
+        <div><div class="sub">Coût carburant</div><b>${dh(c.coutTot)}</b></div>
+      </div>
+      <div class="addrow">
+        <label>Date<input type="date" class="sm" id="f-date" value="${today()}"></label>
+        <label>Km compteur<input type="number" class="sm" id="f-km"></label>
+        <label>Litres<input type="number" step="0.1" class="xs" id="f-litres"></label>
+        <label>Montant DH<input type="number" step="0.01" class="sm" id="f-montant"></label>
+        <button class="btn btn-save" onclick="addFuel('${v.id}')">Ajouter plein</button>
+      </div>
+      ${v.fuels.length?`<table><thead><tr><th>Date</th><th>Km</th><th>Litres</th><th>Montant</th><th></th></tr></thead><tbody>${fuelRows}</tbody></table>`:'<p class="sub">Aucun plein enregistré.</p>'}
+    </div>
+
+    <div class="panel">
+      <h3>🔧 Entretien, pièces & réparations</h3>
+      <div class="addrow">
+        <label>Date<input type="date" class="sm" id="e-date" value="${today()}"></label>
+        <label>Catégorie<select id="e-cat"><option>Pneus</option><option>Pièces de rechange</option><option>Réparation / panne</option><option>Vidange</option><option>Autre</option></select></label>
+        <label>Détail<input type="text" id="e-note" placeholder="ex. plaquettes avant"></label>
+        <label>Prix DH<input type="number" step="0.01" class="sm" id="e-montant"></label>
+        <button class="btn btn-save" onclick="addExp('${v.id}')">Ajouter</button>
+      </div>
+      ${v.expenses.length?`<table><thead><tr><th>Date</th><th>Catégorie</th><th>Détail</th><th>Prix</th><th></th></tr></thead><tbody>${expRows}</tbody></table>`:'<p class="sub">Aucune dépense enregistrée.</p>'}
+    </div>
+
+    <div class="panel">
+      <h3>🧭 ${excLabel}</h3>
+      <div class="addrow">
+        <label>Date<input type="date" class="sm" id="x-date" value="${today()}"></label>
+        <label>Destination<input type="text" id="x-dest" placeholder="ex. Marrakech"></label>
+        <label>${excMontantLabel}<input type="number" step="0.01" class="sm" id="x-montant"></label>
+        <button class="btn btn-save" onclick="addExc('${v.id}')">Ajouter</button>
+      </div>
+      ${v.excursions.length?`<table><thead><tr><th>Date</th><th>Destination</th><th>Montant</th><th></th></tr></thead><tbody>${excRows}</tbody></table>`:'<p class="sub">Aucune excursion enregistrée.</p>'}
+    </div>`;
+}
+
+function today(){ return new Date().toISOString().slice(0,10); }
+
+function addFuel(id){ const v=vget(id); const km=num(val('f-km')),l=num(val('f-litres')),m=num(val('f-montant')),d=val('f-date');
+  if(l==null&&m==null){ alert('Saisis au moins les litres ou le montant.'); return; }
+  v.fuels.push({id:uid(),date:d||today(),km,litres:l,montant:m}); persist(); renderDetail(id); }
+function delFuel(id,fid){ const v=vget(id); v.fuels=v.fuels.filter(f=>f.id!==fid); persist(); renderDetail(id); }
+
+function addExp(id){ const v=vget(id); const m=num(val('e-montant'));
+  v.expenses.push({id:uid(),date:val('e-date')||today(),categorie:val('e-cat'),note:val('e-note')||null,montant:m}); persist(); renderDetail(id); }
+function delExp(id,xid){ const v=vget(id); v.expenses=v.expenses.filter(x=>x.id!==xid); persist(); renderDetail(id); }
+
+function addExc(id){ const v=vget(id); const m=num(val('x-montant'));
+  if(m==null){ alert('Saisis le montant encaissé.'); return; }
+  v.excursions.push({id:uid(),date:val('x-date')||today(),destination:val('x-dest')||null,montant:m}); persist(); renderDetail(id); }
+function delExc(id,xid){ const v=vget(id); v.excursions=v.excursions.filter(x=>x.id!==xid); persist(); renderDetail(id); }
+
+function val(id){ const el=document.getElementById(id); return el?el.value:''; }
+
+// ============ ANALYTICS ============
+function renderAnalytics(){
+  const app=document.getElementById('app');
+  if(fleet.length===0){ app.innerHTML='<div class="empty">Ajoute des véhicules pour voir les analyses.</div>'; return; }
+
+  const data=fleet.map(v=>({v,c:conso(v),e:econ(v)}));
+  const op=data.filter(d=>d.v.regime!=='particulier');     // propriété + location (revenus)
+  const part=data.filter(d=>d.v.regime==='particulier');   // affrétés ponctuels (coûts)
+  const revTot=sum(op,d=>d.e.revenus), coutTot=sum(op,d=>d.e.coutTotal), profTot=revTot-coutTot;
+
+  const byConso=[...data].filter(d=>d.c.l100!=null).sort((a,b)=>b.c.l100-a.c.l100);
+  const byProfit=[...op].sort((a,b)=>b.e.profit-a.e.profit);
+  const maxConso=byConso.length?byConso[0].c.l100:1;
+  const maxAbsProfit=Math.max(1,...op.map(d=>Math.abs(d.e.profit)));
+
+  app.innerHTML=`
+    <h2 class="section">📊 Analytics</h2>
+    <div class="kpis">
+      <div class="kpi"><div class="n" style="font-size:20px">${dh(revTot)}</div><div class="l">Revenus excursions</div></div>
+      <div class="kpi"><div class="n" style="font-size:20px">${dh(coutTot)}</div><div class="l">Coûts (propriété+loc.)</div></div>
+      <div class="kpi ${profTot>=0?'good':'bad'}"><div class="n" style="font-size:20px">${dh(profTot)}</div><div class="l">Résultat net</div></div>
+    </div>
+
+    <div class="panel">
+      <h3>⛽ Qui consomme le plus (L/100 km)</h3>
+      ${byConso.length?byConso.map(d=>`
+        <div class="bar-row">
+          <span>${esc(d.v.matricule)}${d.c.abus?' ⚠️':''}</span>
+          <div class="bar-track"><div class="bar ${d.c.abus?'red':'amber'}" style="width:${Math.max(4,d.c.l100/maxConso*100)}%"></div></div>
+          <span style="text-align:right">${d.c.l100.toFixed(1)} L/100</span>
+        </div>`).join(''):'<p class="sub">Pas assez de pleins enregistrés.</p>'}
+      <p class="help">⚠️ = conso supérieure de +${SEUIL}% à la référence saisie (abus / vol de carburant possible).</p>
+    </div>
+
+    <div class="panel">
+      <h3>💰 Qui rentabilise le plus (propriété & location)</h3>
+      ${byProfit.length?byProfit.map(d=>`
+        <div class="bar-row">
+          <span>${esc(d.v.matricule)} <span class="sub">${d.v.regime==='location'?'(loc.)':'(prop.)'}</span></span>
+          <div class="bar-track"><div class="bar ${d.e.profit>=0?'green':'red'}" style="width:${Math.max(4,Math.abs(d.e.profit)/maxAbsProfit*100)}%"></div></div>
+          <span style="text-align:right;color:${d.e.profit>=0?'var(--green)':'var(--red)'}">${dh(d.e.profit)}</span>
+        </div>`).join(''):'<p class="sub">Aucun véhicule en propriété ou location.</p>'}
+    </div>
+
+    ${part.length?`<div class="panel">
+      <h3>🔁 Particuliers : ponctuel ou passer en LLD ?</h3>
+      <table>
+        <thead><tr><th>Matricule</th><th>Excursions</th><th>Total payé</th><th>Coût si LLD</th><th>Verdict</th></tr></thead>
+        <tbody>${part.map(d=>`<tr>
+          <td><b>${esc(d.v.matricule)}</b></td>
+          <td>${d.e.nbExc}</td>
+          <td>${dh(d.e.paiements)}</td>
+          <td>${dh(d.e.coutLLD)}</td>
+          <td>${d.e.verdict==='lld'?'<span style="color:var(--green)">💡 LLD plus avantageux (−'+dh(d.e.ecartLLD)+')</span>'
+              :d.e.verdict==='ponctuel'?'<span style="color:var(--amber)">👍 Garder le ponctuel</span>'
+              :'<span class="sub">à compléter</span>'}</td>
+        </tr>`).join('')}</tbody>
+      </table>
+      <p class="help">Compare ce que tu paies à l'excursion au loyer qu'une LLD équivalente coûterait sur la même période.</p>
+    </div>`:''}
+
+    <div class="panel">
+      <h3>📋 Détail par véhicule</h3>
+      <table>
+        <thead><tr><th>Matricule</th><th>Régime</th><th>État</th><th>Conso</th><th>Revenus</th><th>Coûts</th><th>Résultat</th><th>/ jour</th></tr></thead>
+        <tbody>${data.map(d=>`<tr class="${d.c.abus?'danger':''}">
+          <td><b>${esc(d.v.matricule)}</b></td>
+          <td>${regimeLabelFr(d.v.regime)}</td>
+          <td>${d.v.etat==='service'?'🟢':'🟠'}</td>
+          <td>${d.c.l100!=null?d.c.l100.toFixed(1):'—'}</td>
+          <td>${d.v.regime==='particulier'?'—':dh(d.e.revenus)}</td>
+          <td>${dh(d.e.coutTotal)}</td>
+          <td style="color:${d.e.profit>=0?'var(--green)':'var(--red)'}">${dh(d.e.profit)}</td>
+          <td>${d.e.perDay?dh1(d.e.perDay.profit):'—'}</td>
+        </tr>`).join('')}</tbody>
+      </table>
+    </div>`;
+}
+
+// ============ FORM VÉHICULE ============
+function toggleRegime(val){
+  document.getElementById('propFields').classList.toggle('hidden', val!=='propriete');
+  document.getElementById('locFields').classList.toggle('hidden', val!=='location');
+  document.getElementById('partFields').classList.toggle('hidden', val!=='particulier');
+}
+function openForm(id){
+  const form=document.getElementById('form'); form.reset();
+  const v=id?vget(id):null;
+  document.getElementById('formTitle').textContent=v?'Modifier '+v.matricule:'Nouveau véhicule';
+  document.getElementById('deleteBtn').style.display=v?'inline-block':'none';
+  form.id.value=v?v.id:'';
+  if(v){ for(const el of form.elements){ if(!el.name||el.name==='id')continue; if(v[el.name]!=null)el.value=v[el.name]; } }
+  else { form.regime.value='propriete'; form.etat.value='repos'; form.dureeAmortMois.value=60; }
+  toggleRegime(form.regime.value);
+  document.getElementById('overlay').classList.add('open');
+}
+function closeForm(){ document.getElementById('overlay').classList.remove('open'); }
+function saveVehicle(ev){
+  ev.preventDefault();
+  const form=ev.target; const fd=Object.fromEntries(new FormData(form).entries());
+  const numKeys=['annee','prixAchat','valeurResiduelle','dureeAmortMois','mensualiteFinancement','locationMensuelle','loyerLLDEstime','coutTaxe','coutAssurance','coutVisite','consoRef'];
+  const existing=fd.id?vget(fd.id):null;
+  const v={
+    id:fd.id||uid(),
+    matricule:fd.matricule.trim(),
+    marque:fd.marque.trim()||null, modele:fd.modele.trim()||null,
+    type:fd.type||null, carburant:fd.carburant||null,
+    etat:fd.etat||'repos', regime:fd.regime||'propriete',
+    chauffeurNom:fd.chauffeurNom.trim()||null, chauffeurTel:fd.chauffeurTel.trim()||null, chauffeurContact:fd.chauffeurContact.trim()||null,
+    dateAcquisition:fd.dateAcquisition||null, loueur:fd.loueur.trim()||null, proprietaire:fd.proprietaire.trim()||null,
+    financement:fd.financement||null, leasingFin:fd.leasingFin||null,
+    visiteDebut:fd.visiteDebut||null, visiteFin:fd.visiteFin||null,
+    assuranceDebut:fd.assuranceDebut||null, assuranceFin:fd.assuranceFin||null,
+    taxeDebut:fd.taxeDebut||null, taxeFin:fd.taxeFin||null,
+    vidangeDate:fd.vidangeDate||null, vidangeProchaine:fd.vidangeProchaine||null,
+    notes:fd.notes.trim()||null,
+    fuels:existing?existing.fuels:[], expenses:existing?existing.expenses:[], excursions:existing?existing.excursions:[],
+  };
+  numKeys.forEach(k=>{ v[k]=num(fd[k]); });
+  const idx=fleet.findIndex(x=>x.id===v.id);
+  if(idx>=0) fleet[idx]=v; else fleet.push(v);
+  persist(); closeForm();
+  if(view.tab==='detail') renderDetail(v.id); else sync();
+}
+function deleteCurrent(){
+  const id=document.getElementById('form').id.value; const v=vget(id); if(!v)return;
+  if(!confirm('Supprimer « '+v.matricule+' » et tout son historique ?'))return;
+  fleet=fleet.filter(x=>x.id!==id); persist(); closeForm(); go('fleet');
+}
+
+// ============ SAUVEGARDE ============
+function exportData(){
+  const blob=new Blob([JSON.stringify(fleet,null,2)],{type:'application/json'});
+  const a=document.createElement('a'); a.href=URL.createObjectURL(blob);
+  a.download='parc-roulant-'+today()+'.json'; a.click(); URL.revokeObjectURL(a.href);
+}
+function importData(ev){
+  const file=ev.target.files[0]; if(!file)return;
+  const r=new FileReader();
+  r.onload=()=>{ try{ const d=JSON.parse(r.result); if(!Array.isArray(d))throw 0;
+    if(!confirm('Remplacer les '+fleet.length+' véhicule(s) actuels par les '+d.length+' importés ?'))return;
+    fleet=d.map(migrate); persist(); sync();
+  }catch{ alert('Fichier invalide.'); } };
+  r.readAsText(file); ev.target.value='';
+}
+
+document.getElementById('overlay').addEventListener('click',e=>{ if(e.target.id==='overlay') closeForm(); });
+sync();
+</script>
+</body>
+</html>
