@@ -1,0 +1,293 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>🛂 Centre &amp; Rapatriement — Essai local</title>
+<script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-slate-100 text-slate-800">
+<div id="app" class="mx-auto max-w-6xl px-4 py-6"></div>
+
+<!-- ====================== Modale fiche personne ====================== -->
+<div id="modal" class="fixed inset-0 z-50 hidden items-start justify-center overflow-y-auto bg-black/40 p-4">
+  <div class="my-8 w-full max-w-2xl rounded-lg bg-white p-6 shadow-xl">
+    <h2 id="modal-title" class="mb-4 text-lg font-semibold">Nouvelle personne</h2>
+    <form id="person-form" class="space-y-5">
+      <input type="hidden" name="id" />
+      <div class="grid grid-cols-1 gap-4 sm:grid-cols-2">
+        <label class="block"><span class="mb-1 block text-xs font-medium text-slate-600">Nom</span>
+          <input name="last_name" class="w-full rounded border border-slate-300 px-3 py-2 text-sm" /></label>
+        <label class="block"><span class="mb-1 block text-xs font-medium text-slate-600">Prénom</span>
+          <input name="first_name" class="w-full rounded border border-slate-300 px-3 py-2 text-sm" /></label>
+        <label class="block"><span class="mb-1 block text-xs font-medium text-slate-600">Sexe</span>
+          <select name="sexe" class="w-full rounded border border-slate-300 px-3 py-2 text-sm">
+            <option value="">—</option><option value="M">Masculin</option><option value="F">Féminin</option><option value="autre">Autre</option>
+          </select></label>
+        <label class="block"><span class="mb-1 block text-xs font-medium text-slate-600">Date de naissance</span>
+          <input type="date" name="birth_date" class="w-full rounded border border-slate-300 px-3 py-2 text-sm" /></label>
+        <label class="block"><span class="mb-1 block text-xs font-medium text-slate-600">Nationalité</span>
+          <input name="nationality" class="w-full rounded border border-slate-300 px-3 py-2 text-sm" /></label>
+        <label class="flex items-end gap-2 pb-2 text-sm text-slate-600">
+          <input type="checkbox" name="nationality_presumed" /> Nationalité présumée</label>
+      </div>
+      <div class="grid grid-cols-1 gap-4 sm:grid-cols-3">
+        <label class="block"><span class="mb-1 block text-xs font-medium text-slate-600">Type de document</span>
+          <select name="doc_type" class="w-full rounded border border-slate-300 px-3 py-2 text-sm">
+            <option value="aucun">Aucun document</option><option value="cin">CIN</option>
+            <option value="passeport">Passeport</option><option value="laissez_passer">Laissez-passer</option>
+          </select></label>
+        <label class="block"><span class="mb-1 block text-xs font-medium text-slate-600">N° passeport / document</span>
+          <input name="passport_number" class="w-full rounded border border-slate-300 px-3 py-2 text-sm" /></label>
+        <label class="block"><span class="mb-1 block text-xs font-medium text-slate-600">Pays émetteur</span>
+          <input name="doc_country" class="w-full rounded border border-slate-300 px-3 py-2 text-sm" /></label>
+      </div>
+      <div class="grid grid-cols-1 gap-4 sm:grid-cols-3">
+        <label class="block"><span class="mb-1 block text-xs font-medium text-slate-600">Situation</span>
+          <select name="situation" class="w-full rounded border border-slate-300 px-3 py-2 text-sm">
+            <option value="non_identifie">Non identifié</option><option value="identifie">Identifié</option>
+            <option value="en_investigation">En investigation</option><option value="rapatrie">Rapatrié</option>
+          </select></label>
+        <label class="block"><span class="mb-1 block text-xs font-medium text-slate-600">Entrée au centre</span>
+          <input type="datetime-local" name="entry_at" class="w-full rounded border border-slate-300 px-3 py-2 text-sm" /></label>
+        <label class="block"><span class="mb-1 block text-xs font-medium text-slate-600">Sortie du centre</span>
+          <input type="datetime-local" name="exit_at" class="w-full rounded border border-slate-300 px-3 py-2 text-sm" /></label>
+      </div>
+      <div class="grid grid-cols-1 gap-4 sm:grid-cols-2">
+        <label class="block"><span class="mb-1 block text-xs font-medium text-slate-600">Pays de rapatriement</span>
+          <input name="repatriation_country" class="w-full rounded border border-slate-300 px-3 py-2 text-sm" /></label>
+        <label class="block"><span class="mb-1 block text-xs font-medium text-slate-600">Date de rapatriement</span>
+          <input type="date" name="repatriation_date" class="w-full rounded border border-slate-300 px-3 py-2 text-sm" /></label>
+      </div>
+      <label class="block"><span class="mb-1 block text-xs font-medium text-slate-600">Remarque / observations</span>
+        <textarea name="remark" rows="3" placeholder="Note libre sur la personne, l'investigation, le contexte d'entrée…"
+          class="w-full rounded border border-slate-300 px-3 py-2 text-sm"></textarea></label>
+      <div>
+        <span class="mb-1 block text-xs font-medium text-slate-600">Documents (CIN, passeport, laissez-passer — images/PDF)</span>
+        <input type="file" name="files" multiple accept="image/*,.pdf" class="text-sm" />
+        <div id="existing-docs" class="mt-2 grid grid-cols-3 gap-2 sm:grid-cols-4"></div>
+      </div>
+      <div class="flex gap-3 pt-2">
+        <button type="submit" class="rounded bg-blue-600 px-4 py-2 text-sm font-medium text-white hover:bg-blue-700">Enregistrer</button>
+        <button type="button" id="cancel-btn" class="rounded border border-slate-300 px-4 py-2 text-sm hover:bg-slate-50">Annuler</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<script>
+// ============================================================================
+// Essai local — aucune base externe. Données stockées dans le navigateur
+// (localStorage). Les documents sont encodés en dataURL.
+// ============================================================================
+const STORE_KEY = 'centre-rapatriement:persons'
+const SITUATION_LABEL = { identifie:'Identifié', non_identifie:'Non identifié', en_investigation:'En investigation', rapatrie:'Rapatrié' }
+const SITUATION_STYLE = {
+  identifie:'bg-green-100 text-green-800', non_identifie:'bg-red-100 text-red-800',
+  en_investigation:'bg-amber-100 text-amber-800', rapatrie:'bg-blue-100 text-blue-800',
+}
+const SITUATION_DOT = { identifie:'bg-green-500', non_identifie:'bg-red-500', en_investigation:'bg-amber-500', rapatrie:'bg-blue-500' }
+const DOC_TYPE_LABEL = { cin:'CIN', passeport:'Passeport', laissez_passer:'Laissez-passer', aucun:'Aucun document' }
+
+let persons = load()
+let query = ''
+let filter = 'all'
+
+function load(){ try { return JSON.parse(localStorage.getItem(STORE_KEY)) || [] } catch { return [] } }
+function save(){ localStorage.setItem(STORE_KEY, JSON.stringify(persons)) }
+function uid(){ return (crypto.randomUUID ? crypto.randomUUID() : 'id-'+Date.now()+'-'+Math.random().toString(16).slice(2)) }
+
+function fmtDT(v){ if(!v) return '—'; const d=new Date(v); return isNaN(d)?'—':d.toLocaleString('fr-FR',{day:'2-digit',month:'2-digit',year:'numeric',hour:'2-digit',minute:'2-digit'}) }
+function fmtD(v){ if(!v) return '—'; const d=new Date(v); return isNaN(d)?'—':d.toLocaleDateString('fr-FR',{day:'2-digit',month:'2-digit',year:'numeric'}) }
+function esc(s){ return (s==null?'':String(s)).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;') }
+function sexeShort(s){ return s==='M'?'H':s==='F'?'F':s==='autre'?'Autre':null }
+
+// ----------------------------- Rendu principal -----------------------------
+function render(){
+  const counts = {
+    present: persons.filter(p=>!p.exit_at).length,
+    identifie: persons.filter(p=>p.situation==='identifie').length,
+    non_identifie: persons.filter(p=>p.situation==='non_identifie').length,
+    en_investigation: persons.filter(p=>p.situation==='en_investigation').length,
+    rapatrie: persons.filter(p=>p.situation==='rapatrie').length,
+  }
+  const q = query.trim().toLowerCase()
+  const filtered = persons
+    .filter(p => filter==='all' || p.situation===filter)
+    .filter(p => !q || [p.first_name,p.last_name,p.passport_number,p.nationality,p.remark]
+      .filter(Boolean).some(v => v.toLowerCase().includes(q)))
+    .sort((a,b)=> new Date(b.entry_at||0) - new Date(a.entry_at||0))
+
+  const chip = (val,label)=>`<button onclick="setFilter('${val}')" class="rounded-full px-3 py-1 text-xs font-medium ${filter===val?'bg-slate-800 text-white':'bg-white text-slate-600 ring-1 ring-slate-200 hover:bg-slate-50'}">${label}</button>`
+  const kpi = (label,val,color)=>`<div class="rounded-lg bg-white p-4 shadow"><p class="text-xs text-slate-500">${label}</p><p class="mt-1 text-2xl font-bold ${color}">${val}</p></div>`
+
+  const rows = filtered.length===0
+    ? `<tr><td colspan="6" class="px-4 py-10 text-center text-slate-400">Aucune personne. Clique sur « + Nouvelle personne ».</td></tr>`
+    : filtered.map(p=>`
+      <tr class="cursor-pointer hover:bg-slate-50" onclick="editPerson('${p.id}')">
+        <td class="px-4 py-3">
+          <div class="font-medium text-slate-800">${esc([p.last_name,p.first_name].filter(Boolean).join(' ')||'Inconnu')}</div>
+          <div class="text-xs text-slate-400">${esc([sexeShort(p.sexe), p.nationality?(p.nationality+(p.nationality_presumed?' (présumée)':'')):null].filter(Boolean).join(' · '))}</div>
+        </td>
+        <td class="px-4 py-3"><div class="text-slate-700">${esc(p.passport_number||'—')}</div><div class="text-xs text-slate-400">${DOC_TYPE_LABEL[p.doc_type]||''}</div></td>
+        <td class="max-w-[16rem] px-4 py-3"><span class="block truncate text-slate-600" title="${esc(p.remark||'')}">${esc(p.remark||'—')}</span></td>
+        <td class="px-4 py-3 text-slate-600">${fmtDT(p.entry_at)}</td>
+        <td class="px-4 py-3 text-slate-600">${fmtDT(p.exit_at)}</td>
+        <td class="px-4 py-3"><span class="inline-flex items-center gap-1.5 whitespace-nowrap rounded-full px-2.5 py-0.5 text-xs font-medium ${SITUATION_STYLE[p.situation]}"><span class="inline-block h-1.5 w-1.5 rounded-full ${SITUATION_DOT[p.situation]}"></span>${SITUATION_LABEL[p.situation]}</span>
+          <span class="ml-1 text-xs text-slate-400">${(p.documents&&p.documents.length)?('📎'+p.documents.length):''}</span></td>
+      </tr>`).join('')
+
+  document.getElementById('app').innerHTML = `
+    <header class="mb-6 flex flex-wrap items-center justify-between gap-3">
+      <h1 class="text-xl font-bold text-blue-700">🛂 Centre &amp; Rapatriement <span class="text-xs font-normal text-slate-400">— essai local</span></h1>
+      <div class="flex gap-2">
+        <button onclick="exportCsv()" class="rounded border border-slate-300 px-3 py-2 text-sm hover:bg-slate-50">Export CSV</button>
+        <button onclick="newPerson()" class="rounded bg-blue-600 px-3 py-2 text-sm font-medium text-white hover:bg-blue-700">+ Nouvelle personne</button>
+      </div>
+    </header>
+    <div class="mb-5 grid grid-cols-2 gap-3 sm:grid-cols-4">
+      ${kpi('Présents au centre',counts.present,'text-slate-800')}
+      ${kpi('Identifiés',counts.identifie,'text-green-600')}
+      ${kpi('Non identifiés',counts.non_identifie,'text-red-600')}
+      ${kpi('Rapatriés',counts.rapatrie,'text-blue-600')}
+    </div>
+    <div class="mb-4">
+      <input type="search" value="${esc(query)}" oninput="setQuery(this.value)" placeholder="🔎 Rechercher (nom, n° passeport, nationalité, remarque)…"
+        class="w-full max-w-md rounded border border-slate-300 px-3 py-2 text-sm" />
+    </div>
+    <div class="mb-5 flex flex-wrap gap-2">
+      ${chip('all','Tous ('+persons.length+')')}
+      ${chip('identifie','Identifié ('+counts.identifie+')')}
+      ${chip('non_identifie','Non identifié ('+counts.non_identifie+')')}
+      ${chip('en_investigation','En investigation ('+counts.en_investigation+')')}
+      ${chip('rapatrie','Rapatrié ('+counts.rapatrie+')')}
+    </div>
+    <div class="overflow-x-auto rounded-lg bg-white shadow">
+      <table class="min-w-full divide-y divide-slate-200 text-sm">
+        <thead class="bg-slate-50 text-left text-xs font-semibold uppercase text-slate-500">
+          <tr><th class="px-4 py-3">Personne</th><th class="px-4 py-3">N° passeport / doc</th><th class="px-4 py-3">Remarque</th>
+          <th class="px-4 py-3">Entrée</th><th class="px-4 py-3">Sortie</th><th class="px-4 py-3">Situation</th></tr>
+        </thead>
+        <tbody class="divide-y divide-slate-100">${rows}</tbody>
+      </table>
+    </div>
+    <p class="mt-4 text-xs text-slate-400">Données enregistrées localement dans ce navigateur (localStorage). Essai — non destiné à la production.</p>`
+}
+
+function setQuery(v){ query=v; render() }
+function setFilter(v){ filter=v; render() }
+
+// ------------------------------- Modale -------------------------------------
+const modal = document.getElementById('modal')
+const form = document.getElementById('person-form')
+let editingDocs = []  // documents de la personne en cours d'édition
+
+function openModal(){ modal.classList.remove('hidden'); modal.classList.add('flex') }
+function closeModal(){ modal.classList.add('hidden'); modal.classList.remove('flex'); form.reset(); editingDocs=[] }
+document.getElementById('cancel-btn').onclick = closeModal
+
+function toLocalInput(v){ if(!v) return ''; const d=new Date(v); if(isNaN(d)) return ''; const p=n=>String(n).padStart(2,'0');
+  return `${d.getFullYear()}-${p(d.getMonth()+1)}-${p(d.getDate())}T${p(d.getHours())}:${p(d.getMinutes())}` }
+
+function newPerson(){
+  form.reset(); editingDocs=[]
+  form.id.value = ''
+  form.situation.value = 'non_identifie'
+  form.doc_type.value = 'aucun'
+  form.entry_at.value = toLocalInput(new Date().toISOString())
+  document.getElementById('modal-title').textContent = 'Nouvelle personne'
+  renderExistingDocs()
+  openModal()
+}
+
+function editPerson(id){
+  const p = persons.find(x=>x.id===id); if(!p) return
+  form.id.value = p.id
+  form.last_name.value = p.last_name||''; form.first_name.value = p.first_name||''
+  form.sexe.value = p.sexe||''; form.birth_date.value = p.birth_date||''
+  form.nationality.value = p.nationality||''; form.nationality_presumed.checked = !!p.nationality_presumed
+  form.doc_type.value = p.doc_type||'aucun'; form.passport_number.value = p.passport_number||''
+  form.doc_country.value = p.doc_country||''; form.situation.value = p.situation||'non_identifie'
+  form.entry_at.value = toLocalInput(p.entry_at); form.exit_at.value = toLocalInput(p.exit_at)
+  form.repatriation_country.value = p.repatriation_country||''; form.repatriation_date.value = p.repatriation_date||''
+  form.remark.value = p.remark||''
+  editingDocs = (p.documents||[]).slice()
+  document.getElementById('modal-title').innerHTML = 'Modifier la fiche'
+  renderExistingDocs(true)
+  openModal()
+}
+
+function renderExistingDocs(withDelete){
+  const box = document.getElementById('existing-docs')
+  box.innerHTML = editingDocs.map((d,i)=>{
+    const isImg = (d.mime||'').startsWith('image/')
+    const thumb = isImg ? `<img src="${d.data}" class="h-20 w-full rounded object-cover" />`
+      : `<div class="flex h-20 items-center justify-center rounded bg-slate-100 text-2xl">📄</div>`
+    return `<div class="rounded border border-slate-200 p-1">
+      <a href="${d.data}" target="_blank">${thumb}</a>
+      <div class="mt-1 truncate text-[11px] text-slate-500" title="${esc(d.label)}">${esc(d.label)}</div>
+      ${withDelete?`<button type="button" onclick="removeDoc(${i})" class="text-[11px] text-red-500 hover:underline">Supprimer</button>`:''}
+    </div>`
+  }).join('')
+}
+function removeDoc(i){ editingDocs.splice(i,1); renderExistingDocs(true) }
+
+function readFile(file){ return new Promise((res)=>{ const r=new FileReader(); r.onload=()=>res({ id:uid(), label:file.name, doc_type:form.doc_type.value, mime:file.type, size:file.size, data:r.result }); r.readAsDataURL(file) }) }
+
+form.addEventListener('submit', async (e)=>{
+  e.preventDefault()
+  const fd = new FormData(form)
+  const newFiles = Array.from(form.files.files || [])
+  const uploaded = await Promise.all(newFiles.map(readFile))
+  const docs = editingDocs.concat(uploaded)
+  const data = {
+    last_name:(fd.get('last_name')||'').trim(), first_name:(fd.get('first_name')||'').trim(),
+    sexe:fd.get('sexe')||null, birth_date:fd.get('birth_date')||null,
+    nationality:(fd.get('nationality')||'').trim()||null, nationality_presumed:form.nationality_presumed.checked,
+    doc_type:fd.get('doc_type')||'aucun', passport_number:(fd.get('passport_number')||'').trim()||null,
+    doc_country:(fd.get('doc_country')||'').trim()||null, situation:fd.get('situation')||'non_identifie',
+    entry_at: fd.get('entry_at') ? new Date(fd.get('entry_at')).toISOString() : new Date().toISOString(),
+    exit_at: fd.get('exit_at') ? new Date(fd.get('exit_at')).toISOString() : null,
+    repatriation_country:(fd.get('repatriation_country')||'').trim()||null, repatriation_date:fd.get('repatriation_date')||null,
+    remark:(fd.get('remark')||'').trim()||null, documents:docs,
+  }
+  if(!data.last_name && !data.first_name && !data.remark){ alert('Renseigne au moins le nom, le prénom ou une remarque.'); return }
+  const id = form.id.value
+  if(id){ const i = persons.findIndex(p=>p.id===id); persons[i] = { ...persons[i], ...data } }
+  else { persons.push({ id:uid(), created_at:new Date().toISOString(), ...data }) }
+  save(); closeModal(); render()
+})
+
+// Supprimer (depuis la modale d'édition) — bouton ajouté dynamiquement
+function deletePerson(){
+  const id = form.id.value; if(!id) return
+  if(!confirm('Supprimer définitivement cette personne ?')) return
+  persons = persons.filter(p=>p.id!==id); save(); closeModal(); render()
+}
+
+// ------------------------------- Export CSV ---------------------------------
+function exportCsv(){
+  const H=['Nom','Prénom','Sexe','Naissance','Nationalité','Type doc','N° doc','Pays émetteur','Situation','Entrée','Sortie','Pays rapatriement','Date rapatriement','Remarque']
+  const q=s=>'"'+String(s==null?'':s).replace(/"/g,'""')+'"'
+  const lines=[H.map(q).join(';')]
+  persons.forEach(p=>lines.push([p.last_name,p.first_name,p.sexe||'',fmtD(p.birth_date),
+    (p.nationality||'')+(p.nationality_presumed?' (présumée)':''),DOC_TYPE_LABEL[p.doc_type],p.passport_number||'',p.doc_country||'',
+    SITUATION_LABEL[p.situation],fmtDT(p.entry_at),fmtDT(p.exit_at),p.repatriation_country||'',fmtD(p.repatriation_date),p.remark||''].map(q).join(';')))
+  const blob=new Blob(['﻿'+lines.join('\r\n')],{type:'text/csv;charset=utf-8;'})
+  const a=document.createElement('a'); a.href=URL.createObjectURL(blob); a.download='personnes.csv'; a.click(); URL.revokeObjectURL(a.href)
+}
+
+// Ajoute le bouton « Supprimer » dans la modale d'édition
+const delBtn = document.createElement('button')
+delBtn.type='button'; delBtn.id='delete-btn'; delBtn.textContent='Supprimer'
+delBtn.className='ml-auto rounded border border-red-300 px-4 py-2 text-sm text-red-600 hover:bg-red-50'
+delBtn.onclick = deletePerson
+document.querySelector('#person-form .flex.gap-3').appendChild(delBtn)
+const origNew = newPerson, origEdit = editPerson
+newPerson = function(){ origNew(); delBtn.classList.add('hidden') }
+editPerson = function(id){ origEdit(id); delBtn.classList.remove('hidden') }
+
+render()
+</script>
+</body>
+</html>
