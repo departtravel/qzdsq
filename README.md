@@ -1,57 +1,42 @@
-# 🚚 Gestion de Flotte
+# 🛂 Centre & Rapatriement
 
-Système web complet pour gérer une flotte de véhicules : suivi des échéances
-(vidange, distribution, assurance, visite technique, vignette), historique
-d'entretien, et **détection automatique des surconsommations de gasoil**.
+Application web pour gérer un **service d'investigation et de rapatriement** de
+personnes vers des pays étrangers : suivi des personnes entrées au centre,
+documents d'identité scannés, et classement par situation.
 
 Stack : **React + Vite + TypeScript + Tailwind**, backend **Supabase**
-(Postgres + Auth), logique métier **couverte par des tests**.
+(Postgres + Auth + Storage), avec **rôles & Row Level Security**.
 
 ## Fonctionnalités
 
 - **Authentification** (Supabase) — accès réservé aux comptes connectés.
 - **Rôles & permissions** : `admin` (lecture + écriture) et `viewer` (lecture
-  seule). Les boutons de modification/suppression et les formulaires sont masqués
-  pour les comptes en lecture seule, et l'écriture est bloquée côté base (RLS).
-- **Notifications e-mail** des échéances proches (Supabase Edge Function + cron).
-- **Export PDF** (rapport de flotte + fiche véhicule imprimable).
-- **Fiche véhicule** : matricule, marque/modèle, chauffeur, conso de référence,
-  statut actif/archivé.
-- **Échéances** avec badges de couleur : 🟢 OK · 🟠 bientôt · 🔴 dépassé pour
-  vidange, distribution, assurance, visite technique et vignette.
-  - Vidange & distribution gérées par **date *et* kilométrage** (la plus proche
-    des deux l'emporte).
-- **Journal des pleins** : date, km, litres, prix/montant, plein complet ou non.
-- **Contrôle de consommation** : conso réelle par plein **et** moyenne globale
-  robuste, comparées à la conso normale ; alerte au-delà du seuil (déf. +15 %).
-- **Historique d'entretien** générique (type, km, coût, note).
-- **Tableau de bord** : panneau d'alertes consolidé, recherche, filtre archivés.
-- **Export CSV** (flotte entière + pleins par véhicule), compatible Excel FR.
-- **Export PDF** via la vue d'impression du navigateur (rapport flotte + fiche).
-
-## Comment fonctionne le contrôle de consommation
-
-Méthode **« plein à plein »** : les litres d'un plein couvrent la distance
-parcourue depuis le plein **complet** précédent.
-
-```
-conso réelle (L/100km) = litres ÷ (km actuel − km du plein précédent) × 100
-écart (%)              = (conso réelle − conso normale) ÷ conso normale × 100
-```
-
-Une **moyenne globale** (somme des litres ÷ distance totale) sert d'indicateur
-robuste pour le tableau de bord. Les pleins marqués « partiels » sont exclus du
-calcul segment par segment.
-
-> ⚠️ Saisis le **kilométrage au compteur** à chaque plein : c'est la distance,
-> et non le montant en dirhams, qui révèle une surconsommation (le prix varie).
+  seule). L'écriture est aussi bloquée côté base (RLS).
+- **Fiche personne** :
+  - Nom, prénom, sexe, date de naissance, nationalité (avec indicateur
+    « présumée » pour les cas non confirmés).
+  - **N° de passeport / document** et type de document : CIN, passeport,
+    laissez-passer.
+  - **Documents scannés** : upload de plusieurs fichiers (photos / PDF de la
+    CIN, du passeport, du laissez-passer) — stockés dans un bucket **privé**,
+    affichés via des **URLs signées temporaires**.
+  - **Entrée** et **sortie** du centre (date + heure).
+  - **Remarque / observations** : champ texte libre par personne.
+  - **Rapatriement** : pays de destination et date prévue.
+- **Classement par situation** : `identifié`, `non identifié`,
+  `en investigation`, `rapatrié` — avec badges de couleur et **filtres**.
+- **Tableau de bord** : compteurs (présents au centre, identifiés, non
+  identifiés, rapatriés), recherche (nom, n° passeport, nationalité, remarque).
+- **Export CSV** de la liste (compatible Excel FR).
 
 ## Installation
 
 1. **Dépendances** — `npm install`
 2. **Supabase**
    - Crée un projet sur [supabase.com](https://supabase.com).
-   - *SQL Editor* → exécute [`supabase/schema.sql`](supabase/schema.sql).
+   - *SQL Editor* → exécute [`supabase/schema.sql`](supabase/schema.sql). Le
+     script crée les tables, les politiques RLS **et** le bucket privé
+     `person-documents`.
    - *Authentication → Users* → crée au moins un compte.
    - Promeus ton compte en administrateur (sinon tout le monde est en lecture
      seule) :
@@ -70,25 +55,25 @@ calcul segment par segment.
 | `npm run build`   | Build de production (`dist/`)     |
 | `npm run preview` | Prévisualise le build             |
 | `npm run lint`    | Vérification TypeScript           |
-| `npm test`        | Tests automatisés (Vitest)        |
 
-## Fiabilité & sécurité
+## Confidentialité & sécurité
 
-- **Tests** : la logique d'échéances et de consommation (`src/lib/fleet.ts`)
-  est couverte par `src/lib/fleet.test.ts` — lance `npm test`.
-- **Contraintes base de données** : valeurs positives, unicité des matricules,
-  suppression en cascade de l'historique.
-- **Row Level Security** activée : lecture pour tout utilisateur connecté,
-  écriture réservée aux administrateurs (fonction `is_admin()`).
+Cette application traite des **données personnelles sensibles**. Mesures en
+place :
 
-## Notifications e-mail
+- Accès réservé aux utilisateurs **authentifiés**.
+- **Row Level Security** : lecture pour tout compte connecté, écriture réservée
+  aux administrateurs (fonction `is_admin()`).
+- **Bucket de stockage privé** : les pièces d'identité ne sont jamais publiques,
+  l'accès se fait via des URLs signées à durée limitée.
+- Suppression d'une personne → **suppression en cascade** de ses documents.
 
-Voir [`supabase/functions/README.md`](supabase/functions/README.md) : déploiement
-de la fonction `notify-echeances` (envoi via Resend) et planification quotidienne
-avec `pg_cron`.
+> Veille à respecter la réglementation applicable sur la protection des données
+> (conservation, droit d'accès, etc.) dans ton contexte d'usage.
 
 ## Pistes d'évolution
 
-- Notifications SMS.
-- Graphiques de tendance de consommation.
-- Rôles supplémentaires (ex. gestionnaire par dépôt).
+- Photo d'identité dédiée par personne.
+- Historique des mouvements (plusieurs entrées/sorties).
+- Export PDF d'une fiche imprimable.
+- Journal d'audit des accès aux documents.

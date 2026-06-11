@@ -1,136 +1,186 @@
 import { useMemo, useState } from 'react'
-import type { FuelLog, Vehicle } from '../lib/types'
-import { currentKm, vehicleStatuses, worstSeverity } from '../lib/fleet'
-import { exportFleetCsv } from '../lib/export'
-import { printFleetReport } from '../lib/pdf'
+import type { Person, Situation } from '../lib/types'
+import { DOC_TYPE_LABEL, SITUATION_LABEL } from '../lib/types'
+import { formatDateTime } from '../lib/format'
+import { downloadCsv, personsToCsv } from '../lib/export'
 import { StatusBadge } from './StatusBadge'
-import { RemindersPanel } from './RemindersPanel'
 
 interface Props {
-  vehicles: Vehicle[]
-  logsByVehicle: Record<string, FuelLog[]>
+  persons: Person[]
   isAdmin: boolean
-  onSelect: (v: Vehicle) => void
+  onSelect: (p: Person) => void
   onAdd: () => void
 }
 
-export function Dashboard({ vehicles, logsByVehicle, isAdmin, onSelect, onAdd }: Props) {
-  const [search, setSearch] = useState('')
-  const [showArchived, setShowArchived] = useState(false)
+type Filter = Situation | 'all'
+
+export function Dashboard({ persons, isAdmin, onSelect, onAdd }: Props) {
+  const [query, setQuery] = useState('')
+  const [filter, setFilter] = useState<Filter>('all')
+
+  const counts = useMemo(() => {
+    const present = persons.filter((p) => !p.exit_at).length
+    const bySituation = (s: Situation) => persons.filter((p) => p.situation === s).length
+    return {
+      present,
+      identifie: bySituation('identifie'),
+      non_identifie: bySituation('non_identifie'),
+      en_investigation: bySituation('en_investigation'),
+      rapatrie: bySituation('rapatrie'),
+    }
+  }, [persons])
 
   const filtered = useMemo(() => {
-    const q = search.trim().toLowerCase()
-    return vehicles.filter((v) => {
-      if (!showArchived && !v.actif) return false
-      if (!q) return true
-      return [v.matricule, v.marque, v.modele, v.chauffeur]
-        .filter(Boolean)
-        .some((s) => s!.toLowerCase().includes(q))
-    })
-  }, [vehicles, search, showArchived])
+    const q = query.trim().toLowerCase()
+    return persons
+      .filter((p) => filter === 'all' || p.situation === filter)
+      .filter((p) => {
+        if (!q) return true
+        return [p.first_name, p.last_name, p.passport_number, p.nationality, p.remark]
+          .filter(Boolean)
+          .some((v) => (v as string).toLowerCase().includes(q))
+      })
+  }, [persons, query, filter])
 
-  const activeCount = vehicles.filter((v) => v.actif).length
+  const chips: { value: Filter; label: string }[] = [
+    { value: 'all', label: `Tous (${persons.length})` },
+    { value: 'identifie', label: `${SITUATION_LABEL.identifie} (${counts.identifie})` },
+    { value: 'non_identifie', label: `${SITUATION_LABEL.non_identifie} (${counts.non_identifie})` },
+    {
+      value: 'en_investigation',
+      label: `${SITUATION_LABEL.en_investigation} (${counts.en_investigation})`,
+    },
+    { value: 'rapatrie', label: `${SITUATION_LABEL.rapatrie} (${counts.rapatrie})` },
+  ]
 
   return (
-    <div className="space-y-4">
-      <div className="flex flex-wrap items-center justify-between gap-2">
-        <div>
-          <h2 className="text-2xl font-bold">Tableau de bord</h2>
-          <p className="text-slate-500">
-            {activeCount} véhicule{activeCount > 1 ? 's' : ''} actif{activeCount > 1 ? 's' : ''}
-          </p>
-        </div>
+    <div className="space-y-5">
+      <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
+        <Kpi label="Présents au centre" value={counts.present} color="text-slate-800" />
+        <Kpi label="Identifiés" value={counts.identifie} color="text-green-600" />
+        <Kpi label="Non identifiés" value={counts.non_identifie} color="text-red-600" />
+        <Kpi label="Rapatriés" value={counts.rapatrie} color="text-blue-600" />
+      </div>
+
+      <div className="flex flex-wrap items-center justify-between gap-3">
+        <input
+          type="search"
+          placeholder="🔎 Rechercher (nom, n° passeport, nationalité, remarque)…"
+          value={query}
+          onChange={(e) => setQuery(e.target.value)}
+          className="w-full max-w-md rounded border border-slate-300 px-3 py-2 text-sm"
+        />
         <div className="flex gap-2">
-          {vehicles.length > 0 && (
-            <>
-              <button
-                onClick={() => exportFleetCsv(vehicles, logsByVehicle)}
-                className="rounded border border-slate-300 px-3 py-2 text-sm hover:bg-slate-50"
-              >
-                CSV
-              </button>
-              <button
-                onClick={() => printFleetReport(vehicles, logsByVehicle)}
-                className="rounded border border-slate-300 px-3 py-2 text-sm hover:bg-slate-50"
-              >
-                PDF
-              </button>
-            </>
-          )}
+          <button
+            onClick={() => downloadCsv('personnes.csv', personsToCsv(filtered))}
+            className="rounded border border-slate-300 px-3 py-2 text-sm hover:bg-slate-50"
+          >
+            Export CSV
+          </button>
           {isAdmin && (
             <button
               onClick={onAdd}
-              className="rounded bg-blue-600 px-4 py-2 text-sm font-medium text-white hover:bg-blue-700"
+              className="rounded bg-blue-600 px-3 py-2 text-sm font-medium text-white hover:bg-blue-700"
             >
-              + Ajouter un véhicule
+              + Nouvelle personne
             </button>
           )}
         </div>
       </div>
 
-      <RemindersPanel vehicles={vehicles.filter((v) => v.actif)} logsByVehicle={logsByVehicle} onSelect={onSelect} />
-
-      <div className="flex flex-wrap items-center gap-3">
-        <input
-          value={search}
-          onChange={(e) => setSearch(e.target.value)}
-          placeholder="Rechercher (matricule, marque, chauffeur…)"
-          className="w-full max-w-sm rounded border border-slate-300 px-3 py-2 text-sm"
-        />
-        <label className="flex items-center gap-2 text-sm text-slate-600">
-          <input type="checkbox" checked={showArchived} onChange={(e) => setShowArchived(e.target.checked)} />
-          Afficher les archivés
-        </label>
+      <div className="flex flex-wrap gap-2">
+        {chips.map((c) => (
+          <button
+            key={c.value}
+            onClick={() => setFilter(c.value)}
+            className={`rounded-full px-3 py-1 text-xs font-medium ${
+              filter === c.value
+                ? 'bg-slate-800 text-white'
+                : 'bg-white text-slate-600 ring-1 ring-slate-200 hover:bg-slate-50'
+            }`}
+          >
+            {c.label}
+          </button>
+        ))}
       </div>
 
-      {filtered.length === 0 ? (
-        <div className="rounded-lg border border-dashed border-slate-300 bg-white p-10 text-center text-slate-500">
-          {vehicles.length === 0
-            ? 'Aucun véhicule pour le moment. Clique sur « Ajouter un véhicule » pour commencer.'
-            : 'Aucun véhicule ne correspond à la recherche.'}
-        </div>
-      ) : (
-        <div className="grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-3">
-          {filtered.map((v) => {
-            const logs = logsByVehicle[v.id] ?? []
-            const km = currentKm(logs)
-            const statuses = vehicleStatuses(v, logs)
-            const worst = worstSeverity(statuses)
-            const ring =
-              worst === 'danger'
-                ? 'ring-2 ring-red-300'
-                : worst === 'warn'
-                  ? 'ring-1 ring-amber-300'
-                  : ''
-            return (
-              <button
-                key={v.id}
-                onClick={() => onSelect(v)}
-                className={`rounded-lg bg-white p-4 text-left shadow transition hover:shadow-md ${ring} ${
-                  !v.actif ? 'opacity-60' : ''
-                }`}
-              >
-                <div className="mb-3 flex items-baseline justify-between">
-                  <span className="text-lg font-bold">{v.matricule}</span>
-                  <span className="text-xs text-slate-400">
-                    {[v.marque, v.modele].filter(Boolean).join(' ')}
-                  </span>
-                </div>
-                <div className="grid grid-cols-2 gap-2">
-                  {statuses.map((s) => (
-                    <StatusBadge key={s.label} status={s} />
-                  ))}
-                </div>
-                <p className="mt-3 text-xs text-slate-400">
-                  {v.chauffeur && `👤 ${v.chauffeur}`}
-                  {v.chauffeur && km != null && ' · '}
-                  {km != null && `${km.toLocaleString('fr-FR')} km`}
-                </p>
-              </button>
-            )
-          })}
-        </div>
-      )}
+      <div className="overflow-x-auto rounded-lg bg-white shadow">
+        <table className="min-w-full divide-y divide-slate-200 text-sm">
+          <thead className="bg-slate-50 text-left text-xs font-semibold uppercase text-slate-500">
+            <tr>
+              <th className="px-4 py-3">Personne</th>
+              <th className="px-4 py-3">N° passeport / doc</th>
+              <th className="px-4 py-3">Remarque</th>
+              <th className="px-4 py-3">Entrée</th>
+              <th className="px-4 py-3">Sortie</th>
+              <th className="px-4 py-3">Situation</th>
+            </tr>
+          </thead>
+          <tbody className="divide-y divide-slate-100">
+            {filtered.length === 0 ? (
+              <tr>
+                <td colSpan={6} className="px-4 py-10 text-center text-slate-400">
+                  Aucune personne ne correspond.
+                </td>
+              </tr>
+            ) : (
+              filtered.map((p) => (
+                <tr
+                  key={p.id}
+                  onClick={() => onSelect(p)}
+                  className="cursor-pointer hover:bg-slate-50"
+                >
+                  <td className="px-4 py-3">
+                    <div className="font-medium text-slate-800">
+                      {[p.last_name, p.first_name].filter(Boolean).join(' ') || 'Inconnu'}
+                    </div>
+                    <div className="text-xs text-slate-400">
+                      {[
+                        sexeShort(p.sexe),
+                        p.nationality
+                          ? `${p.nationality}${p.nationality_presumed ? ' (présumée)' : ''}`
+                          : null,
+                      ]
+                        .filter(Boolean)
+                        .join(' · ')}
+                    </div>
+                  </td>
+                  <td className="px-4 py-3">
+                    <div className="text-slate-700">{p.passport_number ?? '—'}</div>
+                    <div className="text-xs text-slate-400">{DOC_TYPE_LABEL[p.doc_type]}</div>
+                  </td>
+                  <td className="max-w-[16rem] px-4 py-3">
+                    <span className="line-clamp-2 text-slate-600" title={p.remark ?? ''}>
+                      {p.remark || '—'}
+                    </span>
+                  </td>
+                  <td className="px-4 py-3 text-slate-600">{formatDateTime(p.entry_at)}</td>
+                  <td className="px-4 py-3 text-slate-600">{formatDateTime(p.exit_at)}</td>
+                  <td className="px-4 py-3">
+                    <StatusBadge situation={p.situation} />
+                  </td>
+                </tr>
+              ))
+            )}
+          </tbody>
+        </table>
+      </div>
     </div>
   )
+}
+
+function Kpi({ label, value, color }: { label: string; value: number; color: string }) {
+  return (
+    <div className="rounded-lg bg-white p-4 shadow">
+      <p className="text-xs text-slate-500">{label}</p>
+      <p className={`mt-1 text-2xl font-bold ${color}`}>{value}</p>
+    </div>
+  )
+}
+
+function sexeShort(sexe: Person['sexe']): string | null {
+  if (sexe === 'M') return 'H'
+  if (sexe === 'F') return 'F'
+  if (sexe === 'autre') return 'Autre'
+  return null
 }

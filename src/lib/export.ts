@@ -1,17 +1,55 @@
-import type { FuelLog, Vehicle } from './types'
-import { consumptionSummary, currentKm } from './fleet'
+import { DOC_TYPE_LABEL, SITUATION_LABEL, type Person } from './types'
+import { formatDate, formatDateTime } from './format'
 
-function escapeCsv(value: unknown): string {
+/** Échappe un champ pour le CSV (compatible Excel FR : séparateur ;). */
+function esc(value: string | number | null | undefined): string {
   const s = value == null ? '' : String(value)
-  return /[",;\n]/.test(s) ? `"${s.replace(/"/g, '""')}"` : s
+  return `"${s.replace(/"/g, '""')}"`
 }
 
-function toCsv(rows: (string | number | null)[][]): string {
-  // Séparateur ';' pour une ouverture directe dans Excel FR.
-  return rows.map((r) => r.map(escapeCsv).join(';')).join('\n')
+const HEADERS = [
+  'Nom',
+  'Prénom',
+  'Sexe',
+  'Date de naissance',
+  'Nationalité',
+  'Type de document',
+  'N° passeport / document',
+  'Pays émetteur',
+  'Situation',
+  'Entrée',
+  'Sortie',
+  'Pays de rapatriement',
+  'Date de rapatriement',
+  'Remarque',
+]
+
+export function personsToCsv(persons: Person[]): string {
+  const rows = persons.map((p) =>
+    [
+      p.last_name,
+      p.first_name,
+      p.sexe ?? '',
+      formatDate(p.birth_date),
+      `${p.nationality ?? ''}${p.nationality_presumed ? ' (présumée)' : ''}`,
+      DOC_TYPE_LABEL[p.doc_type],
+      p.passport_number ?? '',
+      p.doc_country ?? '',
+      SITUATION_LABEL[p.situation],
+      formatDateTime(p.entry_at),
+      formatDateTime(p.exit_at),
+      p.repatriation_country ?? '',
+      formatDate(p.repatriation_date),
+      p.remark ?? '',
+    ]
+      .map(esc)
+      .join(';'),
+  )
+  return [HEADERS.map(esc).join(';'), ...rows].join('\r\n')
 }
 
-function download(filename: string, content: string) {
+export function downloadCsv(filename: string, content: string): void {
+  // BOM pour qu'Excel reconnaisse l'UTF-8.
   const blob = new Blob(['﻿' + content], { type: 'text/csv;charset=utf-8;' })
   const url = URL.createObjectURL(blob)
   const a = document.createElement('a')
@@ -19,37 +57,4 @@ function download(filename: string, content: string) {
   a.download = filename
   a.click()
   URL.revokeObjectURL(url)
-}
-
-export function exportFleetCsv(
-  vehicles: Vehicle[],
-  logsByVehicle: Record<string, FuelLog[]>,
-) {
-  const header = [
-    'Matricule', 'Marque', 'Modèle', 'Chauffeur', 'km actuel',
-    'Conso normale (L/100)', 'Conso réelle', 'Vidange', 'Distribution',
-    'Assurance', 'Visite technique', 'Vignette',
-  ]
-  const rows = vehicles.map((v) => {
-    const logs = logsByVehicle[v.id] ?? []
-    return [
-      v.matricule, v.marque, v.modele, v.chauffeur, currentKm(logs),
-      v.conso_normale, consumptionSummary(v, logs).detail,
-      v.date_vidange, v.date_distribution, v.date_assurance,
-      v.date_visite_technique, v.date_vignette,
-    ]
-  })
-  const date = new Date().toISOString().slice(0, 10)
-  download(`flotte_${date}.csv`, toCsv([header, ...rows]))
-}
-
-export function exportFuelLogsCsv(vehicle: Vehicle, logs: FuelLog[]) {
-  const header = ['Date', 'km', 'Litres', 'Prix/L', 'Montant', 'Plein complet', 'Note']
-  const rows = [...logs]
-    .sort((a, b) => a.km - b.km)
-    .map((l) => [
-      l.date, l.km, l.litres, l.prix_litre, l.montant,
-      l.plein_complet ? 'oui' : 'non', l.note,
-    ])
-  download(`pleins_${vehicle.matricule}.csv`, toCsv([header, ...rows]))
 }

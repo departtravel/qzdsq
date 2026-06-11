@@ -1,27 +1,26 @@
-import type { DeadlineStatus, Severity } from '../lib/fleet'
+import { SITUATION_LABEL, type Situation } from '../lib/types'
 
-const styles: Record<Severity, string> = {
-  ok: 'bg-green-100 text-green-800 border-green-200',
-  warn: 'bg-amber-100 text-amber-800 border-amber-200',
-  danger: 'bg-red-100 text-red-800 border-red-200',
-  unknown: 'bg-slate-100 text-slate-500 border-slate-200',
+const styles: Record<Situation, string> = {
+  identifie: 'bg-green-100 text-green-800 border-green-200',
+  non_identifie: 'bg-red-100 text-red-800 border-red-200',
+  en_investigation: 'bg-amber-100 text-amber-800 border-amber-200',
+  rapatrie: 'bg-blue-100 text-blue-800 border-blue-200',
 }
 
-const dot: Record<Severity, string> = {
-  ok: 'bg-green-500',
-  warn: 'bg-amber-500',
-  danger: 'bg-red-500',
-  unknown: 'bg-slate-400',
+const dot: Record<Situation, string> = {
+  identifie: 'bg-green-500',
+  non_identifie: 'bg-red-500',
+  en_investigation: 'bg-amber-500',
+  rapatrie: 'bg-blue-500',
 }
 
-export function StatusBadge({ status }: { status: DeadlineStatus }) {
+export function StatusBadge({ situation }: { situation: Situation }) {
   return (
-    <div className={`rounded-lg border px-3 py-2 text-sm ${styles[status.severity]}`}>
-      <div className="flex items-center gap-2 font-medium">
-        <span className={`inline-block h-2 w-2 rounded-full ${dot[status.severity]}`} />
-        {status.label}
-      </div>
-      <div className="mt-0.5 text-xs opacity-90">{status.detail}</div>
-    </div>
+    <span
+      className={`inline-flex items-center gap-1.5 whitespace-nowrap rounded-full border px-2.5 py-0.5 text-xs font-medium ${styles[situation]}`}
+    >
+      <span className={`inline-block h-1.5 w-1.5 rounded-full ${dot[situation]}`} />
+      {SITUATION_LABEL[situation]}
+    </span>
   )
 }

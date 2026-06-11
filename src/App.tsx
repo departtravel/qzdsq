@@ -1,13 +1,20 @@
 import { useCallback, useEffect, useState } from 'react'
 import type { Session } from '@supabase/supabase-js'
 import { isSupabaseConfigured, supabase } from './lib/supabase'
-import type { FuelLog, Role, Vehicle, VehicleInput } from './lib/types'
+import type { Person, PersonInput, Role } from './lib/types'
+import { uploadDocument } from './lib/storage'
 import { Dashboard } from './components/Dashboard'
-import { VehicleDetail } from './components/VehicleDetail'
-import { VehicleForm } from './components/VehicleForm'
+import { PersonDetail } from './components/PersonDetail'
+import { PersonForm } from './components/PersonForm'
 import { Login } from './components/Login'
 
-type View = { name: 'dashboard' } | { name: 'detail'; id: string } | { name: 'new' }
+const APP_NAME = '🛂 Centre & Rapatriement'
+
+type View =
+  | { name: 'dashboard' }
+  | { name: 'detail'; id: string }
+  | { name: 'new' }
+  | { name: 'edit'; id: string }
 
 export default function App() {
   const [session, setSession] = useState<Session | null>(null)
@@ -26,12 +33,11 @@ export default function App() {
   if (!isSupabaseConfigured) return <ConfigNotice />
   if (!authReady) return <Centered>Chargement…</Centered>
   if (!session) return <Login />
-  return <FleetApp userId={session.user.id} email={session.user.email ?? ''} />
+  return <CenterApp email={session.user.email ?? ''} userId={session.user.id} />
 }
 
-function FleetApp({ userId, email }: { userId: string; email: string }) {
-  const [vehicles, setVehicles] = useState<Vehicle[]>([])
-  const [logsByVehicle, setLogsByVehicle] = useState<Record<string, FuelLog[]>>({})
+function CenterApp({ email, userId }: { email: string; userId: string }) {
+  const [persons, setPersons] = useState<Person[]>([])
   const [role, setRole] = useState<Role>('viewer')
   const [view, setView] = useState<View>({ name: 'dashboard' })
   const [loading, setLoading] = useState(true)
@@ -53,17 +59,12 @@ function FleetApp({ userId, email }: { userId: string; email: string }) {
   const load = useCallback(async () => {
     setLoading(true)
     setError(null)
-    const [vRes, lRes] = await Promise.all([
-      supabase.from('vehicles').select('*').order('matricule'),
-      supabase.from('fuel_logs').select('*'),
-    ])
-    if (vRes.error) setError(vRes.error.message)
-    setVehicles((vRes.data as Vehicle[]) ?? [])
-    const grouped: Record<string, FuelLog[]> = {}
-    for (const log of (lRes.data as FuelLog[]) ?? []) {
-      ;(grouped[log.vehicle_id] ??= []).push(log)
-    }
-    setLogsByVehicle(grouped)
+    const { data, error } = await supabase
+      .from('persons')
+      .select('*')
+      .order('entry_at', { ascending: false })
+    if (error) setError(error.message)
+    setPersons((data as Person[]) ?? [])
     setLoading(false)
   }, [])
 
@@ -71,22 +72,52 @@ function FleetApp({ userId, email }: { userId: string; email: string }) {
     load()
   }, [load])
 
-  async function createVehicle(input: VehicleInput) {
-    const { error } = await supabase.from('vehicles').insert(input)
-    if (error) throw new Error(error.message)
-    await load()
-    setView({ name: 'dashboard' })
+  async function uploadFiles(personId: string, files: File[], docType: PersonInput['doc_type']) {
+    for (const file of files) {
+      const path = await uploadDocument(personId, file)
+      const { error } = await supabase.from('person_documents').insert({
+        person_id: personId,
+        label: file.name,
+        doc_type: docType,
+        storage_path: path,
+        mime: file.type || null,
+        size_bytes: file.size,
+      })
+      if (error) throw new Error(error.message)
+    }
   }
 
-  const selected =
-    view.name === 'detail' ? vehicles.find((v) => v.id === view.id) ?? null : null
+  async function createPerson(input: PersonInput, files: File[]) {
+    const { data, error } = await supabase.from('persons').insert(input).select('id').single()
+    if (error) throw new Error(error.message)
+    const personId = (data as { id: string }).id
+    await uploadFiles(personId, files, input.doc_type)
+    await load()
+    setView({ name: 'detail', id: personId })
+  }
+
+  async function updatePerson(id: string, input: PersonInput, files: File[]) {
+    const { error } = await supabase.from('persons').update(input).eq('id', id)
+    if (error) throw new Error(error.message)
+    await uploadFiles(id, files, input.doc_type)
+    await load()
+    setView({ name: 'detail', id })
+  }
+
+  const current =
+    view.name === 'detail' || view.name === 'edit'
+      ? persons.find((p) => p.id === view.id) ?? null
+      : null
 
   return (
     <div className="min-h-screen">
       <header className="border-b bg-white">
         <div className="mx-auto flex max-w-6xl items-center justify-between gap-2 px-4 py-3">
-          <button onClick={() => setView({ name: 'dashboard' })} className="text-lg font-bold text-blue-700">
-            🚚 Gestion de Flotte
+          <button
+            onClick={() => setView({ name: 'dashboard' })}
+            className="text-lg font-bold text-blue-700"
+          >
+            {APP_NAME}
           </button>
           <div className="flex items-center gap-3 text-sm text-slate-500">
             <span className="hidden items-center gap-2 sm:flex">
@@ -99,7 +130,10 @@ function FleetApp({ userId, email }: { userId: string; email: string }) {
                 {isAdmin ? 'Admin' : 'Lecture seule'}
               </span>
             </span>
-            <button onClick={() => supabase.auth.signOut()} className="rounded border border-slate-300 px-3 py-1.5 hover:bg-slate-50">
+            <button
+              onClick={() => supabase.auth.signOut()}
+              className="rounded border border-slate-300 px-3 py-1.5 hover:bg-slate-50"
+            >
               Déconnexion
             </button>
           </div>
@@ -117,22 +151,31 @@ function FleetApp({ userId, email }: { userId: string; email: string }) {
           <p className="text-slate-500">Chargement…</p>
         ) : view.name === 'new' && isAdmin ? (
           <div className="rounded-lg bg-white p-6 shadow">
-            <h2 className="mb-4 text-lg font-semibold">Nouveau véhicule</h2>
-            <VehicleForm onSave={createVehicle} onCancel={() => setView({ name: 'dashboard' })} />
+            <h2 className="mb-4 text-lg font-semibold">Nouvelle personne</h2>
+            <PersonForm onSave={createPerson} onCancel={() => setView({ name: 'dashboard' })} />
           </div>
-        ) : view.name === 'detail' && selected ? (
-          <VehicleDetail
-            vehicle={selected}
+        ) : view.name === 'edit' && current && isAdmin ? (
+          <div className="rounded-lg bg-white p-6 shadow">
+            <h2 className="mb-4 text-lg font-semibold">Modifier la fiche</h2>
+            <PersonForm
+              initial={current}
+              onSave={(input, files) => updatePerson(current.id, input, files)}
+              onCancel={() => setView({ name: 'detail', id: current.id })}
+            />
+          </div>
+        ) : view.name === 'detail' && current ? (
+          <PersonDetail
+            person={current}
             isAdmin={isAdmin}
             onBack={() => setView({ name: 'dashboard' })}
+            onEdit={() => setView({ name: 'edit', id: current.id })}
             onChanged={load}
           />
         ) : (
           <Dashboard
-            vehicles={vehicles}
-            logsByVehicle={logsByVehicle}
+            persons={persons}
             isAdmin={isAdmin}
-            onSelect={(v) => setView({ name: 'detail', id: v.id })}
+            onSelect={(p) => setView({ name: 'detail', id: p.id })}
             onAdd={() => setView({ name: 'new' })}
           />
         )}
@@ -142,7 +185,9 @@ function FleetApp({ userId, email }: { userId: string; email: string }) {
 }
 
 function Centered({ children }: { children: React.ReactNode }) {
-  return <div className="flex min-h-screen items-center justify-center text-slate-500">{children}</div>
+  return (
+    <div className="flex min-h-screen items-center justify-center text-slate-500">{children}</div>
+  )
 }
 
 function ConfigNotice() {
@@ -166,13 +211,18 @@ function ConfigNotice() {
             <code className="rounded bg-amber-100 px-1">supabase/schema.sql</code>.
           </li>
           <li>
+            Vérifie que le bucket privé{' '}
+            <code className="rounded bg-amber-100 px-1">person-documents</code> existe (créé par le
+            script).
+          </li>
+          <li>
             Dans <strong>Authentication → Users</strong>, crée au moins un compte.
           </li>
           <li>
             Copie <code className="rounded bg-amber-100 px-1">.env.example</code> en{' '}
             <code className="rounded bg-amber-100 px-1">.env</code> et renseigne{' '}
             <code className="rounded bg-amber-100 px-1">VITE_SUPABASE_URL</code> et{' '}
-            <code className="rounded bg-amber-100 px-1">VITE_SUPABASE_ANON_KEY</code> (Settings → API).
+            <code className="rounded bg-amber-100 px-1">VITE_SUPABASE_ANON_KEY</code>.
           </li>
           <li>
             Relance <code className="rounded bg-amber-100 px-1">npm run dev</code>.
