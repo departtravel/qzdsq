@@ -136,17 +136,22 @@
 - **Assurance responsabilité civile pro** ; pour l'international viser **min. 1 M$** (exigence type ADMEI / Viator pour produits à risque).
 - Optionnel mais différenciant : **adhésion ADMEI** (association mondiale des DMC, ~945 $/an), label tourisme durable (très valorisé par Evaneos/TravelLocal).
 
-### 4.4 Salons B2B où exposer / prospecter
-| Salon | Lieu | Période type | Intérêt pour vous |
+### 4.4 Salons B2B où exposer / prospecter (dates confirmées)
+| Salon | Lieu | Dates | Intérêt pour vous |
 |---|---|---|---|
-| **ITB Berlin** | Berlin | début mars | ⭐⭐⭐ n°1 mondial B2B — marché DE/Est |
-| **IFTM Top Resa** | Paris | fin sept. | ⭐⭐⭐ marché FR (votre n°1) |
-| **WTM London** | Londres | début nov. | ⭐⭐ marché UK |
-| **FITUR** | Madrid | fin janvier | ⭐⭐ marché hispano (synergie Civitatis) |
-| **ILTM** | Cannes | début déc. | ⭐ si vous visez le luxe |
-| **Roadshows ONTT / workshops Tunisie** | variable | — | ⭐⭐ networking local + TO invités |
+| **IFTM Top Resa** | Paris, Porte de Versailles | **15-17 sept. 2026** | ⭐⭐⭐ marché FR (votre n°1) — **priorité absolue** |
+| **WTM London** | Londres, ExCeL | **3-5 nov. 2026** | ⭐⭐ marché UK (easyJet/TUI en croissance) |
+| **FITUR** | Madrid, IFEMA | **20-24 janv. 2027** | ⭐⭐ marché hispano (synergie Civitatis) |
+| **ITB Berlin** | Berlin | **16-18 mars 2027** | ⭐⭐⭐ n°1 mondial B2B — marché DE/Est, pavillon Tunisie ONTT |
+| **ILTM** | Cannes | début déc. (à confirmer) | ⭐ si positionnement luxe |
+| **Roadshows / workshops ONTT** | variable | — | ⭐⭐ networking local + TO invités |
 
-> Conseil : commencez par **visiter** ITB et IFTM en 2026 (badge visiteur, RDV pré-bookés via la plateforme du salon), puis **exposez** en 2027 sur un stand collectif ONTT/FTAV (coût partagé).
+> Conseil : commencez par **visiter IFTM Paris (sept. 2026)** puis **ITB Berlin (mars 2027)** — badge visiteur, RDV pré-bookés via la plateforme du salon — puis **exposez** sur le **pavillon collectif ONTT/FTAV** (bien moins cher qu'un stand isolé). Alignez-vous sur le programme **« Sustainable Tunisia – Human First »** (ONTT/GSTC, lancé juin 2026) : une **certification durable devient un prérequis contractuel** chez Evaneos, TravelLocal et les grands TO → vrai différenciateur B2B.
+
+### 4.5 ⚡ Opportunité post-faillite FTI (à saisir vite)
+La faillite de **FTI (juin 2024, ex-n°3 européen)** a libéré un gros volume Allemagne/Pologne. Ce volume a été **absorbé par Coral Travel/Ferien, Schauinsland, TUI et Anex**, qui **contractent activement des services au sol en Tunisie** en ce moment. Ce sont vos **cibles les plus chaudes** pour un premier contrat réceptif.
+
+> ⚠️ Exigences d'assurance des TO (checklist crédibilité) : la plupart demandent une **RC pro/E&O de 2 à 5 M$ par sinistre**, certificat d'assurance à jour, statut « additional insured », pour vous **et vos sous-traitants**. Prévoyez aussi : licence cat. A, FTAV, comptes audités, références bancaires, capacité à accorder des **délais de paiement 30-60 j**, assistance 24/7 et guides multilingues (FR/EN/DE/PL/IT).
 
 ---
 
