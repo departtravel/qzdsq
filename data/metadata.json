@@ -1,0 +1,1256 @@
+{
+ "description": "البيانات الوصفية للسور والآيات",
+ "sajdas": [
+  {
+   "sajda": 1,
+   "chapter": 7,
+   "verse": 206,
+   "recommended": true,
+   "obligatory": false
+  },
+  {
+   "sajda": 2,
+   "chapter": 13,
+   "verse": 15,
+   "recommended": true,
+   "obligatory": false
+  },
+  {
+   "sajda": 3,
+   "chapter": 16,
+   "verse": 50,
+   "recommended": true,
+   "obligatory": false
+  },
+  {
+   "sajda": 4,
+   "chapter": 17,
+   "verse": 109,
+   "recommended": true,
+   "obligatory": false
+  },
+  {
+   "sajda": 5,
+   "chapter": 19,
+   "verse": 58,
+   "recommended": true,
+   "obligatory": false
+  },
+  {
+   "sajda": 6,
+   "chapter": 22,
+   "verse": 18,
+   "recommended": true,
+   "obligatory": false
+  },
+  {
+   "sajda": 7,
+   "chapter": 22,
+   "verse": 77,
+   "recommended": true,
+   "obligatory": false
+  },
+  {
+   "sajda": 8,
+   "chapter": 25,
+   "verse": 60,
+   "recommended": true,
+   "obligatory": false
+  },
+  {
+   "sajda": 9,
+   "chapter": 27,
+   "verse": 26,
+   "recommended": true,
+   "obligatory": false
+  },
+  {
+   "sajda": 10,
+   "chapter": 32,
+   "verse": 15,
+   "recommended": false,
+   "obligatory": true
+  },
+  {
+   "sajda": 11,
+   "chapter": 38,
+   "verse": 24,
+   "recommended": true,
+   "obligatory": false
+  },
+  {
+   "sajda": 12,
+   "chapter": 41,
+   "verse": 38,
+   "recommended": false,
+   "obligatory": true
+  },
+  {
+   "sajda": 13,
+   "chapter": 53,
+   "verse": 62,
+   "recommended": false,
+   "obligatory": true
+  },
+  {
+   "sajda": 14,
+   "chapter": 84,
+   "verse": 21,
+   "recommended": true,
+   "obligatory": false
+  },
+  {
+   "sajda": 15,
+   "chapter": 96,
+   "verse": 19,
+   "recommended": false,
+   "obligatory": true
+  }
+ ],
+ "juz_count": 30,
+ "pages_count": 604,
+ "chapters": {
+  "1": {
+   "name_en": "The Opening",
+   "name_ar": "سُوْرَةُ الْفَاتِحَةِ",
+   "revelation": "Mecca"
+  },
+  "2": {
+   "name_en": "The Cow",
+   "name_ar": "سُوْرَةُ البَقَرَةِ",
+   "revelation": "Madina"
+  },
+  "3": {
+   "name_en": "The Family of Imraan",
+   "name_ar": "سُوْرَةُ اٰلِ عِمْرٰنَ",
+   "revelation": "Madina"
+  },
+  "4": {
+   "name_en": "The Women",
+   "name_ar": "سُوْرَةُ النِّسَآءِ",
+   "revelation": "Madina"
+  },
+  "5": {
+   "name_en": "The Table",
+   "name_ar": "سُوْرَةُ المَآئِدَةِ",
+   "revelation": "Madina"
+  },
+  "6": {
+   "name_en": "The Cattle",
+   "name_ar": "سُوْرَةُ الْاَنْعَامِ",
+   "revelation": "Mecca"
+  },
+  "7": {
+   "name_en": "The Heights",
+   "name_ar": "سُوْرَةُ الْاَعْرَافِ",
+   "revelation": "Mecca"
+  },
+  "8": {
+   "name_en": "The Spoils of War",
+   "name_ar": "سُوْرَةُ الْاَنْفَالِ",
+   "revelation": "Madina"
+  },
+  "9": {
+   "name_en": "The Repentance",
+   "name_ar": "سُوْرَةُ التَّوْبَةِ",
+   "revelation": "Madina"
+  },
+  "10": {
+   "name_en": "Jonas",
+   "name_ar": "سُوْرَةُ يُوْنُسَ",
+   "revelation": "Mecca"
+  },
+  "11": {
+   "name_en": "Hud",
+   "name_ar": "سُوْرَةُ هُوْدٍ",
+   "revelation": "Mecca"
+  },
+  "12": {
+   "name_en": "Joseph",
+   "name_ar": "سُوْرَةُ يُوسُفَ",
+   "revelation": "Mecca"
+  },
+  "13": {
+   "name_en": "The Thunder",
+   "name_ar": "سُوْرَةُ الرَّعْدِ",
+   "revelation": "Madina"
+  },
+  "14": {
+   "name_en": "Abraham",
+   "name_ar": "سُوْرَةُ اِبْرَاهِيْمَ",
+   "revelation": "Mecca"
+  },
+  "15": {
+   "name_en": "The Rock",
+   "name_ar": "سُوْرَةُ الْحِجْرِ",
+   "revelation": "Mecca"
+  },
+  "16": {
+   "name_en": "The Bee",
+   "name_ar": "سُوْرَةُ النَّحْلِ",
+   "revelation": "Mecca"
+  },
+  "17": {
+   "name_en": "The Night Journey",
+   "name_ar": "سُوْرَةُ الإِسۡرَاءِ",
+   "revelation": "Mecca"
+  },
+  "18": {
+   "name_en": "The Cave",
+   "name_ar": "سُوْرَةُ الْكَهْفِ",
+   "revelation": "Mecca"
+  },
+  "19": {
+   "name_en": "Mary",
+   "name_ar": "سُوْرَةُ مَرْيَمَ",
+   "revelation": "Mecca"
+  },
+  "20": {
+   "name_en": "Taa-Haa",
+   "name_ar": "سُوْرَةُ طٰهٰ",
+   "revelation": "Mecca"
+  },
+  "21": {
+   "name_en": "The Prophets",
+   "name_ar": "سُوْرَةُ الْاَنْۣبِيَآءِ",
+   "revelation": "Mecca"
+  },
+  "22": {
+   "name_en": "The Pilgrimage",
+   "name_ar": "سُوْرَةُ الْحَجِّ",
+   "revelation": "Madina"
+  },
+  "23": {
+   "name_en": "The Believers",
+   "name_ar": "سُوْرَةُ الْمُؤْمِنُوْنَ",
+   "revelation": "Mecca"
+  },
+  "24": {
+   "name_en": "The Light",
+   "name_ar": "سُوْرَةُ النُّوْرِ",
+   "revelation": "Madina"
+  },
+  "25": {
+   "name_en": "The Criterion",
+   "name_ar": "سُوْرَةُ الْفُرْقَانِ",
+   "revelation": "Mecca"
+  },
+  "26": {
+   "name_en": "The Poets",
+   "name_ar": "سُوْرَةُ الشُّعَرَآءِ",
+   "revelation": "Mecca"
+  },
+  "27": {
+   "name_en": "The Ant",
+   "name_ar": "سُوْرَةُ النَّمْلِ",
+   "revelation": "Mecca"
+  },
+  "28": {
+   "name_en": "The Stories",
+   "name_ar": "سُوْرَةُ الْقَصَصِ",
+   "revelation": "Mecca"
+  },
+  "29": {
+   "name_en": "The Spider",
+   "name_ar": "سُوْرَةُ الْعَنْكَبُوْتِ",
+   "revelation": "Mecca"
+  },
+  "30": {
+   "name_en": "The Romans",
+   "name_ar": "سُوْرَةُ الرُّوْمِ",
+   "revelation": "Mecca"
+  },
+  "31": {
+   "name_en": "Luqman",
+   "name_ar": "سُوْرَةُ لُقْمَانَ",
+   "revelation": "Mecca"
+  },
+  "32": {
+   "name_en": "The Prostration",
+   "name_ar": "سُوْرَةُ السَّجْدَةِ",
+   "revelation": "Mecca"
+  },
+  "33": {
+   "name_en": "The Clans",
+   "name_ar": "سُوْرَةُ الْاَحْزَابِ",
+   "revelation": "Madina"
+  },
+  "34": {
+   "name_en": "Sheba",
+   "name_ar": "سُوْرَةُ سَبَاٍ",
+   "revelation": "Mecca"
+  },
+  "35": {
+   "name_en": "The Originator",
+   "name_ar": "سُوْرَةُ فَاطِرٍ",
+   "revelation": "Mecca"
+  },
+  "36": {
+   "name_en": "Yaseen",
+   "name_ar": "سُوْرَةُ يٰسٓ",
+   "revelation": "Mecca"
+  },
+  "37": {
+   "name_en": "Those drawn up in Ranks",
+   "name_ar": "سُوْرَةُ الصَّافَّاتِ",
+   "revelation": "Mecca"
+  },
+  "38": {
+   "name_en": "The letter Saad",
+   "name_ar": "سُوْرَةُ صٓ",
+   "revelation": "Mecca"
+  },
+  "39": {
+   "name_en": "The Groups",
+   "name_ar": "سُوْرَةُ الزُّمَرِ",
+   "revelation": "Mecca"
+  },
+  "40": {
+   "name_en": "The Forgiver",
+   "name_ar": "سُوْرَةُ الْمُؤْمِنِ",
+   "revelation": "Mecca"
+  },
+  "41": {
+   "name_en": "Explained in detail",
+   "name_ar": "سُوْرَةُ فُصِّلَتۡ",
+   "revelation": "Mecca"
+  },
+  "42": {
+   "name_en": "Consultation",
+   "name_ar": "سُوْرَةُ الشُّوْرٰي",
+   "revelation": "Mecca"
+  },
+  "43": {
+   "name_en": "Ornaments of gold",
+   "name_ar": "سُوْرَةُ الزُّخْرُفِ",
+   "revelation": "Mecca"
+  },
+  "44": {
+   "name_en": "The Smoke",
+   "name_ar": "سُوْرَةُ الدُّخَانِ",
+   "revelation": "Mecca"
+  },
+  "45": {
+   "name_en": "Crouching",
+   "name_ar": "سُوْرَةُ الْجَاثِيَةِ",
+   "revelation": "Mecca"
+  },
+  "46": {
+   "name_en": "The Dunes",
+   "name_ar": "سُوْرَةُ الْاَحْقَافِ",
+   "revelation": "Mecca"
+  },
+  "47": {
+   "name_en": "Muhammad",
+   "name_ar": "سُوْرَةُ مُحَمَّدٍ",
+   "revelation": "Madina"
+  },
+  "48": {
+   "name_en": "The Victory",
+   "name_ar": "سُوْرَةُ الْفَتْحِ",
+   "revelation": "Madina"
+  },
+  "49": {
+   "name_en": "The Inner Apartments",
+   "name_ar": "سُوْرَةُ الْحُجُراتِ",
+   "revelation": "Madina"
+  },
+  "50": {
+   "name_en": "The letter Qaaf",
+   "name_ar": "سُوْرَةُ قٓ",
+   "revelation": "Mecca"
+  },
+  "51": {
+   "name_en": "The Winnowing Winds",
+   "name_ar": "سُوْرَةُ الذَّارِياتِ",
+   "revelation": "Mecca"
+  },
+  "52": {
+   "name_en": "The Mount",
+   "name_ar": "سُوْرَةُ الطُّوْرِ",
+   "revelation": "Mecca"
+  },
+  "53": {
+   "name_en": "The Star",
+   "name_ar": "سُوْرَةُ النَّجْمِ",
+   "revelation": "Mecca"
+  },
+  "54": {
+   "name_en": "The Moon",
+   "name_ar": "سُوْرَةُ الْقَمَرِ",
+   "revelation": "Mecca"
+  },
+  "55": {
+   "name_en": "The Beneficent",
+   "name_ar": "سُوْرَةُ الرَّحْمٰنِ",
+   "revelation": "Madina"
+  },
+  "56": {
+   "name_en": "The Inevitable",
+   "name_ar": "سُوْرَةُ الْوَاقِعَةِ",
+   "revelation": "Mecca"
+  },
+  "57": {
+   "name_en": "The Iron",
+   "name_ar": "سُوْرَةُ الْحَدِيْدِ",
+   "revelation": "Madina"
+  },
+  "58": {
+   "name_en": "The Pleading Woman",
+   "name_ar": "سُوْرَةُ الْمُجَادَلَةِ",
+   "revelation": "Madina"
+  },
+  "59": {
+   "name_en": "The Exile",
+   "name_ar": "سُوْرَةُ الْحَشْرِ",
+   "revelation": "Madina"
+  },
+  "60": {
+   "name_en": "She that is to be examined",
+   "name_ar": "سُوْرَةُ الْمُمْتَحِنَةِ",
+   "revelation": "Madina"
+  },
+  "61": {
+   "name_en": "The Ranks",
+   "name_ar": "سُوْرَةُ الصَّفِّ",
+   "revelation": "Madina"
+  },
+  "62": {
+   "name_en": "Friday",
+   "name_ar": "سُوْرَةُ الْجُمُعَةِ",
+   "revelation": "Madina"
+  },
+  "63": {
+   "name_en": "The Hypocrites",
+   "name_ar": "سُوْرَةُ الْمُنَافِقُوْنَ",
+   "revelation": "Madina"
+  },
+  "64": {
+   "name_en": "Mutual Disillusion",
+   "name_ar": "سُوْرَةُ التَّغَابُنِ",
+   "revelation": "Madina"
+  },
+  "65": {
+   "name_en": "Divorce",
+   "name_ar": "سُوْرَةُ الطَّلَاقِ",
+   "revelation": "Madina"
+  },
+  "66": {
+   "name_en": "The Prohibition",
+   "name_ar": "سُوْرَةُ التَّحْرِيْمِ",
+   "revelation": "Madina"
+  },
+  "67": {
+   "name_en": "The Sovereignty",
+   "name_ar": "سُوْرَةُ الْمُلْكِ",
+   "revelation": "Mecca"
+  },
+  "68": {
+   "name_en": "The Pen",
+   "name_ar": "سُوْرَةُ الْقَلَمِ",
+   "revelation": "Mecca"
+  },
+  "69": {
+   "name_en": "The Reality",
+   "name_ar": "سُوْرَةُ الْحَآقَّةِ",
+   "revelation": "Mecca"
+  },
+  "70": {
+   "name_en": "The Ascending Stairways",
+   "name_ar": "سُوْرَةُ الْمَعَارِجِ",
+   "revelation": "Mecca"
+  },
+  "71": {
+   "name_en": "Noah",
+   "name_ar": "سُوْرَةُ نُوْحٍ",
+   "revelation": "Mecca"
+  },
+  "72": {
+   "name_en": "The Jinn",
+   "name_ar": "سُوْرَةُ الْجِنِّ",
+   "revelation": "Mecca"
+  },
+  "73": {
+   "name_en": "The Enshrouded One",
+   "name_ar": "سُوْرَةُ الْمُزَّمِّلِ",
+   "revelation": "Mecca"
+  },
+  "74": {
+   "name_en": "The Cloaked One",
+   "name_ar": "سُوْرَةُ الْمُدَّثِّرِ",
+   "revelation": "Mecca"
+  },
+  "75": {
+   "name_en": "The Resurrection",
+   "name_ar": "سُوْرَةُ الْقِيَامَةِ",
+   "revelation": "Mecca"
+  },
+  "76": {
+   "name_en": "Man",
+   "name_ar": "سُوْرَةُ الدَّهْرِ",
+   "revelation": "Madina"
+  },
+  "77": {
+   "name_en": "The Emissaries",
+   "name_ar": "سُوْرَةُ الْمُرْسَلَاتِ",
+   "revelation": "Mecca"
+  },
+  "78": {
+   "name_en": "The Announcement",
+   "name_ar": "سُوْرَةُ النَّبَاِ",
+   "revelation": "Mecca"
+  },
+  "79": {
+   "name_en": "Those who drag forth",
+   "name_ar": "سُوْرَةُ النَّازِعَاتِ",
+   "revelation": "Mecca"
+  },
+  "80": {
+   "name_en": "He frowned",
+   "name_ar": "سُوْرَةُ عَبَسَ",
+   "revelation": "Mecca"
+  },
+  "81": {
+   "name_en": "The Overthrowing",
+   "name_ar": "سُوْرَةُ التَّكْوِيْرِ",
+   "revelation": "Mecca"
+  },
+  "82": {
+   "name_en": "The Cleaving",
+   "name_ar": "سُوْرَةُ الْاِنْفِطَارِ",
+   "revelation": "Mecca"
+  },
+  "83": {
+   "name_en": "Defrauding",
+   "name_ar": "سُوْرَةُ المُطَفِّفِيْنَ",
+   "revelation": "Mecca"
+  },
+  "84": {
+   "name_en": "The Splitting Open",
+   "name_ar": "سُوْرَةُ الاِنْشِقَاقِ",
+   "revelation": "Mecca"
+  },
+  "85": {
+   "name_en": "The Constellations",
+   "name_ar": "سُوْرَةُ الْبُرُوْجِ",
+   "revelation": "Mecca"
+  },
+  "86": {
+   "name_en": "The Morning Star",
+   "name_ar": "سُوْرَةُ الطَّارِقِ",
+   "revelation": "Mecca"
+  },
+  "87": {
+   "name_en": "The Most High",
+   "name_ar": "سُوْرَةُ الْاَعْلٰي",
+   "revelation": "Mecca"
+  },
+  "88": {
+   "name_en": "The Overwhelming",
+   "name_ar": "سُوْرَةُ الْغَاشِيَةِ",
+   "revelation": "Mecca"
+  },
+  "89": {
+   "name_en": "The Dawn",
+   "name_ar": "سُوْرَةُ الْفَجْرِ",
+   "revelation": "Mecca"
+  },
+  "90": {
+   "name_en": "The City",
+   "name_ar": "سُوْرَةُ الْبَلَدِ",
+   "revelation": "Mecca"
+  },
+  "91": {
+   "name_en": "The Sun",
+   "name_ar": "سُوْرَةُ الشَّمْسِ",
+   "revelation": "Mecca"
+  },
+  "92": {
+   "name_en": "The Night",
+   "name_ar": "سُوْرَةُ الَّيْلِ",
+   "revelation": "Mecca"
+  },
+  "93": {
+   "name_en": "The Morning Hours",
+   "name_ar": "سُوْرَةُ الضُّحٰي",
+   "revelation": "Mecca"
+  },
+  "94": {
+   "name_en": "The Consolation",
+   "name_ar": "سُوْرَةُ الشَّرْحِ",
+   "revelation": "Mecca"
+  },
+  "95": {
+   "name_en": "The Fig",
+   "name_ar": "سُوْرَةُ التِّيْنِ",
+   "revelation": "Mecca"
+  },
+  "96": {
+   "name_en": "The Clot",
+   "name_ar": "سُوْرَةُ الْعَلَقِ",
+   "revelation": "Mecca"
+  },
+  "97": {
+   "name_en": "The Power, Fate",
+   "name_ar": "سُوْرَةُ الْقَدْرِ",
+   "revelation": "Mecca"
+  },
+  "98": {
+   "name_en": "The Evidence",
+   "name_ar": "سُوْرَةُ الْبَيِّنَةِ",
+   "revelation": "Madina"
+  },
+  "99": {
+   "name_en": "The Earthquake",
+   "name_ar": "سُوْرَةُ الزِّلْزَالِ",
+   "revelation": "Madina"
+  },
+  "100": {
+   "name_en": "The Chargers",
+   "name_ar": "سُوْرَةُ العٰدِيٰتِ",
+   "revelation": "Mecca"
+  },
+  "101": {
+   "name_en": "The Calamity",
+   "name_ar": "سُوْرَةُ الْقَارِعَةِ",
+   "revelation": "Mecca"
+  },
+  "102": {
+   "name_en": "Competition",
+   "name_ar": "سُوْرَةُ التَّكَاثُرِ",
+   "revelation": "Mecca"
+  },
+  "103": {
+   "name_en": "The Declining Day, Epoch",
+   "name_ar": "سُوْرَةُ الْعَصْرِ",
+   "revelation": "Mecca"
+  },
+  "104": {
+   "name_en": "The Traducer",
+   "name_ar": "سُوْرَةُ الْهُمَزَةِ",
+   "revelation": "Mecca"
+  },
+  "105": {
+   "name_en": "The Elephant",
+   "name_ar": "سُوْرَةُ الْفِيْلِ",
+   "revelation": "Mecca"
+  },
+  "106": {
+   "name_en": "Quraysh",
+   "name_ar": "سُوْرَةُ قُرَيْشٍ",
+   "revelation": "Mecca"
+  },
+  "107": {
+   "name_en": "Almsgiving",
+   "name_ar": "سُوْرَةُ الْمَاعُوْنِ",
+   "revelation": "Mecca"
+  },
+  "108": {
+   "name_en": "Abundance",
+   "name_ar": "سُوْرَةُ الْكَوْثَرِ",
+   "revelation": "Mecca"
+  },
+  "109": {
+   "name_en": "The Disbelievers",
+   "name_ar": "سُوْرَةُ الْكَافِرُوْنَ",
+   "revelation": "Mecca"
+  },
+  "110": {
+   "name_en": "Divine Support",
+   "name_ar": "سُوْرَةُ النَّصْرِ",
+   "revelation": "Madina"
+  },
+  "111": {
+   "name_en": "The Palm Fibre",
+   "name_ar": "سُوْرَةُ المَسَدِ",
+   "revelation": "Mecca"
+  },
+  "112": {
+   "name_en": "Sincerity",
+   "name_ar": "سُوْرَةُ الْاِخْلَاصِ",
+   "revelation": "Mecca"
+  },
+  "113": {
+   "name_en": "The Dawn",
+   "name_ar": "سُوْرَةُ الْفَلَقِ",
+   "revelation": "Mecca"
+  },
+  "114": {
+   "name_en": "Mankind",
+   "name_ar": "سُوْرَةُ النَّاسِ",
+   "revelation": "Mecca"
+  }
+ },
+ "surah_extra": {
+  "1": {
+   "place": "Mecca",
+   "type": "Makkiyah",
+   "pages": "1"
+  },
+  "2": {
+   "place": "Medina",
+   "type": "Madaniyah",
+   "pages": "2"
+  },
+  "3": {
+   "place": "Medina",
+   "type": "Madaniyah",
+   "pages": "45"
+  },
+  "4": {
+   "place": "Medina",
+   "type": "Madaniyah",
+   "pages": "69"
+  },
+  "5": {
+   "place": "Medina",
+   "type": "Madaniyah",
+   "pages": "95"
+  },
+  "6": {
+   "place": "Mecca",
+   "type": "Makkiyah",
+   "pages": "115"
+  },
+  "7": {
+   "place": "Mecca",
+   "type": "Makkiyah",
+   "pages": "136"
+  },
+  "8": {
+   "place": "Medina",
+   "type": "Madaniyah",
+   "pages": "160"
+  },
+  "9": {
+   "place": "Medina",
+   "type": "Madaniyah",
+   "pages": "169"
+  },
+  "10": {
+   "place": "Mecca",
+   "type": "Makkiyah",
+   "pages": "187"
+  },
+  "11": {
+   "place": "Mecca",
+   "type": "Makkiyah",
+   "pages": "199"
+  },
+  "12": {
+   "place": "Mecca",
+   "type": "Makkiyah",
+   "pages": "212"
+  },
+  "13": {
+   "place": "Medina",
+   "type": "Madaniyah",
+   "pages": "225"
+  },
+  "14": {
+   "place": "Mecca",
+   "type": "Makkiyah",
+   "pages": "231"
+  },
+  "15": {
+   "place": "Mecca",
+   "type": "Makkiyah",
+   "pages": "237"
+  },
+  "16": {
+   "place": "Mecca",
+   "type": "Makkiyah",
+   "pages": "242"
+  },
+  "17": {
+   "place": "Mecca",
+   "type": "Makkiyah",
+   "pages": "255"
+  },
+  "18": {
+   "place": "Mecca",
+   "type": "Makkiyah",
+   "pages": "266"
+  },
+  "19": {
+   "place": "Mecca",
+   "type": "Makkiyah",
+   "pages": "277"
+  },
+  "20": {
+   "place": "Mecca",
+   "type": "Makkiyah",
+   "pages": "284"
+  },
+  "21": {
+   "place": "Mecca",
+   "type": "Makkiyah",
+   "pages": "294"
+  },
+  "22": {
+   "place": "Medina",
+   "type": "Madaniyah",
+   "pages": "302"
+  },
+  "23": {
+   "place": "Mecca",
+   "type": "Makkiyah",
+   "pages": "311"
+  },
+  "24": {
+   "place": "Medina",
+   "type": "Madaniyah",
+   "pages": "319"
+  },
+  "25": {
+   "place": "Mecca",
+   "type": "Makkiyah",
+   "pages": "329"
+  },
+  "26": {
+   "place": "Mecca",
+   "type": "Makkiyah",
+   "pages": "335"
+  },
+  "27": {
+   "place": "Mecca",
+   "type": "Makkiyah",
+   "pages": "345"
+  },
+  "28": {
+   "place": "Mecca",
+   "type": "Makkiyah",
+   "pages": "354"
+  },
+  "29": {
+   "place": "Mecca",
+   "type": "Makkiyah",
+   "pages": "364"
+  },
+  "30": {
+   "place": "Mecca",
+   "type": "Makkiyah",
+   "pages": "371"
+  },
+  "31": {
+   "place": "Mecca",
+   "type": "Makkiyah",
+   "pages": "377"
+  },
+  "32": {
+   "place": "Mecca",
+   "type": "Makkiyah",
+   "pages": "381"
+  },
+  "33": {
+   "place": "Medina",
+   "type": "Madaniyah",
+   "pages": "383"
+  },
+  "34": {
+   "place": "Mecca",
+   "type": "Makkiyah",
+   "pages": "393"
+  },
+  "35": {
+   "place": "Mecca",
+   "type": "Makkiyah",
+   "pages": "399"
+  },
+  "36": {
+   "place": "Mecca",
+   "type": "Makkiyah",
+   "pages": "404"
+  },
+  "37": {
+   "place": "Mecca",
+   "type": "Makkiyah",
+   "pages": "410"
+  },
+  "38": {
+   "place": "Mecca",
+   "type": "Makkiyah",
+   "pages": "417"
+  },
+  "39": {
+   "place": "Mecca",
+   "type": "Makkiyah",
+   "pages": "422"
+  },
+  "40": {
+   "place": "Mecca",
+   "type": "Makkiyah",
+   "pages": "431"
+  },
+  "41": {
+   "place": "Mecca",
+   "type": "Makkiyah",
+   "pages": "439"
+  },
+  "42": {
+   "place": "Mecca",
+   "type": "Makkiyah",
+   "pages": "445"
+  },
+  "43": {
+   "place": "Mecca",
+   "type": "Makkiyah",
+   "pages": "451"
+  },
+  "44": {
+   "place": "Mecca",
+   "type": "Makkiyah",
+   "pages": "457"
+  },
+  "45": {
+   "place": "Mecca",
+   "type": "Makkiyah",
+   "pages": "460"
+  },
+  "46": {
+   "place": "Mecca",
+   "type": "Makkiyah",
+   "pages": "464"
+  },
+  "47": {
+   "place": "Medina",
+   "type": "Madaniyah",
+   "pages": "468"
+  },
+  "48": {
+   "place": "Medina",
+   "type": "Madaniyah",
+   "pages": "472"
+  },
+  "49": {
+   "place": "Medina",
+   "type": "Madaniyah",
+   "pages": "477"
+  },
+  "50": {
+   "place": "Mecca",
+   "type": "Makkiyah",
+   "pages": "479"
+  },
+  "51": {
+   "place": "Mecca",
+   "type": "Makkiyah",
+   "pages": "482"
+  },
+  "52": {
+   "place": "Mecca",
+   "type": "Makkiyah",
+   "pages": "485"
+  },
+  "53": {
+   "place": "Mecca",
+   "type": "Makkiyah",
+   "pages": "487"
+  },
+  "54": {
+   "place": "Mecca",
+   "type": "Makkiyah",
+   "pages": "490"
+  },
+  "55": {
+   "place": "Medina",
+   "type": "Madaniyah",
+   "pages": "493"
+  },
+  "56": {
+   "place": "Mecca",
+   "type": "Makkiyah",
+   "pages": "496"
+  },
+  "57": {
+   "place": "Medina",
+   "type": "Madaniyah",
+   "pages": "499"
+  },
+  "58": {
+   "place": "Medina",
+   "type": "Madaniyah",
+   "pages": "504"
+  },
+  "59": {
+   "place": "Medina",
+   "type": "Madaniyah",
+   "pages": "507"
+  },
+  "60": {
+   "place": "Medina",
+   "type": "Madaniyah",
+   "pages": "510"
+  },
+  "61": {
+   "place": "Medina",
+   "type": "Madaniyah",
+   "pages": "513"
+  },
+  "62": {
+   "place": "Medina",
+   "type": "Madaniyah",
+   "pages": "515"
+  },
+  "63": {
+   "place": "Medina",
+   "type": "Madaniyah",
+   "pages": "516"
+  },
+  "64": {
+   "place": "Medina",
+   "type": "Madaniyah",
+   "pages": "518"
+  },
+  "65": {
+   "place": "Medina",
+   "type": "Madaniyah",
+   "pages": "520"
+  },
+  "66": {
+   "place": "Medina",
+   "type": "Madaniyah",
+   "pages": "522"
+  },
+  "67": {
+   "place": "Mecca",
+   "type": "Makkiyah",
+   "pages": "524"
+  },
+  "68": {
+   "place": "Mecca",
+   "type": "Makkiyah",
+   "pages": "526"
+  },
+  "69": {
+   "place": "Mecca",
+   "type": "Makkiyah",
+   "pages": "529"
+  },
+  "70": {
+   "place": "Mecca",
+   "type": "Makkiyah",
+   "pages": "531"
+  },
+  "71": {
+   "place": "Mecca",
+   "type": "Makkiyah",
+   "pages": "533"
+  },
+  "72": {
+   "place": "Mecca",
+   "type": "Makkiyah",
+   "pages": "534"
+  },
+  "73": {
+   "place": "Mecca",
+   "type": "Makkiyah",
+   "pages": "537"
+  },
+  "74": {
+   "place": "Mecca",
+   "type": "Makkiyah",
+   "pages": "538"
+  },
+  "75": {
+   "place": "Mecca",
+   "type": "Makkiyah",
+   "pages": "540"
+  },
+  "76": {
+   "place": "Medina",
+   "type": "Madaniyah",
+   "pages": "542"
+  },
+  "77": {
+   "place": "Mecca",
+   "type": "Makkiyah",
+   "pages": "544"
+  },
+  "78": {
+   "place": "Mecca",
+   "type": "Makkiyah",
+   "pages": "545"
+  },
+  "79": {
+   "place": "Mecca",
+   "type": "Makkiyah",
+   "pages": "547"
+  },
+  "80": {
+   "place": "Mecca",
+   "type": "Makkiyah",
+   "pages": "548"
+  },
+  "81": {
+   "place": "Mecca",
+   "type": "Makkiyah",
+   "pages": "550"
+  },
+  "82": {
+   "place": "Mecca",
+   "type": "Makkiyah",
+   "pages": "551"
+  },
+  "83": {
+   "place": "Mecca",
+   "type": "Makkiyah",
+   "pages": "552"
+  },
+  "84": {
+   "place": "Mecca",
+   "type": "Makkiyah",
+   "pages": "553"
+  },
+  "85": {
+   "place": "Mecca",
+   "type": "Makkiyah",
+   "pages": "554"
+  },
+  "86": {
+   "place": "Mecca",
+   "type": "Makkiyah",
+   "pages": "555"
+  },
+  "87": {
+   "place": "Mecca",
+   "type": "Makkiyah",
+   "pages": "556"
+  },
+  "88": {
+   "place": "Mecca",
+   "type": "Makkiyah",
+   "pages": "556"
+  },
+  "89": {
+   "place": "Mecca",
+   "type": "Makkiyah",
+   "pages": "557"
+  },
+  "90": {
+   "place": "Mecca",
+   "type": "Makkiyah",
+   "pages": "559"
+  },
+  "91": {
+   "place": "Mecca",
+   "type": "Makkiyah",
+   "pages": "559"
+  },
+  "92": {
+   "place": "Mecca",
+   "type": "Makkiyah",
+   "pages": "560"
+  },
+  "93": {
+   "place": "Mecca",
+   "type": "Makkiyah",
+   "pages": "561"
+  },
+  "94": {
+   "place": "Mecca",
+   "type": "Makkiyah",
+   "pages": "561"
+  },
+  "95": {
+   "place": "Mecca",
+   "type": "Makkiyah",
+   "pages": "562"
+  },
+  "96": {
+   "place": "Mecca",
+   "type": "Makkiyah",
+   "pages": "562"
+  },
+  "97": {
+   "place": "Mecca",
+   "type": "Makkiyah",
+   "pages": "563"
+  },
+  "98": {
+   "place": "Medina",
+   "type": "Madaniyah",
+   "pages": "563"
+  },
+  "99": {
+   "place": "Medina",
+   "type": "Madaniyah",
+   "pages": "564"
+  },
+  "100": {
+   "place": "Mecca",
+   "type": "Makkiyah",
+   "pages": "564"
+  },
+  "101": {
+   "place": "Mecca",
+   "type": "Makkiyah",
+   "pages": "565"
+  },
+  "102": {
+   "place": "Mecca",
+   "type": "Makkiyah",
+   "pages": "565"
+  },
+  "103": {
+   "place": "Mecca",
+   "type": "Makkiyah",
+   "pages": "566"
+  },
+  "104": {
+   "place": "Mecca",
+   "type": "Makkiyah",
+   "pages": "566"
+  },
+  "105": {
+   "place": "Mecca",
+   "type": "Makkiyah",
+   "pages": "566"
+  },
+  "106": {
+   "place": "Mecca",
+   "type": "Makkiyah",
+   "pages": "567"
+  },
+  "107": {
+   "place": "Mecca",
+   "type": "Makkiyah",
+   "pages": "567"
+  },
+  "108": {
+   "place": "Mecca",
+   "type": "Makkiyah",
+   "pages": "567"
+  },
+  "109": {
+   "place": "Mecca",
+   "type": "Makkiyah",
+   "pages": "568"
+  },
+  "110": {
+   "place": "Medina",
+   "type": "Madaniyah",
+   "pages": "568"
+  },
+  "111": {
+   "place": "Mecca",
+   "type": "Makkiyah",
+   "pages": "568"
+  },
+  "112": {
+   "place": "Mecca",
+   "type": "Makkiyah",
+   "pages": "569"
+  },
+  "113": {
+   "place": "Mecca",
+   "type": "Makkiyah",
+   "pages": "569"
+  },
+  "114": {
+   "place": "Mecca",
+   "type": "Makkiyah",
+   "pages": "569"
+  }
+ }
+}
