@@ -35,8 +35,12 @@
 |---|---|---|---|
 | **Boscolo** | ✅ Actif 2026 | "Tunisia Archeologica e Deserto" (10 j) + variante Mer Hammamet + Capodanno + combiné Maroc-Tunisie | DMC pour circuits culturels + désert |
 | **Kel 12** | ✅ Actif (spécialiste culture) | "Dal Mediterraneo al Sahara", "Africa Punica e Romana" | Guides-conférenciers, désert/Grand Sud |
-| Mistral Tour / Guiness Travel / archètravel | À vérifier | circuits culturels | Cibles secondaires culture |
+| **Quality Group / Mistral Tour** | ✅ Actif (catalogue Tunisie 2026-2027) | "Gran Tour Tunisia" 12j, "Experience Tunisia" 9j, "Meraviglie del Sud" 8j | Volume circuits, guides italophones |
+| **African Explorer** | ✅ **Nouvel entrant 2025** | circuits | Cible chaude (vient d'ouvrir) |
+| **Viaggi del Turchese** | ✅ Actif (charters Bergame) | Tunisie "à plein régime" | Cible |
 | Originaltour / Naar / Idee per Viaggiare | ❌ Ne vendent PAS la Tunisie | (focus long-courrier) | Ne pas perdre de temps |
+
+> 💡 **Note Veratour** : Tunisie **+69 %** à sa convention 2025, top-seller 2026. **Explore Worldwide (UK)** ouvre même des **tours éclipse solaire 2027** en Tunisie — angle à exploiter.
 
 ---
 
