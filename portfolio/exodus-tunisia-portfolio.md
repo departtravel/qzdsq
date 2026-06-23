@@ -158,7 +158,7 @@ Begin with a guided walk of the UNESCO **Tunis Medina** (Zitouna Mosque exterior
 ![The archaeological site of Carthage](images/carthage.jpg)
 
 **Day 3 — Testour, Dougga & Kairouan.**
-Drive west to Testour (Andalusian-Moorish heritage town, unique mosque). On to **Dougga (UNESCO)** — the best-preserved Roman town in North Africa; 2–2.5h guided walk. Lunch. Drive south to **Kairouan (UNESCO)**, Islam's fourth holiest city. Overnight Kairouan. *Driving: ~3.5h total, broken by sites.*
+Drive west to Testour (Andalusian-Moorish heritage town, unique mosque). On to **Dougga (UNESCO)** — the best-preserved Roman town in North Africa; 2–2.5h guided walk. Lunch. Drive south to **Kairouan (UNESCO)**, Islam's fourth holiest city; visit the old medina and taste the local **Makroudh** pastry. Overnight Kairouan. *Driving: ~3.5h total, broken by sites.*
 
 ![Dougga — the best-preserved Roman town in North Africa](images/dougga.webp)
 
@@ -173,24 +173,24 @@ Morning: Great Mosque of Kairouan + Aghlabid basins. Drive to **Sbeitla (Sufetul
 ![Mountain oasis — palm groves beneath the canyon cliffs (Chebika / Tamerza / Midès)](images/mountain-oasis.jpg)
 
 **Day 6 — Chott el Jerid & Night in the Sahara.**
-Cross the **Chott el Jerid** salt lake (mirage country). Enter the Grand Erg Oriental. Afternoon at the dunes — optional camel ride, dune walk, sunset. **Overnight in a permanent desert tented camp** (en-suite, air-conditioned "luxe nomad" tents). Star-gazing, **Berber music & storytelling by local performers**, traditional dinner. *Driving: ~3–4h + transfer to camp.*
+Cross the **Chott el Jerid** salt lake (mirage country) with a photo stop, and see the hot-spring channels used to irrigate the palm groves. Arrive in **Douz** (the "gateway to the Sahara") for lunch and a visit to the **Douz Bedouin Museum**, then continue to the **Sabria camp** at the edge of the Grand Erg Oriental. Meet the camel handlers and ride into the heart of the dunes to settle in the middle of nowhere — help the team gather wood and build the campfire, with dinner prepared on site and a **night of wild bivouac under the stars**. *(Guests who prefer more comfort can return to the permanent camp for the night in en-suite, air-conditioned "luxe nomad" tents.)* Star-gazing, **Berber music & storytelling by local performers**, traditional dinner. *Driving: ~3–4h + transfer to camp.*
 
 ![Bedouin musicians and storytelling around the campfire at the desert camp](images/desert-camp-music.jpg)
 
 **Day 7 — Matmata, Tataouine & Chenini.**
-Drive to **Matmata** (troglodyte underground Berber dwellings; visit a family home). Continue to the **Tataouine** region — the ksour and *ghorfas* (fortified Berber granaries, e.g. Ksar Ouled Soltane). Late afternoon at the dramatic hilltop Berber village of **Chenini** and its iconic white mosque. Overnight Tataouine or Djerba (route-dependent). *Driving: ~3–4h split by stops.*
+Drive to **Matmata**; visit the **Tamazret Berber museum** and the troglodyte underground Berber dwellings, including a family home. Continue to the **Tataouine** region — the ksour and *ghorfas* (fortified Berber granaries, e.g. Ksar Ouled Soltane). Late afternoon at the dramatic hilltop Berber village of **Chenini** and its iconic white mosque. Overnight Tataouine. *Driving: ~3–4h split by stops.*
 
 ![Chenini — the hilltop Berber village and its white mosque](images/berber-village-1.jpg)
 
 **Day 8 — Djerba Island (Cultural).**
-Transfer to **Djerba** via the Roman causeway (El Kantara). *Cultural* Djerba: **El Ghriba**, one of the oldest synagogues in the world & living Jewish-Berber heritage; **Houmt Souk** old town & fishing port; **Guellala** pottery workshops. Overnight Djerba. *Driving: light, island-based.*
+Transfer to **Djerba** via the Roman causeway (El Kantara). *Cultural* Djerba: **El Ghriba**, one of the oldest synagogues in the world & living Jewish-Berber heritage; **Houmt Souk** old town & fishing port; **Guellala** pottery workshops; and a visit to the **Djerbahood** street-art quarter. Overnight Djerba. *Driving: light, island-based.*
 
 ![Djerba — Houmt Souk and the island's cultural heritage](images/djerba.jpeg)
 
-**Day 9 — Djerba Island (Heritage & Encounters).**
-**Djerbahood** street-art quarter (Erriadh); traditional weaving; menzel (fortified farmhouse) heritage; olive-oil and date producers; optional lagoon/flamingo viewpoint. Island cuisine experience. Overnight Djerba. *Driving: light.* *(Note: kept cultural, not beach — protects brand positioning.)*
+**Day 9 — Djerba: Free Day (Heritage & Encounters).**
+A free day on the island, with the option of a **private sea tour by boat** or a **full cultural day** exploring Djerba's UNESCO heritage — traditional weaving, menzel (fortified farmhouse) heritage, olive-oil and date producers, and an optional lagoon/flamingo viewpoint. Island cuisine experience. Overnight Djerba. *Driving: light.* *(Note: kept cultural, not beach — protects brand positioning.)*
 
-![Djerbahood — the open-air street-art quarter of Erriadh](images/djerbahood.jpg)
+![Djerba — a cultural day on the island (Djerbahood / Houmt Souk)](images/djerbahood.jpg)
 
 **Day 10 — El Jem & Sousse.**
 Drive north to **El Jem (UNESCO)** — the colossal Roman amphitheatre (one of the largest in the world) + mosaic museum. Lunch. Continue to **Sousse**; guided visit of the **UNESCO Medina**, Ribat and Great Mosque. Overnight Sousse. *Driving: ~2.5–3h split by El Jem.*
@@ -198,7 +198,7 @@ Drive north to **El Jem (UNESCO)** — the colossal Roman amphitheatre (one of t
 ![Sousse — the UNESCO medina and Ribat](images/sousse.webp)
 
 **Day 11 — Hammamet.**
-Coastal drive to **Hammamet**: the Kasbah and old medina, the Andalusian quarter, and **Dar Sebastian / International Cultural Centre** gardens. Afternoon at leisure / optional hammam. Farewell dinner. Overnight Hammamet. *Driving: ~1h.*
+Coastal drive to **Hammamet**: the Kasbah and old medina, the Andalusian quarter, and **Dar Sebastian / International Cultural Centre** gardens. Afternoon at leisure / optional hammam or **wine tasting at a local vineyard**. Farewell dinner. Overnight Hammamet. *Driving: ~1h.*
 
 ![Hammamet — the Kasbah and old medina above the sea](images/hammamet.jpg)
 
@@ -284,7 +284,7 @@ Transfer to Enfidha–Hammamet or Tunis–Carthage airport. *Driving: 30–60 mi
 - **Guiding:** the critical success factor. Depart Travel fields **professional, national, officially-licensed, English-speaking tour guides** — expert, narrative-driven leaders + accredited site guides. *Sample guide CVs to be supplied to Exodus before contracting, and a meeting (in person or by video call) shall be arranged between Exodus and the proposed guide(s) before final guide confirmation.*
 - **Transport:** modern A/C coaches/minibuses; vetted 4x4 fleet for desert/oases; licensed insured drivers.
 - **Accommodation:** preferred boutique/heritage partners; backup properties identified per location.
-- **Desert camp:** confirmed permanent-camp partner meeting Exodus H&S and sustainability standards.
+- **Desert camp:** confirmed permanent-camp partner meeting Exodus H&S and sustainability standards — and soon to be a camp **fully owned and operated by Depart Travel**.
 - **Restaurants:** vetted for hygiene, capacity, and consistent quality.
 
 ## 7.9 OPERATIONAL FEASIBILITY
