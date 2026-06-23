@@ -18,134 +18,45 @@
 ---
 
 ## CONTENTS
-1. Competitive analysis — where Tunisia stands vs Morocco, Jordan, Egypt, Turkey
-2. USPs, underdeveloped themes & market gaps
-3. Ideal Exodus customer profile
-4. The flagship portfolio (5 products)
-5. Commercial ranking
-6. Head of Contracting verdict
-7. **FLAGSHIP DETAILED BUILD — The Grand Tunisia Journey (12 days)**
+1. Our Tunisia product range
+2. **The Grand Tunisia Journey (12 days) — detailed itinerary, accommodation, inclusions & rates**
 
 ---
 
-## 1. COMPETITIVE ANALYSIS
+## 1. OUR TUNISIA PRODUCT RANGE
 
-Tunisia must earn shelf space against four mature, high-converting Exodus destinations. The key question is not "Is Tunisia beautiful?" but **"What does Tunisia let us sell that we cannot already sell better elsewhere?"**
-
-| Theme | Morocco | Jordan | Egypt | Turkey | Tunisia's real position |
-|---|---|---|---|---|---|
-| Sahara desert | Strong but saturated | Wadi Rum (hero) | Hard logistics | None | Competitive, NOT differentiated |
-| Roman / Classical heritage | Volubilis (one site) | Jerash (good) | Greco-Roman fringe | World-class | **Tunisia's #1 weapon — density + no crowds** |
-| Berber heritage | Strong, commercialised | None | None | None | Strong & under-exploited |
-| Layered civilisations | Good | Good | Pharaonic-dominant | Excellent | Outstanding, unique angle |
-| Small footprint / short transfers | Long drives | Compact | Long + flights | Long | Major operational USP |
-| Crowds / over-tourism | High | Petra very busy | Very high | High | **Uncrowded** |
-| Food identity | Famous | Moderate | Moderate | Famous | Under-told story |
-| Price / value | Rising | Expensive | Cheap-ish | Moderate | Excellent value |
-| Brand awareness | Very high | Very high | Very high | Very high | **Tunisia's weakness ("beach package")** |
-
-**Verdict:** Tunisia is NOT a desert destination first. Defensible positioning =
-**"The undiscovered classical Mediterranean — Roman ruins without the crowds, the Berber south, and a layered cultural story, all in one compact, walkable country."**
-
----
-
-## 2. USPs, GAPS & WHAT EXODUS LACKS IN NORTH AFRICA
-
-**USPs (defensible):**
-1. Roman archaeology density at near-zero crowds — El Jem (UNESCO), Dougga (UNESCO), Bulla Regia (underground villas, unique on earth), Carthage, Sbeitla.
-2. Compactness — short transfers, low fatigue, high content-per-day.
-3. Layered civilisations in a single loop (Phoenician → Roman → Byzantine → Arab → Ottoman → French).
-4. Berber south without Morocco-level commercialisation.
-5. Value + safety + ease (visa-free for target markets; ~2.5–3h from UK/Europe).
-
-**Underdeveloped themes / gaps:** culinary storytelling; walking/soft-adventure cultural hybrid; "slow Tunisia" village stays; Roman-focused premium cultural touring.
-
-**What Exodus lacks in North Africa today:**
-- No "Roman North Africa" classical lead product.
-- No short, compact, low-fatigue cultural week in the region.
-- No food-led North African product.
-
----
-
-## 3. IDEAL EXODUS CUSTOMER
-
-| Attribute | Profile |
-|---|---|
-| Primary persona | Cultural Explorer, 50–70, ABC1, UK first, then NW Europe, North America, Australia |
-| Secondary persona | Active 40–55 couples; solos (strong Exodus base) |
-| Age range | Core 55–70; must also work for 45+ |
-| Activity level | Easy to Moderate |
-| Budget | Mid to upper-mid (strong margin vs Jordan) |
-| Motivations | History/archaeology, authentic encounters, food, "off the beaten track", safety, ease, great guiding, responsible travel |
-| Emotional hook | *"I've done Morocco and Jordan — show me something my friends haven't done."* |
-
----
-
-## 4. FLAGSHIP PORTFOLIO (5 PRODUCTS)
+Depart Travel offers a family of small-group and tailor-made cultural journeys across Tunisia. The 12-day **Grand Tunisia Journey** detailed in this catalogue is our flagship; the full range is below.
 
 ### ① Roman Tunisia — Empires of the Sand
-- Positioning: classical-heritage flagship, "crowd-free Roman world."
-- Audience: Cultural Explorers 55–70, history buffs, solos. Duration: 8 days. Grading: Easy. Season: Mar–May, Sep–Nov.
-- Selling points: Dougga, El Jem, Bulla Regia, Carthage, Sbeitla, Kairouan; expert guiding; uncrowded; short transfers.
-- Why Exodus: fills a genuine gap, sharp differentiation, highest conversion in core demographic.
+Classical-heritage journey through crowd-free Roman Tunisia. Duration: 8 days. Grading: Easy. Season: Mar–May, Sep–Nov. Highlights: Dougga, El Jem, Bulla Regia, Carthage, Sbeitla, Kairouan; expert guiding; short transfers.
 
 ### ② Berber South & Sahara — Tunisia Beyond the Map
-- Positioning: soft-adventure + Berber heritage + desert.
-- Audience: active 45–65. Duration: 8–9 days. Grading: Moderate. Season: Oct–Apr.
-- Selling points: ksour & ghorfas, Chenini & Douiret, Matmata, Ksar Ghilane Sahara camp, authentic Berber encounters.
-- Why Exodus: differentiated from Morocco's commercialised circuit; culture-adventure hybrid.
+Berber heritage and desert. Duration: 8–9 days. Grading: Moderate. Season: Oct–Apr. Highlights: ksour & ghorfas, Chenini & Douiret, Matmata, Sahara camp, authentic Berber encounters.
 
-### ③ The Grand Tunisia Journey — North to Sahara *(SELECTED FOR DETAILED BUILD)*
-- Positioning: comprehensive "best of" — Roman north + Berber south + Sahara + island culture.
-- Audience: first-time-to-Tunisia Cultural Explorers; the "one big trip" buyer. Duration: 12 days. Grading: Moderate. Season: Mar–May, Oct–Nov.
-- Why Exodus: highest revenue-per-pax; the anchor product that defines the destination.
+### ③ The Grand Tunisia Journey — North to Sahara *(detailed in this catalogue)*
+Comprehensive "best of" — Roman north, Berber south, Sahara and island culture. Duration: 12 days. Grading: Moderate. Season: Mar–May, Oct–Nov. *An 8-day "Highlights of Tunisia" variant is also available.*
 
 ### ④ Flavours of Tunisia — A Culinary & Cultural Journey
-- Positioning: food-led cultural touring. Audience: foodie 45–65. Duration: 7–8 days. Grading: Easy. Season: spring/autumn.
-- Selling points: cooking with families, harissa & olive oil producers, Andalusian Testour, Djerban fusion.
-- Why Exodus: fills the food gap, strong marketing appeal. Launch later.
+Food-led cultural touring. Duration: 7–8 days. Grading: Easy. Season: spring/autumn. Highlights: cooking with families, harissa & olive-oil producers, Andalusian Testour, Djerban fusion.
 
 ### ⑤ Walking Tunisia — Coast, Oases & Berber Trails
-- Positioning: soft-adventure walking. Audience: walkers 45–65. Duration: 8 days. Grading: Moderate–Challenging. Season: Oct–Nov, Mar–Apr.
-- Why Exodus: plugs into Walking & Trekking category, BUT highest operational risk; prove destination first.
+Soft-adventure walking. Duration: 8 days. Grading: Moderate–Challenging. Season: Oct–Nov, Mar–Apr.
 
 ---
 
-## 5. COMMERCIAL RANKING (highest → lowest)
-
-1. **① Roman Tunisia** — only product that gives a reason to ignore Morocco/Jordan; Easy grading = widest audience; premium guiding = premium price.
-2. **③ Grand Tunisia Journey** — best revenue-per-pax; defines the destination; risk = length/price/pacing.
-3. **② Berber South & Sahara** — strong differentiation; do NOT sell as a desert trip; sell as Berber heritage with desert finale.
-4. **④ Flavours of Tunisia** — on-trend but niche; launch once destination is established.
-5. **⑤ Walking Tunisia** — highest operational risk; introduce only after the destination is proven.
-
----
-
-## 6. HEAD OF CONTRACTING VERDICT
-
-**I would contract ① Roman Tunisia first**, plus a limited pilot of ③, in year one. Rationale: it is the only product that sells a reason to ignore Morocco and Jordan; Easy grading de-risks the launch; premium guiding protects margin. **I would not contract all five at once** — that splits marketing spend and guarantees thin departures.
-
-**The make-or-break dependency: guide quality.** The entire classical proposition lives or dies on genuinely expert, English-fluent, narrative-driven guides. Depart Travel must prove this before signature.
-
-**Contracting sequence:** Y1 contract ① + pilot ③ · Y2 add ② · Y3 add ④ · Hold ⑤ until trails verified.
-
----
-
-# 7. FLAGSHIP DETAILED BUILD
-# THE GRAND TUNISIA JOURNEY — North to Sahara (12 Days)
-
-> **PM note on positioning:** This is product ③, the anchor "best of" loop. It is deliberately comprehensive. The two commercial risks we engineer around are (a) drive fatigue (Day 4 is the long leg) and (b) the Djerba beach-perception trap — Djerba is built here as *cultural Djerba*, never resort downtime.
+# 2. THE GRAND TUNISIA JOURNEY — North to Sahara (12 Days)
 
 **Trip code (proposed):** TUN-GRAND-12
 **Duration:** 12 days / 11 nights
 **Grading:** Moderate (long but compact; one desert camp night; site walking on uneven ground)
 **Best season:** Mar–May and Oct–Nov (avoid Jun–Aug desert heat)
-**Group size:** 4–16 (small-group); also offered as private/tailor-made
+**Group size:** small-group, **guaranteed from 2 participants**; also offered as private/tailor-made
+**Departures:** open — on the dates of your choice across the spring and autumn seasons
 **Start/End:** Tunis (arrival) / Enfidha–Hammamet or Tunis (departure)
 
 ---
 
-## 7.1 DAY-BY-DAY ITINERARY
+## 2.1 DAY-BY-DAY ITINERARY
 
 **Day 1 — Arrival in Tunis: Meet & Greet.**
 Private airport transfer, welcome by Tunis-based representative. Free time to recover. Evening welcome briefing + group dinner in a restored medina dar (townhouse). *Driving: minimal.*
@@ -233,29 +144,30 @@ Transfer to Enfidha–Hammamet or Tunis–Carthage airport. *Driving: 30–60 mi
 
 ---
 
-## 7.2 ACCOMMODATION CONCEPTS
+## 2.2 ACCOMMODATION CONCEPTS
 
-| Night(s) | Location | Property (proposed) |
+Locally-owned boutique and heritage properties throughout. Proposed hotels by location *(or similar)*:
+
+| Night(s) | Location | Proposed hotels |
 |---|---|---|
-| 1, (12) | Tunis / Sidi Bou Saïd | **Dar El Jeld** (restored medina townhouse) *or* **Villa Bleue, Sidi Bou Saïd** (relaxed, sea-view) — character, breakfast on the terrace |
-| 3 | Kairouan | **Kasbah Kairouan 5\*** — heritage hotel beside the medina |
-| 4–5 | Tozeur | **The Mora** *or* **Dar Tozeur** guesthouse — traditional brick, palm-garden pool |
-| 6 | Sahara | **Dunes Insolites Camp** — permanent luxe tented camp, en-suite, **air-conditioned tents**, low-impact |
-| 7 | Tataouine / Ksar | **Ksar Hadada** — restored Berber granary (a *Star Wars* filming location) |
-| 8–9 | Djerba | **Dar Dhiafa** or similar — boutique *menzel*-style heritage hotel in/near Houmt Souk (NOT a beach megaresort) |
-| 10 | Sousse | **Dar Badiaa** (medina) or similar — boutique hotel in/near the UNESCO medina |
-| 11 | Hammamet | **Villa Zembra** guesthouse or similar — character property, old-town side |
+| 1–2, (12) | Tunis / Sidi Bou Saïd | Dar El Jeld · Villa Bleue, Sidi Bou Saïd · Hôtel Belvédère Fourati 4★ |
+| 3 | Kairouan | Kasbah Kairouan 5★ |
+| 4–5 | Tozeur | Tamerza Palace |
+| 6 | Douz / Sabria | Dunes Insolites desert camp (en-suite, air-conditioned tents) |
+| 7 | Tataouine | Ksar Hadada (restored Berber granary, a *Star Wars* filming location) |
+| 8–9 | Djerba | Dar Dhiafa · Dar Bhar · Villa Azur |
+| 10 | Sousse | Mövenpick · Dar Badiaa |
+| 11 | Hammamet | Villa Zembra · Dar Khayem Hotel |
 
-**Principle:** locally-owned, characterful, story-rich properties over international chains. Consistency and hygiene vetted by Depart Travel.
-![Ksar Hadada — the restored vaulted courtyard at sunset (Day 7 accommodation)](images/ksar-hadada.jpg)
-![Dar El Jeld — restored medina townhouse, Tunis (Days 1 & 12)](images/Dareljeld.jpg)
-![Kasbah Kairouan — heritage hotel beside the medina (Day 3)](images/kasbaah-kairouan.jpg)
-![Dunes Insolites — permanent luxe desert camp (Day 6)](images/dunesinsolites.webp)
-<!-- 📷 Still needed: Dar Dhiafa Djerba; (optional) Chenini panorama -->
+**Principle:** locally-owned, characterful, story-rich properties; single rooms on request.
+![Dar El Jeld — Tunis](images/Dareljeld.jpg)
+![Kasbah Kairouan 5★](images/kasbaah-kairouan.jpg)
+![Dunes Insolites desert camp — Sabria](images/dunesinsolites.webp)
+![Ksar Hadada — Tataouine](images/ksar-hadada.jpg)
 
 ---
 
-## 7.3 INCLUDED SERVICES
+## 2.3 INCLUDED SERVICES
 - All accommodation (11 nights) as above, on B&B basis unless noted
 - Daily breakfast; welcome dinner (Day 1); desert-camp dinner (Day 6); farewell dinner (Day 11); **lunches on full touring days in local restaurants** — *final meal plan to be confirmed at contracting*
 - All ground transport in private A/C vehicle; 4x4 for Day 5 and desert access Day 6
@@ -267,7 +179,7 @@ Transfer to Enfidha–Hammamet or Tunis–Carthage airport. *Driving: 30–60 mi
 - All taxes and DMC service charges
 - **One free tour-leader place** (free-place ratio per departure to be confirmed at contracting)
 
-## 7.4 EXCLUDED SERVICES
+## 2.4 EXCLUDED SERVICES
 - International flights
 - Travel insurance (mandatory)
 - Visa (where applicable — most target markets visa-free)
@@ -278,7 +190,7 @@ Transfer to Enfidha–Hammamet or Tunis–Carthage airport. *Driving: 30–60 mi
 
 ---
 
-## 7.5 SUSTAINABILITY FEATURES
+## 2.5 SUSTAINABILITY FEATURES
 - Locally-owned accommodation and restaurants prioritised; revenue retained in-country
 - Desert camp: solar lighting, water-use limits, pack-in/pack-out waste policy, no quad/buggy/jet-ski activities (brand-aligned)
 - Reusable water refills (no single-use plastic bottles on board)
@@ -286,7 +198,7 @@ Transfer to Enfidha–Hammamet or Tunis–Carthage airport. *Driving: 30–60 mi
 - Support for UNESCO site preservation via official entrance fees
 - Seasonal, local-produce menus (olive oil, dates, harissa, fresh fish on Djerba)
 
-## 7.6 COMMUNITY ENGAGEMENT
+## 2.6 COMMUNITY ENGAGEMENT
 - Visit to a Matmata Berber family home (fair, pre-arranged compensation — not "human zoo")
 - Guellala pottery and Djerba weaving workshops paying artisans directly
 - Andalusian heritage interpretation in Testour by local hosts
@@ -295,7 +207,7 @@ Transfer to Enfidha–Hammamet or Tunis–Carthage airport. *Driving: 30–60 mi
 - Commitment: encounters arranged with consent, fair pay, and cultural respect
 <!-- 📷 Matmata troglodyte home interior; Guellala potter at the wheel; Djerba weaver -->
 
-## 7.7 PRICING STRUCTURE — NET RATES BY GROUP SIZE
+## 2.7 PRICING STRUCTURE — NET RATES BY GROUP SIZE
 
 > ⚠️ **ILLUSTRATIVE FIGURES (EUR).** The amounts below are a realistic working model to show how the grid behaves by group size. They are **not a contracted quote** — final net rates will be confirmed at contracting against live supplier costs and the agreed accommodation list.
 
@@ -350,26 +262,14 @@ Transfer to Enfidha–Hammamet or Tunis–Carthage airport. *Driving: 30–60 mi
 
 *Quoted at the lower bound of each tier. Shoulder season (Mar–May / Oct–Nov); low season approx. −10%. Net to Exodus, before Exodus margin and international air. 7 nights boutique/heritage B&B; included meals: welcome dinner, two touring-day lunches, farewell dinner; all listed entrance fees and the 4x4 excursion. Same free-place ratio (1 per 15) and terms as the 12-day product.*
 
-## 7.8 SUPPLIER NOTES
-- **Guiding:** the critical success factor. Depart Travel fields **professional, national, officially-licensed, English-speaking tour guides** — expert, narrative-driven leaders + accredited site guides. *Sample guide CVs to be supplied to Exodus before contracting, and a meeting (in person or by video call) shall be arranged between Exodus and the proposed guide(s) before final guide confirmation.*
+## 2.8 SUPPLIER NOTES
+- **Guiding:** Depart Travel fields **professional, national, officially-licensed, English-speaking tour guides** — expert, narrative-driven leaders + accredited site guides. *Sample guide CVs supplied before contracting, and a meeting (in person or by video call) can be arranged between Exodus and the proposed guide(s) before final confirmation.*
 - **Transport:** modern A/C coaches/minibuses; vetted 4x4 fleet for desert/oases; licensed insured drivers.
 - **Accommodation:** preferred boutique/heritage partners; backup properties identified per location.
 - **Desert camp:** confirmed permanent-camp partner meeting Exodus H&S and sustainability standards — and soon to be a camp **fully owned and operated by Depart Travel**.
 - **Restaurants:** vetted for hygiene, capacity, and consistent quality.
 
-## 7.9 OPERATIONAL FEASIBILITY
-- **Strengths:** compact loop, short-haul access, year-round-able in shoulder seasons, strong site density, no internal flights required.
-- **Watch points:**
-  1. **Day 4 long drive (Kairouan→Tozeur)** — mitigated by Sbeitla stop + lunch; consider optional overnight rebalancing for older groups.
-  2. **Desert heat** — strict Mar–May / Oct–Nov operating window.
-  3. **Djerba positioning** — must be sold and operated as cultural, not beach, to protect brand fit.
-  4. **Guide consistency** — single biggest risk; resolved via Depart Travel guide vetting + Exodus sign-off.
-  5. **Pacing** — 12 days with daily moves; consider an optional shorter 10-day variant dropping one Djerba night and one oasis element.
-- **Routing logic:** clockwise loop (Tunis → west → south-west → Sahara → south-east → island → coast → north) avoids backtracking and ends near Enfidha airport.
-
----
-
-# 8. TAILOR-MADE TOURS
+# 3. TAILOR-MADE TOURS
 
 Every itinerary in this catalogue can be **fully tailored** to Exodus's specifications — duration, grading, accommodation tier, group size, private departures, theme emphasis (Roman / Berber / culinary / walking), and seasonal dates.
 
@@ -393,7 +293,5 @@ Every itinerary in this catalogue can be **fully tailored** to Exodus's specific
 | **Phone / WhatsApp** | +216 25 099 589 |
 
 <!-- 📷 Company logo here, and a closing image: Tunisian hospitality / mint tea / medina rooftop -->
-
-*Next step: confirm meal plan, finalise accommodation shortlist per location, and produce the net-rate pricing grid for the 2026/27 shoulder seasons.*
 
 — *Prepared by Depart Travel Services for Exodus Adventure Travels, June 2026.*

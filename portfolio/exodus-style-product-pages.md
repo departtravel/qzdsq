@@ -15,8 +15,6 @@
 **Rating: 4.8** ★★★★★ · from 24 reviews
 **Activity Level:** Easy & Moderate · **Comfort Level:** Classic/Boutique · **Activity:** Culture
 
-`Overview` · `Itinerary` · `Dates & Prices` · `Accommodation` · `Essential Info` · `Reviews`
-
 ## Overview
 **Roman ruins without the crowds, the Berber south and a night in the Sahara — the complete Tunisia in one compact loop.**
 
@@ -101,15 +99,32 @@ Departure transfer to Enfidha–Hammamet or Tunis–Carthage airport.
 *Meals:* Breakfast
 
 ## Dates & Prices *(illustrative, excl. flights)*
-| Departure | Availability | Single Supplement | Price p.p. |
-|---|---|---|---|
-| Sat 21 Mar 2026 – Wed 01 Apr 2026 | Guaranteed | +£345 | £1,645 |
-| Sat 18 Apr 2026 – Wed 29 Apr 2026 | Available | +£345 | £1,645 |
-| Sat 10 Oct 2026 – Wed 21 Oct 2026 | Guaranteed | +£345 | £1,695 |
-| Sat 07 Nov 2026 – Wed 18 Nov 2026 | Available | +£345 | £1,645 |
+**Open departures — choose your own dates.** This trip runs on the dates that suit you across the spring and autumn seasons (Mar–May and Oct–Nov). **Departures are guaranteed from just 2 participants.**
+
+- **From £1,645 p.p.** (twin share, excl. flights)
+- **Single supplement:** +£345
+- **Private & tailor-made** dates available year-round on request.
 
 ## Accommodation
-Locally-owned boutique and heritage properties throughout — restored medina *dars*, an oasis guesthouse, a Berber *ksar*, a Djerba *menzel*, and one night in a permanent Sahara camp. Single rooms on request.
+Locally-owned boutique and heritage properties throughout. Proposed hotels by location *(or similar)*:
+
+| Location | Proposed hotels |
+|---|---|
+| Tunis | Dar El Jeld · Villa Bleue, Sidi Bou Saïd · Hôtel Belvédère Fourati 4★ |
+| Kairouan | Kasbah Kairouan 5★ |
+| Tozeur | Tamerza Palace |
+| Tataouine | Ksar Hadada |
+| Douz / Sabria | Dunes Insolites desert camp |
+| Djerba | Dar Dhiafa · Dar Bhar · Villa Azur |
+| Sousse | Mövenpick · Dar Badiaa |
+| Hammamet | Villa Zembra · Dar Khayem Hotel |
+
+![Dar El Jeld — Tunis](images/Dareljeld.jpg)
+![Kasbah Kairouan 5★](images/kasbaah-kairouan.jpg)
+![Dunes Insolites desert camp — Sabria](images/dunesinsolites.webp)
+![Ksar Hadada — Tataouine](images/ksar-hadada.jpg)
+
+Single rooms on request.
 
 ## Essential Info
 Easy-to-moderate walking on uneven ground at archaeological sites; one desert-camp night; best in spring (Mar–May) and autumn (Oct–Nov). Not operated in high summer (desert heat).
@@ -121,8 +136,6 @@ Easy-to-moderate walking on uneven ground at archaeological sites; one desert-ca
 
 **Rating: 4.7** ★★★★★ · from 11 reviews
 **Activity Level:** Easy · **Comfort Level:** Classic/Boutique · **Activity:** Culture
-
-`Overview` · `Itinerary` · `Dates & Prices` · `Accommodation` · `Essential Info` · `Reviews`
 
 ## Overview
 **The best of Tunisia in one short, easy week — Roman cities, the holy city of Kairouan, and a taste of the Sahara.**
@@ -189,15 +202,27 @@ Departure transfer to Enfidha–Hammamet or Tunis–Carthage airport.
 *Meals:* Breakfast
 
 ## Dates & Prices *(illustrative, excl. flights)*
-| Departure | Availability | Single Supplement | Price p.p. |
-|---|---|---|---|
-| Sun 22 Mar 2026 – Sun 29 Mar 2026 | Guaranteed | +£220 | £1,095 |
-| Sun 19 Apr 2026 – Sun 26 Apr 2026 | Available | +£220 | £1,095 |
-| Sun 11 Oct 2026 – Sun 18 Oct 2026 | Guaranteed | +£220 | £1,145 |
-| Sun 08 Nov 2026 – Sun 15 Nov 2026 | Available | +£220 | £1,095 |
+**Open departures — choose your own dates.** This trip runs on the dates that suit you across the spring and autumn seasons (Mar–May and Oct–Nov). **Departures are guaranteed from just 2 participants.**
+
+- **From £1,095 p.p.** (twin share, excl. flights)
+- **Single supplement:** +£220
+- **Private & tailor-made** dates available year-round on request.
 
 ## Accommodation
-Locally-owned boutique and heritage properties throughout — restored medina *dars*, an oasis guesthouse and characterful coastal hotels. Single rooms on request.
+Locally-owned boutique and heritage properties throughout. Proposed hotels by location *(or similar)*:
+
+| Location | Proposed hotels |
+|---|---|
+| Tunis | Dar El Jeld · Villa Bleue, Sidi Bou Saïd · Hôtel Belvédère Fourati 4★ |
+| Kairouan | Kasbah Kairouan 5★ |
+| Tozeur | Tamerza Palace |
+| Sousse | Mövenpick · Dar Badiaa |
+| Hammamet | Villa Zembra · Dar Khayem Hotel |
+
+![Dar El Jeld — Tunis](images/Dareljeld.jpg)
+![Kasbah Kairouan 5★](images/kasbaah-kairouan.jpg)
+
+Single rooms on request.
 
 ## Essential Info
 Easy walking with short transfers; suitable for first-time visitors; best in spring (Mar–May) and autumn (Oct–Nov). Not operated in high summer (desert heat).
