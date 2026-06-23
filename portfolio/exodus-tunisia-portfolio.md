@@ -271,14 +271,45 @@ Transfer to Enfidha–Hammamet or Tunis–Carthage airport. *Driving: 30–60 mi
 - Commitment: encounters arranged with consent, fair pay, and cultural respect
 <!-- 📷 Matmata troglodyte home interior; Guellala potter at the wheel; Djerba weaver -->
 
-## 7.7 PRICING STRUCTURE *(framework — figures TBC at contracting)*
-- **Net per-person land cost** quoted twin-share, with per-departure tiers by group size (e.g. 4–6 / 7–10 / 11–16 pax)
-- **Single supplement** quoted separately
-- **Seasonal bands:** shoulder (Mar–May / Oct–Nov) vs low
-- **Private/tailor-made** rates as a separate grid
-- Net rates to Exodus, exclusive of Exodus margin and international air
-- Child/group/FIT policies and free-place ratios (e.g. 1 free per 15) to be agreed
-- Validity, payment terms, cancellation/amendment policy and allotment release periods specified in the contract
+## 7.7 PRICING STRUCTURE — NET RATES BY GROUP SIZE
+
+> ⚠️ **ILLUSTRATIVE FIGURES (EUR).** The amounts below are a realistic working model to show how the grid behaves by group size. They are **not a contracted quote** — final net rates will be confirmed at contracting against live supplier costs and the agreed accommodation list.
+
+**Why the price falls as the group grows:** the trip's **fixed costs** (tour leader, vehicle + driver, 4x4 day, desert-camp logistics) are the same whatever the group size, so they are spread across more travellers. The **variable costs** (accommodation, meals, entrance fees, camp activity) stay broadly constant per person.
+
+### Net land cost — per person, twin share (12 days / 11 nights)
+
+| Group size (paying pax) | Net land cost p.p. (twin share) | Single supplement |
+|---|---|---|
+| 2 pax (private) | **€3,595** | €420 |
+| 3–4 pax | **€2,760** | €420 |
+| 5–6 pax | **€2,095** | €420 |
+| 7–9 pax | **€1,810** | €420 |
+| 10–12 pax | **€1,595** | €420 |
+| 13–16 pax | **€1,480** | €420 |
+
+*Quoted at the lower bound of each tier (worst case for cost coverage). Shoulder season (Mar–May / Oct–Nov). Net to Exodus, before Exodus margin and international air.*
+
+### Indicative cost build-up (per departure)
+
+**Fixed costs (per group, ~€5,000):**
+- Tour leader — 12 days (fee, accommodation, meals, per diem)
+- Private A/C vehicle + driver — 12 days (incl. fuel, highway parking)
+- 4x4 excursion day (Day 5) + desert access (Day 6)
+- Desert camp / Sabria logistics & coordination
+
+**Variable costs (per person, ~€1,095 twin share):**
+- Accommodation — 11 nights, boutique/heritage, B&B
+- Included meals (welcome dinner, camp dinner, farewell dinner, touring-day lunches)
+- All listed entrance fees (Bardo, Carthage, Dougga, Sbeitla, El Jem, Kairouan, Sousse, El Ghriba, museums)
+- Camel ride / desert-camp activity; bottled-water refills
+
+### Pricing rules & terms
+- **Free-place ratio:** 1 free tour-leader place per 15 paying pax (to be agreed).
+- **Seasonal bands:** shoulder (Mar–May / Oct–Nov) as above; low season approx. −10%; not operated Jun–Aug (desert heat).
+- **Private / tailor-made:** the 2-pax line is the private-departure rate; bespoke versions quoted on a separate grid.
+- **Excludes:** international flights, insurance, visa (where applicable), tips, optional activities, and any meals/drinks not listed.
+- **Child / triple / FIT policies**, validity dates, payment terms, cancellation/amendment policy and allotment release periods to be specified in the contract.
 
 ## 7.8 SUPPLIER NOTES
 - **Guiding:** the critical success factor. Depart Travel fields **professional, national, officially-licensed, English-speaking tour guides** — expert, narrative-driven leaders + accredited site guides. *Sample guide CVs to be supplied to Exodus before contracting, and a meeting (in person or by video call) shall be arranged between Exodus and the proposed guide(s) before final guide confirmation.*
