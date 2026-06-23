@@ -12,8 +12,8 @@
 
 # 1) GRAND TUNISIA JOURNEY
 
-**Rating: 4.8** ★★★★★ · from 24 reviews
-**Activity Level:** Easy & Moderate · **Comfort Level:** Classic/Boutique · **Activity:** Culture
+**New for 2026 — proposed product**
+**Activity Level:** 3 — Moderate · **Comfort Level:** Classic · **Activity:** Culture
 
 ## Overview
 **Roman ruins without the crowds, the Berber south and a night in the Sahara — the complete Tunisia in one compact loop.**
@@ -27,7 +27,8 @@ Over twelve immersive days we trace every layer of Tunisia's story: the mosaics 
 - **Ways to Travel:** Guided Group (also private / tailor-made)
 - **Countries:** Tunisia
 - **Duration:** 12 days / 11 nights
-- **Carbon Footprint:** approx. 12 kg CO2e per person per day (no internal flights)
+- **Group size:** small group, typically 8–16 (guaranteed from 2); also private / tailor-made
+- **Carbon Footprint:** est. ~35 kg CO₂e **per person per night** (in-trip, excl. flights — indicative, to be validated via eCollective)
 
 ## What's Included
 - All accommodation: 11 nights (boutique/heritage *dar* & hotels, 1 night desert camp)
@@ -36,6 +37,7 @@ Over twelve immersive days we trace every layer of Tunisia's story: the mosaics 
 - Expert, officially-licensed English-speaking tour leader throughout + local site guides
 - All listed entrance fees
 - Arrival and departure transfers
+- Twin-share accommodation — **no compulsory single supplement** (solo travellers paired same-sex at no extra cost; optional private room available)
 
 ## Don't Forget To
 Request a single room if required, purchase travel insurance, and arrange any visas and vaccinations.
@@ -102,7 +104,7 @@ Departure transfer to Enfidha–Hammamet or Tunis–Carthage airport.
 **Open departures — choose your own dates.** This trip runs on the dates that suit you across the spring and autumn seasons (Mar–May and Oct–Nov). **Departures are guaranteed from just 2 participants.**
 
 - **From £1,645 p.p.** (twin share, excl. flights)
-- **Single supplement:** +£345
+- **Optional private-room supplement:** +£345 *(no compulsory single supplement — solos paired same-sex at no cost)*
 - **Private & tailor-made** dates available year-round on request.
 
 ## Accommodation
@@ -126,16 +128,19 @@ Locally-owned boutique and heritage properties throughout. Proposed hotels by lo
 
 Single rooms on request.
 
+## Responsible Travel
+Aligned with Exodus's *Thriving Nature, Thriving People*: ~95% locally-owned accommodation and ~90% of meals at locally-owned restaurants; fair, direct payment to Berber hosts, potters and weavers; small groups on uncrowded sites; welfare-compliant camel encounters (ABTA-aligned, always optional); reusable water refills; indicative CO₂e per night, ready to validate via eCollective.
+
 ## Essential Info
-Easy-to-moderate walking on uneven ground at archaeological sites; one desert-camp night; best in spring (Mar–May) and autumn (Oct–Nov). Not operated in high summer (desert heat).
+Activity Level 3 (Moderate): easy-to-moderate walking on uneven ground at archaeological sites; one desert-camp night; short transfers. Solo-friendly; no compulsory single supplement. Best in spring (Mar–May) and autumn (Oct–Nov); not operated in high summer (desert heat). Full Trip Notes / Essential Trip Information available on request.
 
 ---
 ---
 
 # 2) HIGHLIGHTS OF TUNISIA (8 DAYS)
 
-**Rating: 4.7** ★★★★★ · from 11 reviews
-**Activity Level:** Easy · **Comfort Level:** Classic/Boutique · **Activity:** Culture
+**New for 2026 — proposed product**
+**Activity Level:** 2 — Leisurely/Moderate · **Comfort Level:** Classic · **Activity:** Culture
 
 ## Overview
 **The best of Tunisia in one short, easy week — Roman cities, the holy city of Kairouan, and a taste of the Sahara.**
@@ -147,7 +152,8 @@ A compact, beautifully-paced introduction to Tunisia for travellers who are shor
 - **Ways to Travel:** Guided Group (also private / tailor-made)
 - **Countries:** Tunisia
 - **Duration:** 8 days / 7 nights
-- **Carbon Footprint:** approx. 11 kg CO2e per person per day (no internal flights)
+- **Group size:** small group, typically 8–16 (guaranteed from 2); also private / tailor-made
+- **Carbon Footprint:** est. ~33 kg CO₂e **per person per night** (in-trip, excl. flights — indicative, to be validated via eCollective)
 
 ## What's Included
 - All accommodation: 7 nights (boutique/heritage *dar* & hotels)
@@ -156,6 +162,7 @@ A compact, beautifully-paced introduction to Tunisia for travellers who are shor
 - Expert, officially-licensed English-speaking tour leader throughout + local site guides
 - All listed entrance fees
 - Arrival and departure transfers
+- Twin-share accommodation — **no compulsory single supplement** (solo travellers paired same-sex at no extra cost; optional private room available)
 
 ## Don't Forget To
 Request a single room if required, purchase travel insurance, and arrange any visas and vaccinations.
@@ -205,7 +212,7 @@ Departure transfer to Enfidha–Hammamet or Tunis–Carthage airport.
 **Open departures — choose your own dates.** This trip runs on the dates that suit you across the spring and autumn seasons (Mar–May and Oct–Nov). **Departures are guaranteed from just 2 participants.**
 
 - **From £1,095 p.p.** (twin share, excl. flights)
-- **Single supplement:** +£220
+- **Optional private-room supplement:** +£220 *(no compulsory single supplement — solos paired same-sex at no cost)*
 - **Private & tailor-made** dates available year-round on request.
 
 ## Accommodation
@@ -224,5 +231,8 @@ Locally-owned boutique and heritage properties throughout. Proposed hotels by lo
 
 Single rooms on request.
 
+## Responsible Travel
+Aligned with Exodus's *Thriving Nature, Thriving People*: ~95% locally-owned accommodation and ~90% of meals at locally-owned restaurants; fair, direct payment to local hosts and artisans; small groups on uncrowded sites; reusable water refills; indicative CO₂e per night, ready to validate via eCollective.
+
 ## Essential Info
-Easy walking with short transfers; suitable for first-time visitors; best in spring (Mar–May) and autumn (Oct–Nov). Not operated in high summer (desert heat).
+Activity Level 2 (Leisurely/Moderate): easy walking with short transfers; ideal for first-time visitors. Solo-friendly; no compulsory single supplement. Best in spring (Mar–May) and autumn (Oct–Nov); not operated in high summer (desert heat). Full Trip Notes / Essential Trip Information available on request.

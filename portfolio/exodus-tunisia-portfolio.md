@@ -5,9 +5,14 @@
 ### Prepared & presented by **Depart Travel Services** — Destination Management Company, Tunisia
 
 **Date:** June 2026
-**Status:** Product portfolio + flagship detailed build (The Grand Tunisia Journey, 12 days)
+**Prepared for:** Exodus Adventure Travels — Product & Contracting team
 
-> **Depart Travel Services** is a licensed Tunisian DMC specialising in tailor-made and small-group cultural journeys. This catalogue presents our proposed product portfolio for Exodus Adventure Travels, with a fully detailed flagship itinerary.
+> **Depart Travel Services** is a licensed Tunisian DMC (based in Djerba) specialising in tailor-made and small-group cultural journeys, with our own insured vehicle fleet and ONTT-certified, English-speaking guides. This catalogue presents Tunisia products built specifically around Exodus's customer, grading systems and responsible-travel commitments — ready to publish.
+
+### Why Tunisia — and why now
+Exodus currently sells **no standalone Tunisia trip** (Tunisia appears only as one port within a multi-country small-ship cruise). Yet Tunisia delivers exactly what the Exodus customer wants — **world-class Roman heritage without the crowds, an authentic Berber south, a genuine Sahara night, and living Jewish-Berber island culture** — in a compact, short-transfer loop, just 2.5–3h from the UK. It sits naturally between your Morocco and Jordan ranges on price and pacing. **This catalogue is designed to fill that gap.**
+
+Every product below is mapped to your own systems — **Activity Level (1–7)**, **Comfort Level (Simple/Classic/Superior/Premium)**, land-only twin-share pricing, **no compulsory single supplement**, and an estimated **CO₂e per person per night** — and is backed by an evidenced responsible-travel, guiding and safety pack (see final section).
 
 **Contact:**
 - **Company:** Depart Travel Services — Licensed Travel Agency (Tunisia)
@@ -46,12 +51,15 @@ Soft-adventure walking. Duration: 8 days. Grading: Moderate–Challenging. Seaso
 
 # 2. THE GRAND TUNISIA JOURNEY — North to Sahara (12 Days)
 
-**Trip code (proposed):** TUN-GRAND-12
 **Duration:** 12 days / 11 nights
-**Grading:** Moderate (long but compact; one desert camp night; site walking on uneven ground)
-**Best season:** Mar–May and Oct–Nov (avoid Jun–Aug desert heat)
-**Group size:** small-group, **guaranteed from 2 participants**; also offered as private/tailor-made
+**Activity Level:** **3 — Moderate** (compact, short transfers; one desert-camp night; site walking on uneven ground)
+**Comfort Level:** **Classic** (boutique & heritage hotels; one Simple night at the Sahara camp)
+**Activity / style:** Culture
+**Best season:** Mar–May and Oct–Nov (not operated Jun–Aug — desert heat)
+**Group size:** small group, typically 8–16; **departures guaranteed from 2 participants**; also private/tailor-made
 **Departures:** open — on the dates of your choice across the spring and autumn seasons
+**Single travellers:** no compulsory single supplement — solo travellers paired in a twin at no extra cost; optional private room available
+**Carbon:** est. **~35 kg CO₂e per person per night** (in-trip; excl. flights — indicative, to be validated with eCollective methodology)
 **Start/End:** Tunis (arrival) / Enfidha–Hammamet or Tunis (departure)
 
 ---
@@ -175,39 +183,42 @@ Locally-owned boutique and heritage properties throughout. Proposed hotels by lo
 - **Expert English-speaking national tour leader throughout the whole tour** + qualified local site guides at major sites
 - All listed entrance fees (Bardo, Carthage, Dougga, Sbeitla, El Jem, Kairouan monuments, Sousse, El Ghriba, museums)
 - Camel/dune activity at desert camp
-- Airport transfers (arrival & departure)
+- Group arrival & departure transfers
+- Accommodation on a twin-share basis (**no compulsory single supplement** — solo travellers paired same-sex at no extra cost; optional private room available)
 - All taxes and DMC service charges
-- **One free tour-leader place** (free-place ratio per departure to be confirmed at contracting)
+- One free tour-leader place (free-place ratio per departure to be confirmed at contracting)
 
 ## 2.4 EXCLUDED SERVICES
-- International flights
+- International flights (land-only pricing)
 - Travel insurance (mandatory)
 - Visa (where applicable — most target markets visa-free)
 - Lunches/dinners not listed; drinks
 - Tips/gratuities (leader, drivers, guides)
-- Optional activities (e.g. hammam, balloon)
-- Personal expenses
+- Optional activities (e.g. hammam, vineyard tasting, private boat)
+- Optional private-room supplement; personal expenses
 
 ---
 
-## 2.5 SUSTAINABILITY FEATURES
-- Locally-owned accommodation and restaurants prioritised; revenue retained in-country
-- Desert camp: solar lighting, water-use limits, pack-in/pack-out waste policy, no quad/buggy/jet-ski activities (brand-aligned)
-- Reusable water refills (no single-use plastic bottles on board)
-- Small group sizes to limit site pressure; off-peak/uncrowded sites reduce over-tourism load
-- Support for UNESCO site preservation via official entrance fees
-- Seasonal, local-produce menus (olive oil, dates, harissa, fresh fish on Djerba)
+## 2.5 RESPONSIBLE TRAVEL — *Thriving Nature, Thriving People*
 
-## 2.6 COMMUNITY ENGAGEMENT
-- Visit to a Matmata Berber family home (fair, pre-arranged compensation — not "human zoo")
-- Guellala pottery and Djerba weaving workshops paying artisans directly
-- Andalusian heritage interpretation in Testour by local hosts
-- Meals hosted/sourced from local family businesses where possible
-- Berber music and storytelling at the desert camp by local performers
-- Commitment: encounters arranged with consent, fair pay, and cultural respect
-<!-- 📷 Matmata troglodyte home interior; Guellala potter at the wheel; Djerba weaver -->
+*Designed to align with Exodus's B Corp values and its two pillars. Indicative metrics below are Depart Travel commitments for this product, ready to be measured and reported in your format.*
 
-## 2.7 PRICING STRUCTURE — NET RATES BY GROUP SIZE
+**Thriving People (local benefit):**
+- **~95% of accommodation locally owned** (boutique *dars*, oasis & island guesthouses, Berber *ksar*, local desert camp)
+- **~90% of included meals at locally-owned restaurants** and family kitchens
+- Direct, fair payment to artisans and hosts: Matmata Berber family home, Guellala potters, Djerba weavers, Berber musicians at the camp — arranged with consent and cultural respect
+- Spend retained in-country: Tunisian-owned suppliers, local guides and drivers throughout
+
+**Thriving Nature (lower impact):**
+- Small groups to limit site pressure; uncrowded, off-peak sites reduce over-tourism load
+- Desert camp: solar lighting, strict water-use limits, pack-in/pack-out waste policy
+- Reusable water refills on board (no single-use plastic bottles)
+- Support for UNESCO site preservation via official entrance fees; seasonal local-produce menus
+- Indicative **CO₂e per person per night** provided; happy to validate via Exodus's **eCollective** methodology and flag for the **Lower Carbon Collection**
+
+**Animal welfare:** fully aligned with **ABTA Animal Welfare Guidelines** — no captive-wild-animal interactions or performances. Camel encounters are welfare-compliant: well-kept working animals, limited ride duration, shade and water, no overloading; the camel ride is always optional.
+
+## 2.6 PRICING STRUCTURE — NET RATES BY GROUP SIZE
 
 > ⚠️ **ILLUSTRATIVE FIGURES (EUR).** The amounts below are a realistic working model to show how the grid behaves by group size. They are **not a contracted quote** — final net rates will be confirmed at contracting against live supplier costs and the agreed accommodation list.
 
@@ -262,12 +273,31 @@ Locally-owned boutique and heritage properties throughout. Proposed hotels by lo
 
 *Quoted at the lower bound of each tier. Shoulder season (Mar–May / Oct–Nov); low season approx. −10%. Net to Exodus, before Exodus margin and international air. 7 nights boutique/heritage B&B; included meals: welcome dinner, two touring-day lunches, farewell dinner; all listed entrance fees and the 4x4 excursion. Same free-place ratio (1 per 15) and terms as the 12-day product.*
 
-## 2.8 SUPPLIER NOTES
-- **Guiding:** Depart Travel fields **professional, national, officially-licensed, English-speaking tour guides** — expert, narrative-driven leaders + accredited site guides. *Sample guide CVs supplied before contracting, and a meeting (in person or by video call) can be arranged between Exodus and the proposed guide(s) before final confirmation.*
-- **Transport:** modern A/C coaches/minibuses; vetted 4x4 fleet for desert/oases; licensed insured drivers.
-- **Accommodation:** preferred boutique/heritage partners; backup properties identified per location.
-- **Desert camp:** confirmed permanent-camp partner meeting Exodus H&S and sustainability standards — and soon to be a camp **fully owned and operated by Depart Travel**.
-- **Restaurants:** vetted for hygiene, capacity, and consistent quality.
+## 2.7 GUIDING, SAFETY & CREDENTIALS — WHY DEPART TRAVEL
+
+*Tour-leader quality is the single most praised — and most complained-about — element of any small-group operator. It is our headline commitment.*
+
+**Guiding (the heart of the product):**
+- **ONTT-certified, officially-licensed, English-speaking national tour leaders**, present arrival-to-departure, supported by accredited local site guides at major monuments
+- Expert, narrative-driven storytelling — history brought alive, not recited
+- **Named guide bios + CVs supplied before contracting**; Exodus may **interview/meet the proposed guide(s)** (in person or by video call) before final confirmation
+- Consistency safeguards: a small, vetted core team and a documented briefing standard per itinerary, so the experience does not vary departure-to-departure
+
+**Transport & fleet:**
+- **Own insured vehicle fleet**; modern A/C minibuses/coaches; vetted 4x4s for the desert and mountain oases; **ONTT-approved, licensed, insured drivers**
+
+**Health, safety & crisis support:**
+- Activities operated to local legal standards; **annual route & supplier risk assessments**
+- **24/7 in-country assistance** and a local emergency-response protocol; coordination with Exodus's medical/repatriation teams
+- Vetted accommodation and restaurants (hygiene, capacity, consistency); backup properties identified per location
+
+**Ethics & compliance:**
+- Willing to **sign Exodus's human-rights / ethical-procurement commitment** (UN Guiding Principles, ILO Declaration) as a condition of partnership
+- Animal-welfare aligned (ABTA guidelines); local-benefit metrics reported in your format
+
+**Desert camp:** confirmed permanent-camp partner meeting H&S and sustainability standards — and **soon to be a camp fully owned and operated by Depart Travel**, giving Exodus direct quality control over the Sahara night.
+
+**About Depart Travel Services:** a Djerba-based Tunisian DMC specialising in tailor-made and small-group journeys, with deep expertise across both the classical north and the Berber/Sahara south, an own insured fleet, and 24/7 operational support.
 
 # 3. TAILOR-MADE TOURS
 
