@@ -1,8 +1,19 @@
-# TUNISIA — EXODUS ADVENTURE TRAVELS B2B PRODUCT PORTFOLIO
+<!-- 📷 COVER IMAGE: Hero shot — El Jem amphitheatre at golden hour OR Sahara dunes at sunset -->
 
-**Prepared by:** Depart Travel Services (DMC, Tunisia) — *in the evaluative voice of Exodus Product Management*
+# TUNISIA — PRODUCT CATALOGUE FOR EXODUS ADVENTURE TRAVELS
+
+### Prepared & presented by **Depart Travel Services** — Destination Management Company, Tunisia
+
 **Date:** June 2026
-**Status:** Portfolio approved · Flagship product (Grand Tunisia Journey) in detailed build
+**Status:** Product portfolio + flagship detailed build (The Grand Tunisia Journey, 12 days)
+
+> **Depart Travel Services** is a licensed Tunisian DMC specialising in tailor-made and small-group cultural journeys. This catalogue presents our proposed product portfolio for Exodus Adventure Travels, with a fully detailed flagship itinerary.
+
+**Contact:**
+- **Company:** Depart Travel Services — Licensed Travel Agency (Tunisia)
+- **Email:** direction@depart-travel-services.com
+- **Phone / WhatsApp:** +216 25 099 589
+- **Website:** https://depart-travel-services.com/fr/
 
 ---
 
@@ -139,8 +150,9 @@ Tunisia must earn shelf space against four mature, high-converting Exodus destin
 **Day 1 — Arrival, Tunis. Meet & greet, free afternoon.**
 Private airport transfer, welcome by Tunis-based representative. Free time to recover. Evening welcome briefing + group dinner in a restored medina dar (townhouse). *Driving: minimal.*
 
-**Day 2 — Tunis: Medina, Carthage, Sidi Bou Saïd, Bardo Museum.**
-Guided walk of the UNESCO Tunis Medina (Zitouna Mosque exterior, souks, palaces). Carthage archaeological site (Phoenician/Roman/Byzantine layers — Byrsa Hill, Antonine Baths). Lunch. Bardo Museum (world's finest Roman mosaic collection). Sunset in the blue-and-white village of Sidi Bou Saïd. *Driving: light, all greater Tunis.*
+**Day 2 — Tunis: Medina, Bardo, Carthage & Sidi Bou Saïd.**
+Begin with a guided walk of the UNESCO **Tunis Medina** (Zitouna Mosque exterior, souks, historic palaces). Continue to the **Bardo Museum** — the world's finest collection of Roman mosaics. **Lunch in a local restaurant.** Afternoon at the **Carthage** archaeological site (Phoenician/Roman/Byzantine layers — Byrsa Hill, Antonine Baths). Finish with sunset in the blue-and-white village of **Sidi Bou Saïd**. *Driving: light, all greater Tunis.*
+<!-- 📷 Sidi Bou Saïd blue door & white walls; Bardo mosaic close-up; Carthage Antonine Baths -->
 
 **Day 3 — Testour → Dougga → Kairouan.**
 Drive west to Testour (Andalusian-Moorish heritage town, unique mosque). On to **Dougga (UNESCO)** — the best-preserved Roman town in North Africa; 2–2.5h guided walk. Lunch. Drive south to **Kairouan (UNESCO)**, Islam's fourth holiest city. Overnight Kairouan. *Driving: ~3.5h total, broken by sites.*
@@ -152,7 +164,8 @@ Morning: Great Mosque of Kairouan + Aghlabid basins. Drive to **Sbeitla (Sufetul
 4x4 excursion to the **mountain oases of Chebika, Tamerza and Midès** (canyons, waterfalls, palmeraies on the Algerian frontier). Visit the **Mos Espa** Star Wars film set near Tozeur (light-touch, optional). Afternoon: Tozeur old town (Ouled el Hadef quarter). Overnight Tozeur. *Driving: 4x4 day, scenic.*
 
 **Day 6 — Chott el Jerid → Sahara, night in desert camp.**
-Cross the **Chott el Jerid** salt lake (mirage country). Enter the Grand Erg Oriental. Afternoon at the dunes — optional camel ride, dune walk, sunset. **Overnight in a permanent desert tented camp** (en-suite "luxe nomad" tents). Star-gazing, Berber music, traditional dinner. *Driving: ~3–4h + transfer to camp.*
+Cross the **Chott el Jerid** salt lake (mirage country). Enter the Grand Erg Oriental. Afternoon at the dunes — optional camel ride, dune walk, sunset. **Overnight in a permanent desert tented camp** (en-suite, air-conditioned "luxe nomad" tents). Star-gazing, **Berber music & storytelling by local performers**, traditional dinner. *Driving: ~3–4h + transfer to camp.*
+<!-- 📷 Bedouin elder playing the flute (mizwid/gasba) at the desert camp — warm firelight / dune backdrop -->
 
 **Day 7 — Matmata → Tataouine → Chenini.**
 Drive to **Matmata** (troglodyte underground Berber dwellings; visit a family home). Continue to the **Tataouine** region — the ksour and *ghorfas* (fortified Berber granaries, e.g. Ksar Ouled Soltane). Late afternoon at the dramatic hilltop Berber village of **Chenini**. Overnight Tataouine or Djerba (route-dependent). *Driving: ~3–4h split by stops.*
@@ -176,30 +189,33 @@ Transfer to Enfidha–Hammamet or Tunis–Carthage airport. *Driving: 30–60 mi
 
 ## 7.2 ACCOMMODATION CONCEPTS
 
-| Night(s) | Location | Concept |
+| Night(s) | Location | Property (proposed) |
 |---|---|---|
-| 1, (12) | Tunis / Sidi Bou Saïd | Boutique medina *dar* — restored townhouse, character, breakfast on the terrace |
-| 3 | Kairouan | Heritage/boutique hotel near the medina |
-| 4–5 | Tozeur | Traditional-brick oasis hotel with palm-garden pool |
-| 6 | Sahara | Permanent **luxe tented camp**, en-suite, low-impact, solar where possible |
-| 7 | Tataouine / Ksar | Restored *ksar* or characterful regional hotel |
-| 8–9 | Djerba | Boutique *menzel*-style or heritage hotel in/near Houmt Souk (NOT a beach megaresort) |
-| 10 | Sousse | Boutique hotel in/near the medina |
-| 11 | Hammamet | Character hotel, old-town side |
+| 1, (12) | Tunis / Sidi Bou Saïd | **Dar El Jeld** (restored medina townhouse) *or* **Villa Bleue, Sidi Bou Saïd** (relaxed, sea-view) — character, breakfast on the terrace |
+| 3 | Kairouan | **Kasbah Kairouan 5\*** — heritage hotel beside the medina |
+| 4–5 | Tozeur | **The Mora** *or* **Dar Tozeur** guesthouse — traditional brick, palm-garden pool |
+| 6 | Sahara | **Dunes Insolites Camp** — permanent luxe tented camp, en-suite, **air-conditioned tents**, low-impact |
+| 7 | Tataouine / Ksar | **Ksar Hadada** — restored Berber granary (a *Star Wars* filming location) |
+| 8–9 | Djerba | **Dar Dhiafa** or similar — boutique *menzel*-style heritage hotel in/near Houmt Souk (NOT a beach megaresort) |
+| 10 | Sousse | **Dar Badiaa** (medina) or similar — boutique hotel in/near the UNESCO medina |
+| 11 | Hammamet | **Villa Zembra** guesthouse or similar — character property, old-town side |
 
 **Principle:** locally-owned, characterful, story-rich properties over international chains. Consistency and hygiene vetted by Depart Travel.
+<!-- 📷 Dar El Jeld courtyard; Kasbah Kairouan; Dunes Insolites tent interior; Ksar Hadada granary; Dar Dhiafa Djerba -->
 
 ---
 
 ## 7.3 INCLUDED SERVICES
 - All accommodation (11 nights) as above, on B&B basis unless noted
-- Daily breakfast; welcome dinner (Day 1); desert-camp dinner (Day 6); farewell dinner (Day 11); lunches on full touring days (Days 3, 4, 10) — *final meal plan to be confirmed at contracting*
+- Daily breakfast; welcome dinner (Day 1); desert-camp dinner (Day 6); farewell dinner (Day 11); **lunches on full touring days in local restaurants** — *final meal plan to be confirmed at contracting*
 - All ground transport in private A/C vehicle; 4x4 for Day 5 and desert access Day 6
-- Expert English-speaking national tour leader throughout + qualified local site guides at major sites
+- **Highway/motorway parking and fuel expenses**
+- **Expert English-speaking national tour leader throughout the whole tour** + qualified local site guides at major sites
 - All listed entrance fees (Bardo, Carthage, Dougga, Sbeitla, El Jem, Kairouan monuments, Sousse, El Ghriba, museums)
 - Camel/dune activity at desert camp
 - Airport transfers (arrival & departure)
 - All taxes and DMC service charges
+- **One free tour-leader place** (free-place ratio per departure to be confirmed at contracting)
 
 ## 7.4 EXCLUDED SERVICES
 - International flights
@@ -227,6 +243,7 @@ Transfer to Enfidha–Hammamet or Tunis–Carthage airport. *Driving: 30–60 mi
 - Meals hosted/sourced from local family businesses where possible
 - Berber music and storytelling at the desert camp by local performers
 - Commitment: encounters arranged with consent, fair pay, and cultural respect
+<!-- 📷 Matmata troglodyte home interior; Guellala potter at the wheel; Djerba weaver -->
 
 ## 7.7 PRICING STRUCTURE *(framework — figures TBC at contracting)*
 - **Net per-person land cost** quoted twin-share, with per-departure tiers by group size (e.g. 4–6 / 7–10 / 11–16 pax)
@@ -238,7 +255,7 @@ Transfer to Enfidha–Hammamet or Tunis–Carthage airport. *Driving: 30–60 mi
 - Validity, payment terms, cancellation/amendment policy and allotment release periods specified in the contract
 
 ## 7.8 SUPPLIER NOTES
-- **Guiding:** the critical success factor. Depart Travel to field expert, narrative-driven, English-fluent national leaders + accredited site guides. *Sample CVs to be supplied to Exodus before contracting.*
+- **Guiding:** the critical success factor. Depart Travel fields **professional, national, officially-licensed, English-speaking tour guides** — expert, narrative-driven leaders + accredited site guides. *Sample guide CVs to be supplied to Exodus before contracting.*
 - **Transport:** modern A/C coaches/minibuses; vetted 4x4 fleet for desert/oases; licensed insured drivers.
 - **Accommodation:** preferred boutique/heritage partners; backup properties identified per location.
 - **Desert camp:** confirmed permanent-camp partner meeting Exodus H&S and sustainability standards.
@@ -256,4 +273,31 @@ Transfer to Enfidha–Hammamet or Tunis–Carthage airport. *Driving: 30–60 mi
 
 ---
 
+# 8. TAILOR-MADE TOURS
+
+Every itinerary in this catalogue can be **fully tailored** to Exodus's specifications — duration, grading, accommodation tier, group size, private departures, theme emphasis (Roman / Berber / culinary / walking), and seasonal dates.
+
+> ### ⏱️ A reply within 72 hours — **guaranteed**
+> Send us your brief and we will respond with a costed proposal **within 72 hours**.
+
+**How to request a tailor-made tour:**
+1. Email your brief to **direction@depart-travel-services.com** (or WhatsApp **+216 25 099 589**).
+2. Include: travel dates, group size, preferred grading/pace, accommodation tier, and any must-see themes.
+3. Receive a costed day-by-day proposal and net-rate quote **within 72 hours**.
+
+---
+
+## CONTACT — DEPART TRAVEL SERVICES
+
+| | |
+|---|---|
+| **Company** | Depart Travel Services — Licensed Travel Agency (Tunisia) |
+| **Website** | https://depart-travel-services.com/fr/ |
+| **Email** | direction@depart-travel-services.com |
+| **Phone / WhatsApp** | +216 25 099 589 |
+
+<!-- 📷 Company logo here, and a closing image: Tunisian hospitality / mint tea / medina rooftop -->
+
 *Next step: confirm meal plan, finalise accommodation shortlist per location, and produce the net-rate pricing grid for the 2026/27 shoulder seasons.*
+
+— *Prepared by Depart Travel Services for Exodus Adventure Travels, June 2026.*
