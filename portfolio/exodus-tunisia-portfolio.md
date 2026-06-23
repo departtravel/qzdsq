@@ -171,7 +171,6 @@ Morning: Great Mosque of Kairouan + Aghlabid basins. Drive to **Sbeitla (Sufetul
 4x4 excursion to the **mountain oases of Chebika, Tamerza and Midès** (canyons, waterfalls, palmeraies on the Algerian frontier). Visit the **Mos Espa** Star Wars film set near Tozeur (light-touch, optional). Afternoon: Tozeur old town (Ouled el Hadef quarter). Overnight Tozeur. *Driving: 4x4 day, scenic.*
 
 ![Mountain oasis — palm groves beneath the canyon cliffs (Chebika / Tamerza / Midès)](images/mountain-oasis.jpg)
-![Walking the gorge near the mountain oases](images/gorge-canyon.jpg)
 
 **Day 6 — Chott el Jerid & Night in the Sahara.**
 Cross the **Chott el Jerid** salt lake (mirage country). Enter the Grand Erg Oriental. Afternoon at the dunes — optional camel ride, dune walk, sunset. **Overnight in a permanent desert tented camp** (en-suite, air-conditioned "luxe nomad" tents). Star-gazing, **Berber music & storytelling by local performers**, traditional dinner. *Driving: ~3–4h + transfer to camp.*
@@ -191,17 +190,22 @@ Transfer to **Djerba** via the Roman causeway (El Kantara). *Cultural* Djerba: *
 **Day 9 — Djerba Island (Heritage & Encounters).**
 **Djerbahood** street-art quarter (Erriadh); traditional weaving; menzel (fortified farmhouse) heritage; olive-oil and date producers; optional lagoon/flamingo viewpoint. Island cuisine experience. Overnight Djerba. *Driving: light.* *(Note: kept cultural, not beach — protects brand positioning.)*
 
+![Djerbahood — the open-air street-art quarter of Erriadh](images/djerbahood.jpg)
+
 **Day 10 — El Jem & Sousse.**
 Drive north to **El Jem (UNESCO)** — the colossal Roman amphitheatre (one of the largest in the world) + mosaic museum. Lunch. Continue to **Sousse**; guided visit of the **UNESCO Medina**, Ribat and Great Mosque. Overnight Sousse. *Driving: ~2.5–3h split by El Jem.*
 
 ![El Jem — the colossal Roman amphitheatre](images/el-jem.jpg)
-![Sousse — the UNESCO medina and Ribat](images/sousse.jpg)
 
 **Day 11 — Hammamet.**
 Coastal drive to **Hammamet**: the Kasbah and old medina, the Andalusian quarter, and **Dar Sebastian / International Cultural Centre** gardens. Afternoon at leisure / optional hammam. Farewell dinner. Overnight Hammamet. *Driving: ~1h.*
 
+![Hammamet — the Kasbah and old medina above the sea](images/hammamet.jpg)
+
 **Day 12 — Departure.**
 Transfer to Enfidha–Hammamet or Tunis–Carthage airport. *Driving: 30–60 min depending on airport.*
+
+![Sidi Bou Saïd — a final image of Tunisia before departure](images/sidi-bou-said.jpg)
 
 ---
 
