@@ -26,6 +26,12 @@ DOCS = [
      "images/dougga.webp",
      "HIGHLIGHTS OF TUNISIA",
      "A short cultural week · 8 days — proposed for Exodus Adventure Travels"),
+    ("depart-travel-full-catalogue.md",
+     "Depart-Travel-Full-Catalogue-Exodus.pdf",
+     "Depart Travel Services · Tunisia — Full Catalogue for Exodus Adventure Travels",
+     "images/mountain-oasis.jpg",
+     "TUNISIA",
+     "Full Catalogue · Depart Travel Services for Exodus Adventure Travels"),
 ]
 
 CSS_TEMPLATE = """
