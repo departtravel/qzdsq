@@ -163,12 +163,21 @@ Morning: Great Mosque of Kairouan + Aghlabid basins. Drive to **Sbeitla (Sufetul
 **Day 5 — Mountain oases & Mos Espa.**
 4x4 excursion to the **mountain oases of Chebika, Tamerza and Midès** (canyons, waterfalls, palmeraies on the Algerian frontier). Visit the **Mos Espa** Star Wars film set near Tozeur (light-touch, optional). Afternoon: Tozeur old town (Ouled el Hadef quarter). Overnight Tozeur. *Driving: 4x4 day, scenic.*
 
+![Mountain oasis — palm groves beneath the canyon cliffs (Chebika / Tamerza / Midès)](images/mountain-oasis.jpg)
+![Walking the gorge near the mountain oases](images/gorge-canyon.jpg)
+![Spring-fed oasis pool, a shaded rest stop](images/oasis-pool.jpg)
+
 **Day 6 — Chott el Jerid → Sahara, night in desert camp.**
 Cross the **Chott el Jerid** salt lake (mirage country). Enter the Grand Erg Oriental. Afternoon at the dunes — optional camel ride, dune walk, sunset. **Overnight in a permanent desert tented camp** (en-suite, air-conditioned "luxe nomad" tents). Star-gazing, **Berber music & storytelling by local performers**, traditional dinner. *Driving: ~3–4h + transfer to camp.*
-<!-- 📷 Bedouin elder playing the flute (mizwid/gasba) at the desert camp — warm firelight / dune backdrop -->
+![Bedouin musicians and storytelling around the campfire at the desert camp](images/desert-camp-music.jpg)
+![Desert camp setting at golden hour](images/desert-camp-setup.jpg)
 
 **Day 7 — Matmata → Tataouine → Chenini.**
 Drive to **Matmata** (troglodyte underground Berber dwellings; visit a family home). Continue to the **Tataouine** region — the ksour and *ghorfas* (fortified Berber granaries, e.g. Ksar Ouled Soltane). Late afternoon at the dramatic hilltop Berber village of **Chenini**. Overnight Tataouine or Djerba (route-dependent). *Driving: ~3–4h split by stops.*
+
+![Hilltop Berber village with its whitewashed mosque (Chenini / Douiret)](images/berber-village-1.jpg)
+![Stone troglodyte village in the valley](images/berber-village-2.jpg)
+![Panorama over a Berber village from the terraces](images/chenini-panorama.jpg)
 
 **Day 8 — Djerba island (cultural).**
 Transfer to **Djerba** via the Roman causeway (El Kantara). *Cultural* Djerba: **El Ghriba**, one of the oldest synagogues in the world & living Jewish-Berber heritage; **Houmt Souk** old town & fishing port; **Guellala** pottery workshops. Overnight Djerba. *Driving: light, island-based.*
@@ -201,7 +210,8 @@ Transfer to Enfidha–Hammamet or Tunis–Carthage airport. *Driving: 30–60 mi
 | 11 | Hammamet | **Villa Zembra** guesthouse or similar — character property, old-town side |
 
 **Principle:** locally-owned, characterful, story-rich properties over international chains. Consistency and hygiene vetted by Depart Travel.
-<!-- 📷 Dar El Jeld courtyard; Kasbah Kairouan; Dunes Insolites tent interior; Ksar Hadada granary; Dar Dhiafa Djerba -->
+![Ksar Hadada — the restored vaulted courtyard at sunset (Day 7 accommodation)](images/ksar-hadada.jpg)
+<!-- 📷 Still needed: Dar El Jeld courtyard; Kasbah Kairouan; Dunes Insolites tent interior; Dar Dhiafa Djerba -->
 
 ---
 
