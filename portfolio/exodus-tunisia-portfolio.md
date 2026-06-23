@@ -109,24 +109,24 @@ Cross the **Chott el Jerid** salt lake (mirage country) with a photo stop, and s
 
 *Accommodation:* Sabria / Dunes Insolites desert camp (or similar) · *Meals:* Breakfast, Dinner
 
-**Day 7 — Matmata, Tataouine & Chenini.**
-Drive to **Matmata**; visit the **Tamazret Berber museum** and the troglodyte underground Berber dwellings, including a family home. Continue to the **Tataouine** region — the ksour and *ghorfas* (fortified Berber granaries, e.g. Ksar Ouled Soltane). Late afternoon at the dramatic hilltop Berber village of **Chenini** and its iconic white mosque. Overnight Tataouine. *Driving: ~3–4h split by stops.*
+**Day 7 — Tamazret, Matmata & a Troglodyte Night.**
+Leave the Sabria camp and drive into the Berber highlands. Visit **Tamazret** and **Matmata**, famous for its troglodyte underground Berber dwellings (with a visit to a family home). Tonight is a genuine local experience: **overnight in a restored troglodyte house — Au Trait d'Union, Tijma.** *Driving: ~3h split by stops.*
 
-![Chenini — the hilltop Berber village and its white mosque](images/berber-village-1.jpg)
+![Troglodyte Berber village in the valley (Matmata / Tamazret)](images/berber-village-2.jpg)
 
-*Accommodation:* Ksar Hadada (or similar) · *Meals:* Breakfast
+*Accommodation:* Au Trait d'Union, Tijma — troglodyte guesthouse (local experience) · *Meals:* Breakfast, Dinner
 
-**Day 8 — Djerba Island (Cultural).**
-Transfer to **Djerba** via the Roman causeway (El Kantara). *Cultural* Djerba: **El Ghriba**, one of the oldest synagogues in the world & living Jewish-Berber heritage; **Houmt Souk** old town & fishing port; **Guellala** pottery workshops; and a visit to the **Djerbahood** street-art quarter. Overnight Djerba. *Driving: light, island-based.*
+**Day 8 — Ksar Hadada, Chenini & to Djerba.**
+Morning among the ksour of the south: **Ksar Hadada** (a *Star Wars* filming location) and the dramatic hilltop Berber village of **Chenini** with its iconic white mosque. In the afternoon, drive to the island of **Djerba** via the Roman causeway (El Kantara) for the night. *Driving: ~3–4h split by stops.*
 
-![Djerba — Houmt Souk and the island's cultural heritage](images/djerba.jpeg)
+![Ksar Hadada — restored Berber granary (a Star Wars filming location)](images/ksar-hadada.jpg)
 
 *Accommodation:* Dar Dhiafa (or similar) · *Meals:* Breakfast
 
-**Day 9 — Djerba: Free Day (Heritage & Encounters).**
-A free day on the island, with the option of a **private sea tour by boat** or a **full cultural day** exploring Djerba's UNESCO heritage — traditional weaving, menzel (fortified farmhouse) heritage, olive-oil and date producers, and an optional lagoon/flamingo viewpoint. Island cuisine experience. Overnight Djerba. *Driving: light.* *(Note: kept cultural, not beach — protects brand positioning.)*
+**Day 9 — Djerba Island (Cultural).**
+*Cultural* Djerba: **El Ghriba**, one of the oldest synagogues in the world & living Jewish-Berber heritage; **Houmt Souk** old town & fishing port; **Guellala** pottery workshops; and the **Djerbahood** street-art quarter. Overnight Djerba. *Driving: light, island-based.* *(Kept cultural, not beach — protects brand positioning.)*
 
-![Djerba — a cultural day on the island (Djerbahood / Houmt Souk)](images/djerbahood.jpg)
+![Djerba — Houmt Souk and the island's cultural heritage](images/djerba.jpeg)
 
 *Accommodation:* Dar Dhiafa (or similar) · *Meals:* Breakfast
 
@@ -163,7 +163,7 @@ Locally-owned boutique and heritage properties throughout. Proposed hotels by lo
 | 3 | Kairouan | Kasbah Kairouan 5★ |
 | 4–5 | Tozeur | Tamerza Palace |
 | 6 | Douz / Sabria | Dunes Insolites desert camp (en-suite, air-conditioned tents) |
-| 7 | Tataouine | Ksar Hadada (restored Berber granary, a *Star Wars* filming location) |
+| 7 | Tijma (Matmata area) | Au Trait d'Union — restored troglodyte guesthouse (authentic local stay) |
 | 8–9 | Djerba | Dar Dhiafa · Dar Bhar · Villa Azur |
 | 10 | Sousse | Mövenpick · Dar Badiaa |
 | 11 | Hammamet | Villa Zembra · Dar Khayem Hotel |

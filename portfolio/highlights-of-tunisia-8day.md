@@ -1,20 +1,20 @@
 <!-- COVER set in build_pdf.py -->
 
 # HIGHLIGHTS OF TUNISIA — 8 DAYS
-### A short cultural week — Roman cities, Kairouan & a taste of the Sahara
+### Roman cities, Kairouan, the Sahara & a troglodyte night
 
 **Prepared by Depart Travel Services for Exodus Adventure Travels**
 **New for 2026 — proposed product**
-**Activity Level:** 2 — Leisurely/Moderate · **Comfort Level:** Classic · **Activity:** Culture
+**Activity Level:** 3 — Moderate · **Comfort Level:** Classic · **Activity:** Culture
 
 **Contact:** Depart Travel Services · direction@depart-travel-services.com · +216 25 099 589 · https://depart-travel-services.com/fr/
 
 ---
 
 ## Overview
-**The best of Tunisia in one short, easy week — Roman cities, the holy city of Kairouan, and a taste of the Sahara.**
+**A short, immersive week — from the mosaics of Carthage to a night in the Sahara and a stay in a Berber troglodyte house.**
 
-A compact, beautifully-paced introduction to Tunisia for travellers who are short on time but rich in curiosity. In eight days we tour the mosaics of the Bardo and the ruins of Carthage, walk the crowd-free Roman city of Dougga, soak up the holy city of Kairouan, reach the oasis edge of the Sahara at Tozeur for a 4x4 desert excursion, stand inside the giant amphitheatre of El Jem, and relax on the Mediterranean coast. Short transfers and uncrowded sites make it ideal for a first visit — and a natural shorter companion to the 12-day Grand Tunisia Journey.
+This compact loop packs the very best of Tunisia into eight days: the medina and Bardo mosaics of Tunis, the ruins of Carthage, the holy city of Kairouan, the palm oases and canyons of the south, a crossing of the Chott el Jerid salt lake to a desert camp in the dunes, the troglodyte Berber world of Matmata and Tamazret — with an authentic overnight in a troglodyte house — and finally the colossal amphitheatre of El Jem and the Mediterranean coast. Short transfers, uncrowded sites and genuine local encounters throughout.
 
 ## Key Information
 - **Trip Code:** THT *(proposed)*
@@ -23,11 +23,11 @@ A compact, beautifully-paced introduction to Tunisia for travellers who are shor
 - **Duration:** 8 days / 7 nights
 - **Group size:** small group, typically 8–16 (guaranteed from 2); also private / tailor-made
 - **Flights:** land-only; **Tunis (TUN) in and out** — fully compatible with UK/Europe scheduled services
-- **Carbon Footprint:** est. ~33 kg CO₂e **per person per night** (in-trip, excl. flights — indicative, to be validated via eCollective)
+- **Carbon Footprint:** est. ~34 kg CO₂e **per person per night** (in-trip, excl. flights — indicative, to be validated via eCollective)
 
 ## What's Included
-- All accommodation: 7 nights (boutique/heritage *dar* & hotels)
-- All breakfasts and selected meals (welcome dinner, two touring-day lunches, farewell dinner)
+- All accommodation: 7 nights (boutique/heritage hotels, 1 night desert camp, 1 night troglodyte guesthouse)
+- All breakfasts and selected meals (welcome dinner, touring-day lunches, desert-camp dinner, troglodyte-house dinner, farewell dinner)
 - Immersive itinerary with all listed transport, 4x4 excursion and activities
 - Expert, ONTT-certified English-speaking tour leader throughout + local site guides
 - All listed entrance fees
@@ -38,11 +38,11 @@ A compact, beautifully-paced introduction to Tunisia for travellers who are shor
 International flights · travel insurance · visas (most markets visa-free) · meals/drinks not listed · tips · optional activities · optional private-room supplement.
 
 ## Highlights
-- Tour crowd-free Roman Tunisia: **Carthage, Dougga and the great El Jem amphitheatre**
-- Discover the holy city of **Kairouan** and its Great Mosque
-- Reach the **Sahara oases of Tozeur** with a scenic 4x4 excursion
+- Tour crowd-free Roman Tunisia: **Carthage, El Jem and the holy city of Kairouan**
+- **Cross the Chott el Jerid and sleep in a Sahara desert camp** among the dunes
+- Discover the **troglodyte Berber world of Matmata & Tamazret** — with a night in a troglodyte house
 
-![Highlights of Tunisia — Roman heritage & oases](images/dougga.webp)
+![Highlights of Tunisia — Roman heritage, oases & desert](images/dougga.webp)
 
 ## Itinerary
 
@@ -52,39 +52,39 @@ Arrival transfer and evening welcome dinner in a restored medina townhouse.
 
 ![Dar El Jeld — Tunis](images/Dareljeld.jpg)
 
-**Day 2: Tunis Medina, Bardo, Carthage & Sidi Bou Saïd**
-The medina, the world-class Bardo mosaics, the ruins of Carthage and sunset in blue-and-white Sidi Bou Saïd.
+**Day 2: Medina, Bardo, Carthage & Sidi Bou Saïd**
+The UNESCO medina, the world-class Bardo mosaics, the ruins of Carthage and sunset in blue-and-white Sidi Bou Saïd.
 *Accommodation:* Dar El Jeld / Villa Bleue (or similar) · *Meals:* Breakfast
 
 ![The archaeological site of Carthage](images/carthage.jpg)
 
-**Day 3: Testour & Dougga • To Kairouan**
-The best-preserved Roman town in North Africa, then the holy city of Kairouan — old medina and Makroudh pastry.
-*Accommodation:* Kasbah Kairouan 5★ (or similar) · *Meals:* Breakfast, Lunch
-
-![Dougga — the best-preserved Roman town in North Africa](images/dougga.webp)
-
-**Day 4: Kairouan & Sbeitla • To Tozeur**
-Great Mosque of Kairouan and the Roman forum of Sbeitla, then on to the oasis town of Tozeur.
+**Day 3: Kairouan • To Tozeur**
+The holy city of Kairouan — Great Mosque, old medina and Makroudh pastry — then on to the oasis town of Tozeur.
 *Accommodation:* Tamerza Palace (or similar) · *Meals:* Breakfast, Lunch
 
-![Sbeitla (Sufetula) — the Roman forum and its three temples](images/sbeitla.jpg)
+![Kairouan — the Great Mosque & medina](images/kasbaah-kairouan.jpg)
 
-**Day 5: Mountain oases & canyons**
-4x4 excursion to the mountain oases of Chebika, Tamerza and Midès; Tozeur old town.
-*Accommodation:* Tamerza Palace (or similar) · *Meals:* Breakfast
+**Day 4: Mountain oases • Chott el Jerid • Sahara camp**
+4x4 to the mountain oases of Chebika, Tamerza and Midès, with lunch, then cross the **Chott el Jerid** salt lake and head to the **Dunes Insolites** desert camp for a night among the dunes.
+*Accommodation:* Dunes Insolites desert camp (or similar) · *Meals:* Breakfast, Lunch, Dinner
 
 ![Mountain oasis — palm groves beneath the canyon cliffs](images/mountain-oasis.jpg)
 
-**Day 6: To the coast • El Jem amphitheatre**
-Drive north via the colossal Roman amphitheatre of El Jem to the Mediterranean coast at Sousse.
+**Day 5: Sabria & Douz • Tamazret & Matmata • Troglodyte night**
+From Sabria to Douz (gateway to the Sahara), then into the Berber highlands of Tamazret and Matmata, with its troglodyte underground dwellings. Tonight, an authentic stay in a restored troglodyte house.
+*Accommodation:* Au Trait d'Union, Tijma — troglodyte guesthouse · *Meals:* Breakfast, Dinner
+
+![Troglodyte Berber village in the valley (Matmata / Tamazret)](images/berber-village-2.jpg)
+
+**Day 6: El Jem & Sousse**
+Drive north to the colossal Roman amphitheatre of **El Jem**, then the UNESCO medina and Ribat of **Sousse**.
 *Accommodation:* Mövenpick / Dar Badiaa, Sousse (or similar) · *Meals:* Breakfast
 
 ![Sousse — the UNESCO medina and Ribat](images/sousse.webp)
 
-**Day 7: Sousse & Hammamet**
-The UNESCO medina and Ribat of Sousse, then Hammamet's Kasbah and Andalusian quarter; farewell dinner.
-*Accommodation:* Villa Zembra / Dar Khayem, Hammamet (or similar) · *Meals:* Breakfast, Dinner
+**Day 7: Hammamet • Wine tasting • To Tunis**
+The Kasbah and Andalusian quarter of Hammamet, with a **wine tasting at a local vineyard**, then transfer to Tunis for the final night and farewell dinner.
+*Accommodation:* Dar El Jeld / Villa Bleue (or similar) · *Meals:* Breakfast, Dinner
 
 ![Hammamet — the Kasbah and old medina above the sea](images/hammamet.jpg)
 
@@ -97,7 +97,7 @@ Departure transfer to Tunis–Carthage airport.
 ## Dates & Prices *(illustrative, excl. flights)*
 **Open departures — choose your own dates** across the spring and autumn seasons (Mar–May and Oct–Nov). **Guaranteed from just 2 participants.**
 
-- **From £1,095 p.p.** (twin share, excl. flights)
+- **From £1,195 p.p.** (twin share, excl. flights)
 - **Optional private-room supplement:** +£220 *(no compulsory single supplement — solos paired same-sex at no cost)*
 - **Private & tailor-made** dates available year-round on request.
 
@@ -107,19 +107,19 @@ Locally-owned boutique and heritage properties throughout. Proposed hotels by lo
 | Location | Proposed hotels |
 |---|---|
 | Tunis | Dar El Jeld · Villa Bleue, Sidi Bou Saïd · Hôtel Belvédère Fourati 4★ |
-| Kairouan | Kasbah Kairouan 5★ |
-| Tozeur | Tamerza Palace |
+| Kairouan / Tozeur | Tamerza Palace |
+| Sahara / Sabria | Dunes Insolites desert camp |
+| Tijma (Matmata) | Au Trait d'Union — troglodyte guesthouse |
 | Sousse | Mövenpick · Dar Badiaa |
-| Hammamet | Villa Zembra · Dar Khayem Hotel |
 
 ![Kasbah Kairouan 5★](images/kasbaah-kairouan.jpg)
 
 Single rooms on request.
 
 ## Responsible Travel
-Aligned with Exodus's *Thriving Nature, Thriving People*: ~95% locally-owned accommodation and ~90% of meals at locally-owned restaurants; fair, direct payment to local hosts and artisans; small groups on uncrowded sites; reusable water refills; indicative CO₂e per night, ready to validate via eCollective. Animal-welfare aligned (ABTA).
+Aligned with Exodus's *Thriving Nature, Thriving People*: ~95% locally-owned accommodation and ~90% of meals at locally-owned restaurants; fair, direct payment to Berber hosts and artisans (including the troglodyte-house stay); small groups on uncrowded sites; welfare-compliant camel encounters (ABTA-aligned, always optional); reusable water refills; indicative CO₂e per night, ready to validate via eCollective.
 
 ## Essential Info
-Activity Level 2 (Leisurely/Moderate): easy walking with short transfers; ideal for first-time visitors. Solo-friendly; no compulsory single supplement. Best in spring (Mar–May) and autumn (Oct–Nov); not operated in high summer (desert heat). Full Trip Notes / Essential Trip Information available on request.
+Activity Level 3 (Moderate): easy-to-moderate walking on uneven ground; one desert-camp night and one troglodyte-house night; short transfers. Solo-friendly; no compulsory single supplement. Best in spring (Mar–May) and autumn (Oct–Nov); not operated in high summer (desert heat). Full Trip Notes / Essential Trip Information available on request.
 
 — *Prepared by Depart Travel Services for Exodus Adventure Travels, 2026.*
