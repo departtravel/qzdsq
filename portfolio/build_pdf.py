@@ -89,9 +89,12 @@ em {{ color: #6b4a2f; }}
     box-shadow: none; object-fit: contain; display: block; }}
 """
 
-LOGO = os.path.join(HERE, "images", "logo.png")
-brand_html = ('<img src="images/logo.png" alt="Depart Travel Services">'
-              if os.path.exists(LOGO) else "DEPART TRAVEL SERVICES")
+for _logo_candidate in ("images/logo.png", "images/logodts.jpeg", "images/logodts.jpg"):
+    if os.path.exists(os.path.join(HERE, _logo_candidate)):
+        brand_html = f'<img src="{_logo_candidate}" alt="Depart Travel Services">'
+        break
+else:
+    brand_html = "DEPART TRAVEL SERVICES"
 
 for src, out, label, cover, ctitle, csub in DOCS:
     with open(os.path.join(HERE, src), encoding="utf-8") as f:

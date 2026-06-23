@@ -64,6 +64,8 @@ The holy city of Kairouan — Great Mosque, old medina and Makroudh pastry — t
 
 ![Kairouan — the Great Mosque & medina](images/kasbaah-kairouan.jpg)
 
+![Tamerza Palace — oasis hotel](images/tamerzapalace.jpg)
+
 **Day 4: Mountain oases • Chott el Jerid • Sahara camp**
 4x4 to the mountain oases of Chebika, Tamerza and Midès, with lunch, then cross the **Chott el Jerid** salt lake and head to the **Dunes Insolites** desert camp for a night among the dunes.
 *Accommodation:* Dunes Insolites desert camp (or similar) · *Meals:* Breakfast, Lunch, Dinner

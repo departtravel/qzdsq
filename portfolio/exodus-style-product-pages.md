@@ -123,6 +123,7 @@ Locally-owned boutique and heritage properties throughout. Proposed hotels by lo
 
 ![Dar El Jeld — Tunis](images/Dareljeld.jpg)
 ![Kasbah Kairouan 5★](images/kasbaah-kairouan.jpg)
+![Tamerza Palace — oasis hotel](images/tamerzapalace.jpg)
 ![Dunes Insolites desert camp — Sabria](images/dunesinsolites.webp)
 ![Ksar Hadada — visited on Day 8](images/ksar-hadada.jpg)
 
