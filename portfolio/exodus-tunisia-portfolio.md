@@ -147,45 +147,55 @@ Tunisia must earn shelf space against four mature, high-converting Exodus destin
 
 ## 7.1 DAY-BY-DAY ITINERARY
 
-**Day 1 — Arrival, Tunis. Meet & greet, free afternoon.**
+**Day 1 — Arrival in Tunis: Meet & Greet.**
 Private airport transfer, welcome by Tunis-based representative. Free time to recover. Evening welcome briefing + group dinner in a restored medina dar (townhouse). *Driving: minimal.*
+
+![Dar El Jeld — restored medina townhouse, the welcome dinner setting (Tunis)](images/dar-el-jeld.jpg)
 
 **Day 2 — Tunis: Medina, Bardo, Carthage & Sidi Bou Saïd.**
 Begin with a guided walk of the UNESCO **Tunis Medina** (Zitouna Mosque exterior, souks, historic palaces). Continue to the **Bardo Museum** — the world's finest collection of Roman mosaics. **Lunch in a local restaurant.** Afternoon at the **Carthage** archaeological site (Phoenician/Roman/Byzantine layers — Byrsa Hill, Antonine Baths). Finish with sunset in the blue-and-white village of **Sidi Bou Saïd**. *Driving: light, all greater Tunis.*
-<!-- 📷 Sidi Bou Saïd blue door & white walls; Bardo mosaic close-up; Carthage Antonine Baths -->
 
-**Day 3 — Testour → Dougga → Kairouan.**
+![The archaeological site of Carthage](images/carthage.jpg)
+
+**Day 3 — Testour, Dougga & Kairouan.**
 Drive west to Testour (Andalusian-Moorish heritage town, unique mosque). On to **Dougga (UNESCO)** — the best-preserved Roman town in North Africa; 2–2.5h guided walk. Lunch. Drive south to **Kairouan (UNESCO)**, Islam's fourth holiest city. Overnight Kairouan. *Driving: ~3.5h total, broken by sites.*
 
-**Day 4 — Kairouan → Sbeitla → Tozeur.** *(Long leg — engineered with breaks.)*
+![Dougga — the best-preserved Roman town in North Africa](images/dougga.jpg)
+
+**Day 4 — Kairouan, Sbeitla & Tozeur.** *(Long leg — engineered with breaks.)*
 Morning: Great Mosque of Kairouan + Aghlabid basins. Drive to **Sbeitla (Sufetula)** — magnificent Roman forum & three temples; guided visit + lunch. Continue to **Tozeur**, gateway to the Sahara, palm oasis town with distinctive brick architecture. Overnight Tozeur. *Driving: the trip's longest day (~4.5–5h split by Sbeitla).*
 
-**Day 5 — Mountain oases & Mos Espa.**
+![Sbeitla (Sufetula) — the Roman forum and its three temples](images/sbeitla.jpg)
+
+**Day 5 — Mountain Oases & Canyons.**
 4x4 excursion to the **mountain oases of Chebika, Tamerza and Midès** (canyons, waterfalls, palmeraies on the Algerian frontier). Visit the **Mos Espa** Star Wars film set near Tozeur (light-touch, optional). Afternoon: Tozeur old town (Ouled el Hadef quarter). Overnight Tozeur. *Driving: 4x4 day, scenic.*
 
 ![Mountain oasis — palm groves beneath the canyon cliffs (Chebika / Tamerza / Midès)](images/mountain-oasis.jpg)
 ![Walking the gorge near the mountain oases](images/gorge-canyon.jpg)
-![Spring-fed oasis pool, a shaded rest stop](images/oasis-pool.jpg)
 
-**Day 6 — Chott el Jerid → Sahara, night in desert camp.**
+**Day 6 — Chott el Jerid & Night in the Sahara.**
 Cross the **Chott el Jerid** salt lake (mirage country). Enter the Grand Erg Oriental. Afternoon at the dunes — optional camel ride, dune walk, sunset. **Overnight in a permanent desert tented camp** (en-suite, air-conditioned "luxe nomad" tents). Star-gazing, **Berber music & storytelling by local performers**, traditional dinner. *Driving: ~3–4h + transfer to camp.*
+
 ![Bedouin musicians and storytelling around the campfire at the desert camp](images/desert-camp-music.jpg)
-![Desert camp setting at golden hour](images/desert-camp-setup.jpg)
 
-**Day 7 — Matmata → Tataouine → Chenini.**
-Drive to **Matmata** (troglodyte underground Berber dwellings; visit a family home). Continue to the **Tataouine** region — the ksour and *ghorfas* (fortified Berber granaries, e.g. Ksar Ouled Soltane). Late afternoon at the dramatic hilltop Berber village of **Chenini**. Overnight Tataouine or Djerba (route-dependent). *Driving: ~3–4h split by stops.*
+**Day 7 — Matmata, Tataouine & Chenini.**
+Drive to **Matmata** (troglodyte underground Berber dwellings; visit a family home). Continue to the **Tataouine** region — the ksour and *ghorfas* (fortified Berber granaries, e.g. Ksar Ouled Soltane). Late afternoon at the dramatic hilltop Berber village of **Chenini** and its iconic white mosque. Overnight Tataouine or Djerba (route-dependent). *Driving: ~3–4h split by stops.*
 
-![Hilltop Berber village with its whitewashed mosque (Chenini / Douiret)](images/berber-village-1.jpg)
-![Stone troglodyte village in the valley](images/berber-village-2.jpg)
+![Chenini — the hilltop Berber village and its white mosque](images/berber-village-1.jpg)
 
-**Day 8 — Djerba island (cultural).**
+**Day 8 — Djerba Island (Cultural).**
 Transfer to **Djerba** via the Roman causeway (El Kantara). *Cultural* Djerba: **El Ghriba**, one of the oldest synagogues in the world & living Jewish-Berber heritage; **Houmt Souk** old town & fishing port; **Guellala** pottery workshops. Overnight Djerba. *Driving: light, island-based.*
 
-**Day 9 — Djerba island (heritage & encounters).**
+![Djerba — Houmt Souk and the island's cultural heritage](images/djerba.jpg)
+
+**Day 9 — Djerba Island (Heritage & Encounters).**
 **Djerbahood** street-art quarter (Erriadh); traditional weaving; menzel (fortified farmhouse) heritage; olive-oil and date producers; optional lagoon/flamingo viewpoint. Island cuisine experience. Overnight Djerba. *Driving: light.* *(Note: kept cultural, not beach — protects brand positioning.)*
 
-**Day 10 — El Jem → Sousse.**
+**Day 10 — El Jem & Sousse.**
 Drive north to **El Jem (UNESCO)** — the colossal Roman amphitheatre (one of the largest in the world) + mosaic museum. Lunch. Continue to **Sousse**; guided visit of the **UNESCO Medina**, Ribat and Great Mosque. Overnight Sousse. *Driving: ~2.5–3h split by El Jem.*
+
+![El Jem — the colossal Roman amphitheatre](images/el-jem.jpg)
+![Sousse — the UNESCO medina and Ribat](images/sousse.jpg)
 
 **Day 11 — Hammamet.**
 Coastal drive to **Hammamet**: the Kasbah and old medina, the Andalusian quarter, and **Dar Sebastian / International Cultural Centre** gardens. Afternoon at leisure / optional hammam. Farewell dinner. Overnight Hammamet. *Driving: ~1h.*

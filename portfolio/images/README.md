@@ -18,8 +18,15 @@ link automatically in `exodus-tunisia-portfolio.md`:
 | `kasbah-kairouan.jpg` | Kasbah Kairouan heritage hotel | Accommodation — Kairouan (Day 3) |
 | `dunes-insolites.webp` | Dunes Insolites desert camp | Accommodation — Sahara (Day 6) |
 
-Still wanted (optional):
-- `chenini-panorama.jpg` — panorama from a Berber village terrace (Day 7)
+STILL NEEDED — one photo per day (referenced in the itinerary, please upload):
+- `carthage.jpg` — Carthage archaeological site (Day 2)
+- `dougga.jpg` — Dougga Roman town (Day 3)
+- `sbeitla.jpg` — Sbeitla forum & temples (Day 4)
+- `djerba.jpg` — Djerba / Houmt Souk (Day 8)
+- `el-jem.jpg` — El Jem amphitheatre (Day 10)
+- `sousse.jpg` — Sousse medina / Ribat (Day 10)
+
+Optional / nice to have:
 - `dar-dhiafa.jpg` — Dar Dhiafa boutique hotel, Djerba (Days 8–9)
 - cover image — El Jem amphitheatre or Sahara dunes
 
