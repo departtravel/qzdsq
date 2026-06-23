@@ -60,7 +60,8 @@ Soft-adventure walking. Duration: 8 days. Grading: Moderate–Challenging. Seaso
 **Departures:** open — on the dates of your choice across the spring and autumn seasons
 **Single travellers:** no compulsory single supplement — solo travellers paired in a twin at no extra cost; optional private room available
 **Carbon:** est. **~35 kg CO₂e per person per night** (in-trip; excl. flights — indicative, to be validated with eCollective methodology)
-**Start/End:** Tunis (arrival) / Enfidha–Hammamet or Tunis (departure)
+**Flights:** land-only; **Tunis (TUN) in and out** — compatible with UK/Europe scheduled services (Tunisair, Nouvelair, etc.). The loop returns to the coast on Day 11; final-morning transfer Hammamet→Tunis ~1h. Enfidha (NBE) is an alternative for seasonal charters.
+**Start/End:** Tunis (arrival) / Tunis or Enfidha–Hammamet (departure)
 
 ---
 

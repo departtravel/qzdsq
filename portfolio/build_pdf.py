@@ -20,6 +20,12 @@ DOCS = [
      "images/sidi-bou-said.jpg",
      "TUNISIA",
      "Grand Tunisia Journey (12 days) · Highlights of Tunisia (8 days)"),
+    ("highlights-of-tunisia-8day.md",
+     "Depart-Travel-Highlights-of-Tunisia-8day.pdf",
+     "Highlights of Tunisia (8 days) — for Exodus Adventure Travels",
+     "images/dougga.webp",
+     "HIGHLIGHTS OF TUNISIA",
+     "A short cultural week · 8 days — proposed for Exodus Adventure Travels"),
 ]
 
 CSS_TEMPLATE = """
