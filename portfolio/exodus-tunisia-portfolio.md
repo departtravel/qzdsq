@@ -152,60 +152,84 @@ Private airport transfer, welcome by Tunis-based representative. Free time to re
 
 ![Dar El Jeld — restored medina townhouse, the welcome dinner setting (Tunis)](images/Dareljeld.jpg)
 
+*Accommodation:* Dar El Jeld / Villa Bleue (or similar) · *Meals:* Dinner
+
 **Day 2 — Tunis: Medina, Bardo, Carthage & Sidi Bou Saïd.**
 Begin with a guided walk of the UNESCO **Tunis Medina** (Zitouna Mosque exterior, souks, historic palaces). Continue to the **Bardo Museum** — the world's finest collection of Roman mosaics. **Lunch in a local restaurant.** Afternoon at the **Carthage** archaeological site (Phoenician/Roman/Byzantine layers — Byrsa Hill, Antonine Baths). Finish with sunset in the blue-and-white village of **Sidi Bou Saïd**. *Driving: light, all greater Tunis.*
 
 ![The archaeological site of Carthage](images/carthage.jpg)
+
+*Accommodation:* Dar El Jeld / Villa Bleue (or similar) · *Meals:* Breakfast, Lunch
 
 **Day 3 — Testour, Dougga & Kairouan.**
 Drive west to Testour (Andalusian-Moorish heritage town, unique mosque). On to **Dougga (UNESCO)** — the best-preserved Roman town in North Africa; 2–2.5h guided walk. Lunch. Drive south to **Kairouan (UNESCO)**, Islam's fourth holiest city; visit the old medina and taste the local **Makroudh** pastry. Overnight Kairouan. *Driving: ~3.5h total, broken by sites.*
 
 ![Dougga — the best-preserved Roman town in North Africa](images/dougga.webp)
 
+*Accommodation:* Kasbah Kairouan 5★ (or similar) · *Meals:* Breakfast, Lunch
+
 **Day 4 — Kairouan, Sbeitla & Tozeur.** *(Long leg — engineered with breaks.)*
 Morning: Great Mosque of Kairouan + Aghlabid basins. Drive to **Sbeitla (Sufetula)** — magnificent Roman forum & three temples; guided visit + lunch. Continue to **Tozeur**, gateway to the Sahara, palm oasis town with distinctive brick architecture. Overnight Tozeur. *Driving: the trip's longest day (~4.5–5h split by Sbeitla).*
 
 ![Sbeitla (Sufetula) — the Roman forum and its three temples](images/sbeitla.jpg)
+
+*Accommodation:* The Mora / Dar Tozeur (or similar) · *Meals:* Breakfast, Lunch
 
 **Day 5 — Mountain Oases & Canyons.**
 4x4 excursion to the **mountain oases of Chebika, Tamerza and Midès** (canyons, waterfalls, palmeraies on the Algerian frontier). Visit the **Mos Espa** Star Wars film set near Tozeur (light-touch, optional). Afternoon: Tozeur old town (Ouled el Hadef quarter). Overnight Tozeur. *Driving: 4x4 day, scenic.*
 
 ![Mountain oasis — palm groves beneath the canyon cliffs (Chebika / Tamerza / Midès)](images/mountain-oasis.jpg)
 
+*Accommodation:* The Mora / Dar Tozeur (or similar) · *Meals:* Breakfast
+
 **Day 6 — Chott el Jerid & Night in the Sahara.**
 Cross the **Chott el Jerid** salt lake (mirage country) with a photo stop, and see the hot-spring channels used to irrigate the palm groves. Arrive in **Douz** (the "gateway to the Sahara") for lunch and a visit to the **Douz Bedouin Museum**, then continue to the **Sabria camp** at the edge of the Grand Erg Oriental. Meet the camel handlers and ride into the heart of the dunes to settle in the middle of nowhere — help the team gather wood and build the campfire, with dinner prepared on site and a **night of wild bivouac under the stars**. *(Guests who prefer more comfort can return to the permanent camp for the night in en-suite, air-conditioned "luxe nomad" tents.)* Star-gazing, **Berber music & storytelling by local performers**, traditional dinner. *Driving: ~3–4h + transfer to camp.*
 
 ![Bedouin musicians and storytelling around the campfire at the desert camp](images/desert-camp-music.jpg)
+
+*Accommodation:* Sabria / Dunes Insolites desert camp (or similar) · *Meals:* Breakfast, Dinner
 
 **Day 7 — Matmata, Tataouine & Chenini.**
 Drive to **Matmata**; visit the **Tamazret Berber museum** and the troglodyte underground Berber dwellings, including a family home. Continue to the **Tataouine** region — the ksour and *ghorfas* (fortified Berber granaries, e.g. Ksar Ouled Soltane). Late afternoon at the dramatic hilltop Berber village of **Chenini** and its iconic white mosque. Overnight Tataouine. *Driving: ~3–4h split by stops.*
 
 ![Chenini — the hilltop Berber village and its white mosque](images/berber-village-1.jpg)
 
+*Accommodation:* Ksar Hadada (or similar) · *Meals:* Breakfast
+
 **Day 8 — Djerba Island (Cultural).**
 Transfer to **Djerba** via the Roman causeway (El Kantara). *Cultural* Djerba: **El Ghriba**, one of the oldest synagogues in the world & living Jewish-Berber heritage; **Houmt Souk** old town & fishing port; **Guellala** pottery workshops; and a visit to the **Djerbahood** street-art quarter. Overnight Djerba. *Driving: light, island-based.*
 
 ![Djerba — Houmt Souk and the island's cultural heritage](images/djerba.jpeg)
+
+*Accommodation:* Dar Dhiafa (or similar) · *Meals:* Breakfast
 
 **Day 9 — Djerba: Free Day (Heritage & Encounters).**
 A free day on the island, with the option of a **private sea tour by boat** or a **full cultural day** exploring Djerba's UNESCO heritage — traditional weaving, menzel (fortified farmhouse) heritage, olive-oil and date producers, and an optional lagoon/flamingo viewpoint. Island cuisine experience. Overnight Djerba. *Driving: light.* *(Note: kept cultural, not beach — protects brand positioning.)*
 
 ![Djerba — a cultural day on the island (Djerbahood / Houmt Souk)](images/djerbahood.jpg)
 
+*Accommodation:* Dar Dhiafa (or similar) · *Meals:* Breakfast
+
 **Day 10 — El Jem & Sousse.**
 Drive north to **El Jem (UNESCO)** — the colossal Roman amphitheatre (one of the largest in the world) + mosaic museum. Lunch. Continue to **Sousse**; guided visit of the **UNESCO Medina**, Ribat and Great Mosque. Overnight Sousse. *Driving: ~2.5–3h split by El Jem.*
 
 ![Sousse — the UNESCO medina and Ribat](images/sousse.webp)
+
+*Accommodation:* Dar Badiaa (or similar) · *Meals:* Breakfast, Lunch
 
 **Day 11 — Hammamet.**
 Coastal drive to **Hammamet**: the Kasbah and old medina, the Andalusian quarter, and **Dar Sebastian / International Cultural Centre** gardens. Afternoon at leisure / optional hammam or **wine tasting at a local vineyard**. Farewell dinner. Overnight Hammamet. *Driving: ~1h.*
 
 ![Hammamet — the Kasbah and old medina above the sea](images/hammamet.jpg)
 
+*Accommodation:* Villa Zembra (or similar) · *Meals:* Breakfast, Dinner
+
 **Day 12 — Departure.**
 Transfer to Enfidha–Hammamet or Tunis–Carthage airport. *Driving: 30–60 min depending on airport.*
 
 ![Sidi Bou Saïd — a final image of Tunisia before departure](images/sidi-bou-said.jpg)
+
+*Meals:* Breakfast
 
 ---
 
@@ -310,6 +334,21 @@ Transfer to Enfidha–Hammamet or Tunis–Carthage airport. *Driving: 30–60 mi
 - **Private / tailor-made:** the 2-pax line is the private-departure rate; bespoke versions quoted on a separate grid.
 - **Excludes:** international flights, insurance, visa (where applicable), tips, optional activities, and any meals/drinks not listed.
 - **Child / triple / FIT policies**, validity dates, payment terms, cancellation/amendment policy and allotment release periods to be specified in the contract.
+
+### Net rates — Highlights of Tunisia (8-day variant)
+
+> ⚠️ **ILLUSTRATIVE FIGURES (EUR).** Same modelling basis as above. The 8-day product has no Sahara-camp night and shorter leader/vehicle days, so both fixed and variable costs are lower.
+
+| Group size (paying pax) | Net land cost p.p. (twin share) | Single supplement |
+|---|---|---|
+| 2 pax (private) | **€2,330** | €265 |
+| 3–4 pax | **€1,790** | €265 |
+| 5–6 pax | **€1,355** | €265 |
+| 7–9 pax | **€1,170** | €265 |
+| 10–12 pax | **€1,030** | €265 |
+| 13–16 pax | **€955** | €265 |
+
+*Quoted at the lower bound of each tier. Shoulder season (Mar–May / Oct–Nov); low season approx. −10%. Net to Exodus, before Exodus margin and international air. 7 nights boutique/heritage B&B; included meals: welcome dinner, two touring-day lunches, farewell dinner; all listed entrance fees and the 4x4 excursion. Same free-place ratio (1 per 15) and terms as the 12-day product.*
 
 ## 7.8 SUPPLIER NOTES
 - **Guiding:** the critical success factor. Depart Travel fields **professional, national, officially-licensed, English-speaking tour guides** — expert, narrative-driven leaders + accredited site guides. *Sample guide CVs to be supplied to Exodus before contracting, and a meeting (in person or by video call) shall be arranged between Exodus and the proposed guide(s) before final guide confirmation.*

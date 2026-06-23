@@ -103,10 +103,10 @@ Departure transfer to Enfidha–Hammamet or Tunis–Carthage airport.
 ## Dates & Prices *(illustrative, excl. flights)*
 | Departure | Availability | Single Supplement | Price p.p. |
 |---|---|---|---|
-| Sat 21 Mar 2026 – Wed 01 Apr 2026 | Guaranteed | +£395 | £1,895 |
-| Sat 18 Apr 2026 – Wed 29 Apr 2026 | Available | +£395 | £1,895 |
-| Sat 10 Oct 2026 – Wed 21 Oct 2026 | Guaranteed | +£395 | £1,945 |
-| Sat 07 Nov 2026 – Wed 18 Nov 2026 | Available | +£395 | £1,895 |
+| Sat 21 Mar 2026 – Wed 01 Apr 2026 | Guaranteed | +£345 | £1,645 |
+| Sat 18 Apr 2026 – Wed 29 Apr 2026 | Available | +£345 | £1,645 |
+| Sat 10 Oct 2026 – Wed 21 Oct 2026 | Guaranteed | +£345 | £1,695 |
+| Sat 07 Nov 2026 – Wed 18 Nov 2026 | Available | +£345 | £1,645 |
 
 ## Accommodation
 Locally-owned boutique and heritage properties throughout — restored medina *dars*, an oasis guesthouse, a Berber *ksar*, a Djerba *menzel*, and one night in a permanent Sahara camp. Single rooms on request.
@@ -191,10 +191,10 @@ Departure transfer to Enfidha–Hammamet or Tunis–Carthage airport.
 ## Dates & Prices *(illustrative, excl. flights)*
 | Departure | Availability | Single Supplement | Price p.p. |
 |---|---|---|---|
-| Sun 22 Mar 2026 – Sun 29 Mar 2026 | Guaranteed | +£260 | £1,295 |
-| Sun 19 Apr 2026 – Sun 26 Apr 2026 | Available | +£260 | £1,295 |
-| Sun 11 Oct 2026 – Sun 18 Oct 2026 | Guaranteed | +£260 | £1,325 |
-| Sun 08 Nov 2026 – Sun 15 Nov 2026 | Available | +£260 | £1,295 |
+| Sun 22 Mar 2026 – Sun 29 Mar 2026 | Guaranteed | +£220 | £1,095 |
+| Sun 19 Apr 2026 – Sun 26 Apr 2026 | Available | +£220 | £1,095 |
+| Sun 11 Oct 2026 – Sun 18 Oct 2026 | Guaranteed | +£220 | £1,145 |
+| Sun 08 Nov 2026 – Sun 15 Nov 2026 | Available | +£220 | £1,095 |
 
 ## Accommodation
 Locally-owned boutique and heritage properties throughout — restored medina *dars*, an oasis guesthouse and characterful coastal hotels. Single rooms on request.
