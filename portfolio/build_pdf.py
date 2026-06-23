@@ -85,7 +85,13 @@ em {{ color: #6b4a2f; }}
 .cover .sub {{ font-size: 15pt; color: #fbeee6; max-width: 155mm; line-height: 1.4; }}
 .cover .brand {{ position: absolute; top: 20mm; left: 22mm; color: #fff;
     font-family: Georgia, serif; font-size: 13pt; letter-spacing: 3px; }}
+.cover .brand img {{ height: 20mm; width: auto; margin: 0; border-radius: 0;
+    box-shadow: none; object-fit: contain; display: block; }}
 """
+
+LOGO = os.path.join(HERE, "images", "logo.png")
+brand_html = ('<img src="images/logo.png" alt="Depart Travel Services">'
+              if os.path.exists(LOGO) else "DEPART TRAVEL SERVICES")
 
 for src, out, label, cover, ctitle, csub in DOCS:
     with open(os.path.join(HERE, src), encoding="utf-8") as f:
@@ -97,7 +103,7 @@ for src, out, label, cover, ctitle, csub in DOCS:
     html_body = html_body.replace('<p><strong>Day ', '<p class="day"><strong>Day ')
     css = CSS_TEMPLATE.format(label=label, cover=cover)
     cover_html = (
-        f'<div class="cover"><div class="brand">DEPART TRAVEL SERVICES</div>'
+        f'<div class="cover"><div class="brand">{brand_html}</div>'
         f'<div class="band"><div class="rule"></div>'
         f'<div class="kicker">Depart Travel Services · Tunisia</div>'
         f'<h1 class="ct">{ctitle}</h1><div class="sub">{csub}</div></div></div>'
