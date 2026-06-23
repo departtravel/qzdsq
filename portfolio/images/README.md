@@ -20,17 +20,17 @@ link automatically in `exodus-tunisia-portfolio.md`:
 
 ONE PHOTO PER DAY — full list (✅ = present, ⏳ = please upload):
 - Day 1  → `Dareljeld.jpg` ✅
-- Day 2  → `carthage.jpg` ⏳
+- Day 2  → `carthage.jpg` ✅ (spare: `bardomuseum.webp`)
 - Day 3  → `dougga.webp` ✅
-- Day 4  → `sbeitla.jpg` ⏳
+- Day 4  → `sbeitla.jpg` ✅
 - Day 5  → `mountain-oasis.jpg` ✅
 - Day 6  → `desert-camp-music.jpg` ✅
 - Day 7  → `berber-village-1.jpg` ✅ (Chenini + white mosque)
 - Day 8  → `djerba.jpeg` ✅
 - Day 9  → `djerbahood.jpg` ✅
 - Day 10 → `sousse.webp` ✅
-- Day 11 → `hammamet.jpg` ⏳
-- Day 12 → `sidi-bou-said.jpg` ⏳
+- Day 11 → `hammamet.jpg` ✅
+- Day 12 → `sidi-bou-said.jpg` ✅
 
 Optional / nice to have:
 - `dar-dhiafa.jpg` — Dar Dhiafa boutique hotel, Djerba (Days 8–9)

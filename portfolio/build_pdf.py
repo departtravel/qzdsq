@@ -31,7 +31,8 @@ th, td { border: 1px solid #ddd; padding: 5px 7px; text-align: left;
     vertical-align: top; }
 th { background: #f4e9e1; color: #8a4220; }
 tr:nth-child(even) td { background: #faf6f2; }
-img { max-width: 100%; max-height: 95mm; border-radius: 4px; margin: 6px 0;
+img { display: block; margin: 10px auto; width: 150mm; height: 90mm;
+    object-fit: cover; border-radius: 6px; box-shadow: 0 2px 6px rgba(0,0,0,0.18);
     page-break-inside: avoid; }
 blockquote { border-left: 4px solid #b5562a; background: #faf3ee; margin: 10px 0;
     padding: 6px 14px; color: #5a3a28; }
