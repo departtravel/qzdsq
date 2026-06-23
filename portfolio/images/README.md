@@ -19,16 +19,16 @@ link automatically in `exodus-tunisia-portfolio.md`:
 | `dunes-insolites.webp` | Dunes Insolites desert camp | Accommodation — Sahara (Day 6) |
 
 ONE PHOTO PER DAY — full list (✅ = present, ⏳ = please upload):
-- Day 1  → `dar-el-jeld.jpg` ✅
+- Day 1  → `Dareljeld.jpg` ✅
 - Day 2  → `carthage.jpg` ⏳
-- Day 3  → `dougga.jpg` ⏳
+- Day 3  → `dougga.webp` ✅
 - Day 4  → `sbeitla.jpg` ⏳
 - Day 5  → `mountain-oasis.jpg` ✅
 - Day 6  → `desert-camp-music.jpg` ✅
 - Day 7  → `berber-village-1.jpg` ✅ (Chenini + white mosque)
-- Day 8  → `djerba.jpg` ⏳
-- Day 9  → `djerbahood.jpg` ⏳
-- Day 10 → `el-jem.jpg` ⏳
+- Day 8  → `djerba.jpeg` ✅
+- Day 9  → `djerbahood.jpg` ✅
+- Day 10 → `sousse.webp` ✅
 - Day 11 → `hammamet.jpg` ⏳
 - Day 12 → `sidi-bou-said.jpg` ⏳
 

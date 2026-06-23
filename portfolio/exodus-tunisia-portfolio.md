@@ -150,7 +150,7 @@ Tunisia must earn shelf space against four mature, high-converting Exodus destin
 **Day 1 — Arrival in Tunis: Meet & Greet.**
 Private airport transfer, welcome by Tunis-based representative. Free time to recover. Evening welcome briefing + group dinner in a restored medina dar (townhouse). *Driving: minimal.*
 
-![Dar El Jeld — restored medina townhouse, the welcome dinner setting (Tunis)](images/dar-el-jeld.jpg)
+![Dar El Jeld — restored medina townhouse, the welcome dinner setting (Tunis)](images/Dareljeld.jpg)
 
 **Day 2 — Tunis: Medina, Bardo, Carthage & Sidi Bou Saïd.**
 Begin with a guided walk of the UNESCO **Tunis Medina** (Zitouna Mosque exterior, souks, historic palaces). Continue to the **Bardo Museum** — the world's finest collection of Roman mosaics. **Lunch in a local restaurant.** Afternoon at the **Carthage** archaeological site (Phoenician/Roman/Byzantine layers — Byrsa Hill, Antonine Baths). Finish with sunset in the blue-and-white village of **Sidi Bou Saïd**. *Driving: light, all greater Tunis.*
@@ -160,7 +160,7 @@ Begin with a guided walk of the UNESCO **Tunis Medina** (Zitouna Mosque exterior
 **Day 3 — Testour, Dougga & Kairouan.**
 Drive west to Testour (Andalusian-Moorish heritage town, unique mosque). On to **Dougga (UNESCO)** — the best-preserved Roman town in North Africa; 2–2.5h guided walk. Lunch. Drive south to **Kairouan (UNESCO)**, Islam's fourth holiest city. Overnight Kairouan. *Driving: ~3.5h total, broken by sites.*
 
-![Dougga — the best-preserved Roman town in North Africa](images/dougga.jpg)
+![Dougga — the best-preserved Roman town in North Africa](images/dougga.webp)
 
 **Day 4 — Kairouan, Sbeitla & Tozeur.** *(Long leg — engineered with breaks.)*
 Morning: Great Mosque of Kairouan + Aghlabid basins. Drive to **Sbeitla (Sufetula)** — magnificent Roman forum & three temples; guided visit + lunch. Continue to **Tozeur**, gateway to the Sahara, palm oasis town with distinctive brick architecture. Overnight Tozeur. *Driving: the trip's longest day (~4.5–5h split by Sbeitla).*
@@ -185,7 +185,7 @@ Drive to **Matmata** (troglodyte underground Berber dwellings; visit a family ho
 **Day 8 — Djerba Island (Cultural).**
 Transfer to **Djerba** via the Roman causeway (El Kantara). *Cultural* Djerba: **El Ghriba**, one of the oldest synagogues in the world & living Jewish-Berber heritage; **Houmt Souk** old town & fishing port; **Guellala** pottery workshops. Overnight Djerba. *Driving: light, island-based.*
 
-![Djerba — Houmt Souk and the island's cultural heritage](images/djerba.jpg)
+![Djerba — Houmt Souk and the island's cultural heritage](images/djerba.jpeg)
 
 **Day 9 — Djerba Island (Heritage & Encounters).**
 **Djerbahood** street-art quarter (Erriadh); traditional weaving; menzel (fortified farmhouse) heritage; olive-oil and date producers; optional lagoon/flamingo viewpoint. Island cuisine experience. Overnight Djerba. *Driving: light.* *(Note: kept cultural, not beach — protects brand positioning.)*
@@ -195,7 +195,7 @@ Transfer to **Djerba** via the Roman causeway (El Kantara). *Cultural* Djerba: *
 **Day 10 — El Jem & Sousse.**
 Drive north to **El Jem (UNESCO)** — the colossal Roman amphitheatre (one of the largest in the world) + mosaic museum. Lunch. Continue to **Sousse**; guided visit of the **UNESCO Medina**, Ribat and Great Mosque. Overnight Sousse. *Driving: ~2.5–3h split by El Jem.*
 
-![El Jem — the colossal Roman amphitheatre](images/el-jem.jpg)
+![Sousse — the UNESCO medina and Ribat](images/sousse.webp)
 
 **Day 11 — Hammamet.**
 Coastal drive to **Hammamet**: the Kasbah and old medina, the Andalusian quarter, and **Dar Sebastian / International Cultural Centre** gardens. Afternoon at leisure / optional hammam. Farewell dinner. Overnight Hammamet. *Driving: ~1h.*
@@ -224,9 +224,9 @@ Transfer to Enfidha–Hammamet or Tunis–Carthage airport. *Driving: 30–60 mi
 
 **Principle:** locally-owned, characterful, story-rich properties over international chains. Consistency and hygiene vetted by Depart Travel.
 ![Ksar Hadada — the restored vaulted courtyard at sunset (Day 7 accommodation)](images/ksar-hadada.jpg)
-![Dar El Jeld — restored medina townhouse, Tunis (Days 1 & 12)](images/dar-el-jeld.jpg)
-![Kasbah Kairouan — heritage hotel beside the medina (Day 3)](images/kasbah-kairouan.jpg)
-![Dunes Insolites — permanent luxe desert camp (Day 6)](images/dunes-insolites.webp)
+![Dar El Jeld — restored medina townhouse, Tunis (Days 1 & 12)](images/Dareljeld.jpg)
+![Kasbah Kairouan — heritage hotel beside the medina (Day 3)](images/kasbaah-kairouan.jpg)
+![Dunes Insolites — permanent luxe desert camp (Day 6)](images/dunesinsolites.webp)
 <!-- 📷 Still needed: Dar Dhiafa Djerba; (optional) Chenini panorama -->
 
 ---
