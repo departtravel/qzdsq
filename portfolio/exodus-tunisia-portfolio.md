@@ -277,7 +277,7 @@ Transfer to Enfidha–Hammamet or Tunis–Carthage airport. *Driving: 30–60 mi
 - Validity, payment terms, cancellation/amendment policy and allotment release periods specified in the contract
 
 ## 7.8 SUPPLIER NOTES
-- **Guiding:** the critical success factor. Depart Travel fields **professional, national, officially-licensed, English-speaking tour guides** — expert, narrative-driven leaders + accredited site guides. *Sample guide CVs to be supplied to Exodus before contracting.*
+- **Guiding:** the critical success factor. Depart Travel fields **professional, national, officially-licensed, English-speaking tour guides** — expert, narrative-driven leaders + accredited site guides. *Sample guide CVs to be supplied to Exodus before contracting, and a meeting (in person or by video call) shall be arranged between Exodus and the proposed guide(s) before final guide confirmation.*
 - **Transport:** modern A/C coaches/minibuses; vetted 4x4 fleet for desert/oases; licensed insured drivers.
 - **Accommodation:** preferred boutique/heritage partners; backup properties identified per location.
 - **Desert camp:** confirmed permanent-camp partner meeting Exodus H&S and sustainability standards.
