@@ -14,6 +14,14 @@ link automatically in `exodus-tunisia-portfolio.md`:
 | `berber-village-2.jpg` | Stone troglodyte village in the valley | Day 7 — ksour / Berber village |
 | `chenini-panorama.jpg` | Panoramic view from a terrace | Day 7 — Chenini panorama |
 | `ksar-hadada.jpg` | Orange vaulted courtyard at sunset | Day 7 — accommodation: Ksar Hadada |
+| `dar-el-jeld.jpg` | Dar El Jeld medina townhouse | Accommodation — Tunis (Days 1 & 12) |
+| `kasbah-kairouan.jpg` | Kasbah Kairouan heritage hotel | Accommodation — Kairouan (Day 3) |
+| `dunes-insolites.webp` | Dunes Insolites desert camp | Accommodation — Sahara (Day 6) |
+
+Still wanted (optional):
+- `chenini-panorama.jpg` — panorama from a Berber village terrace (Day 7)
+- `dar-dhiafa.jpg` — Dar Dhiafa boutique hotel, Djerba (Days 8–9)
+- cover image — El Jem amphitheatre or Sahara dunes
 
 Notes:
 - Provide the original full-resolution files where possible (better print/layout quality).

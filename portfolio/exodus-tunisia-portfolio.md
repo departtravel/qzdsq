@@ -177,7 +177,6 @@ Drive to **Matmata** (troglodyte underground Berber dwellings; visit a family ho
 
 ![Hilltop Berber village with its whitewashed mosque (Chenini / Douiret)](images/berber-village-1.jpg)
 ![Stone troglodyte village in the valley](images/berber-village-2.jpg)
-![Panorama over a Berber village from the terraces](images/chenini-panorama.jpg)
 
 **Day 8 — Djerba island (cultural).**
 Transfer to **Djerba** via the Roman causeway (El Kantara). *Cultural* Djerba: **El Ghriba**, one of the oldest synagogues in the world & living Jewish-Berber heritage; **Houmt Souk** old town & fishing port; **Guellala** pottery workshops. Overnight Djerba. *Driving: light, island-based.*
@@ -211,7 +210,10 @@ Transfer to Enfidha–Hammamet or Tunis–Carthage airport. *Driving: 30–60 mi
 
 **Principle:** locally-owned, characterful, story-rich properties over international chains. Consistency and hygiene vetted by Depart Travel.
 ![Ksar Hadada — the restored vaulted courtyard at sunset (Day 7 accommodation)](images/ksar-hadada.jpg)
-<!-- 📷 Still needed: Dar El Jeld courtyard; Kasbah Kairouan; Dunes Insolites tent interior; Dar Dhiafa Djerba -->
+![Dar El Jeld — restored medina townhouse, Tunis (Days 1 & 12)](images/dar-el-jeld.jpg)
+![Kasbah Kairouan — heritage hotel beside the medina (Day 3)](images/kasbah-kairouan.jpg)
+![Dunes Insolites — permanent luxe desert camp (Day 6)](images/dunes-insolites.webp)
+<!-- 📷 Still needed: Dar Dhiafa Djerba; (optional) Chenini panorama -->
 
 ---
 
