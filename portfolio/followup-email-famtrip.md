@@ -1,10 +1,11 @@
 # Follow-up email — after the Exodus fam trip to Tunisia
 
 **Subject:** Thank you for visiting Tunisia — our two proposed itineraries (12-day & 8-day) attached
+**To:** Holly Parkinson, Destination Expert — Exodus Adventure Travels
 
 ---
 
-Dear [First name],
+Dear Holly,
 
 Thank you so much for taking the time to travel through Tunisia with us — it was a real pleasure to host you and to share our country first-hand. I hope you came away with the same feeling so many of your travellers tell us about: world-class Roman heritage without the crowds, a genuinely warm welcome, and a surprising amount packed into short, easy transfers.
 
