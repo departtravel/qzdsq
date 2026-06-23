@@ -6,14 +6,20 @@ from weasyprint import HTML
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 
-# (source markdown, output pdf, footer label)
+# (source markdown, output pdf, footer label, cover image, cover title, cover subtitle)
 DOCS = [
     ("exodus-tunisia-portfolio.md",
      "Depart-Travel-Tunisia-Catalogue.pdf",
-     "Tunisia Catalogue for Exodus Adventure Travels"),
+     "Tunisia Catalogue for Exodus Adventure Travels",
+     "images/mountain-oasis.jpg",
+     "TUNISIA",
+     "Product Catalogue for Exodus Adventure Travels"),
     ("exodus-style-product-pages.md",
      "Depart-Travel-Tunisia-Product-Pages.pdf",
-     "Tunisia Product Pages for Exodus Adventure Travels"),
+     "Tunisia Product Pages for Exodus Adventure Travels",
+     "images/sidi-bou-said.jpg",
+     "TUNISIA",
+     "Grand Tunisia Journey (12 days) · Highlights of Tunisia (8 days)"),
 ]
 
 CSS_TEMPLATE = """
@@ -41,16 +47,34 @@ hr {{ border: none; border-top: 1px solid #ddd; margin: 16px 0; }}
 code {{ background: #f2f2f2; padding: 1px 4px; border-radius: 3px; font-size: 9pt; }}
 a {{ color: #b5562a; text-decoration: none; }}
 strong {{ color: #222; }}
+@page cover {{ size: A4; margin: 0; }}
+.cover {{ page: cover; page-break-after: always; width: 210mm; height: 297mm;
+    background-image: linear-gradient(rgba(0,0,0,0.05), rgba(60,25,10,0.78)), url("{cover}");
+    background-size: cover; background-position: center; position: relative; }}
+.cover .band {{ position: absolute; left: 0; right: 0; bottom: 0; padding: 22mm 20mm 24mm;
+    color: #fff; }}
+.cover .kicker {{ font-size: 11pt; letter-spacing: 5px; text-transform: uppercase;
+    color: #f0d8c8; margin-bottom: 6mm; }}
+.cover h1.ct {{ font-size: 52pt; color: #fff; border: none; margin: 0 0 5mm;
+    letter-spacing: 3px; padding: 0; }}
+.cover .sub {{ font-size: 15pt; color: #fbeee6; max-width: 150mm; line-height: 1.35; }}
+.cover .brand {{ position: absolute; top: 18mm; left: 20mm; color: #fff;
+    font-size: 13pt; letter-spacing: 2px; }}
 """
 
-for src, out, label in DOCS:
+for src, out, label, cover, ctitle, csub in DOCS:
     with open(os.path.join(HERE, src), encoding="utf-8") as f:
         text = f.read()
     html_body = markdown.markdown(
         text, extensions=["tables", "fenced_code", "sane_lists", "nl2br"]
     )
-    css = CSS_TEMPLATE.format(label=label)
+    css = CSS_TEMPLATE.format(label=label, cover=cover)
+    cover_html = (
+        f'<div class="cover"><div class="brand">DEPART TRAVEL SERVICES</div>'
+        f'<div class="band"><div class="kicker">Depart Travel Services · Tunisia</div>'
+        f'<h1 class="ct">{ctitle}</h1><div class="sub">{csub}</div></div></div>'
+    )
     full = (f"<!DOCTYPE html><html><head><meta charset='utf-8'>"
-            f"<style>{css}</style></head><body>{html_body}</body></html>")
+            f"<style>{css}</style></head><body>{cover_html}{html_body}</body></html>")
     HTML(string=full, base_url=HERE).write_pdf(os.path.join(HERE, out))
     print("Wrote", out)
