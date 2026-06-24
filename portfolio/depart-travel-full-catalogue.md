@@ -139,6 +139,8 @@ Over twelve immersive days we trace every layer of Tunisia's story: the mosaics 
 Private airport transfer and welcome by our Tunis representative. Evening welcome briefing and group dinner in a restored medina townhouse.
 *Accommodation:* Dar El Jeld / Villa Bleue (or similar) · *Meals:* Dinner
 
+![Dar El Jeld — restored medina townhouse, the welcome dinner setting (Tunis)](images/Dareljeld.jpg)
+
 **Day 2: Tunis Medina, Bardo Museum, Carthage & Sidi Bou Saïd**
 Guided walk of the UNESCO Tunis Medina, then the world-class **Bardo Museum** (the finest collection of Roman mosaics anywhere). Afternoon at the ruins of **Carthage** (Byrsa Hill, Antonine Baths). Sunset in blue-and-white **Sidi Bou Saïd**.
 *Accommodation:* Dar El Jeld / Villa Bleue (or similar) · *Meals:* Breakfast, Lunch
@@ -161,17 +163,13 @@ Morning at the **Great Mosque of Kairouan** and Aghlabid basins. Drive to **Sbei
 4x4 excursion to the **mountain oases of Chebika, Tamerza and Midès** — canyons, waterfalls, palmeraies on the Algerian frontier. Visit the Mos Espa Star Wars film set (optional). Afternoon in the Tozeur old town.
 *Accommodation:* Tamerza Palace (or similar) · *Meals:* Breakfast
 
-![Mountain oasis — palm groves beneath the canyon cliffs](images/mountain-oasis.jpg)
-
-![Tamerza Palace — oasis hotel](images/tamerzapalace.jpg)
+![Tamerza Palace — the oasis hotel above the canyon](images/tamerzapalace.jpg)
 
 **Day 6: Chott el Jerid • Night in the Sahara**
 Cross the **Chott el Jerid** salt lake (mirage country). Arrive in **Douz** and visit the Bedouin Museum, then transfer to the **Sabria desert camp**. Camel ride into the heart of the dunes; campfire, Berber music, storytelling and a traditional dinner under the stars.
 *Accommodation:* Sabria / Dunes Insolites desert camp (or similar) · *Meals:* Breakfast, Dinner
 
 ![Bedouin music and storytelling around the campfire at the desert camp](images/desert-camp-music.jpg)
-
-![Desert camp under the stars](images/desert-camp-setup.jpg)
 
 **Day 7: Tamazret, Matmata & a Troglodyte Night**
 Leave the Sabria camp for the Berber highlands. Visit **Tamazret** and **Matmata** — famous for its underground troglodyte dwellings. Tonight: an authentic overnight in a **restored troglodyte house** at Au Trait d'Union, Tijma.
@@ -190,8 +188,6 @@ Among the ksour of the south: **Ksar Hadada** (a Star Wars filming location) and
 *Accommodation:* Dar Dhiafa (or similar) · *Meals:* Breakfast
 
 ![Djerba — Houmt Souk and the island's cultural heritage](images/djerba.jpeg)
-
-![Djerbahood — Djerba's open-air street art museum](images/djerbahood.jpg)
 
 **Day 10: El Jem & Sousse**
 Drive north to **El Jem (UNESCO)** — the colossal Roman amphitheatre, one of the largest in the world. Lunch. Continue to **Sousse**; guided visit of the UNESCO medina and Ribat.
@@ -300,15 +296,11 @@ The holy city of Kairouan — Great Mosque, old medina and Makroudh pastry — t
 
 ![Kairouan — the Great Mosque & medina](images/kasbaah-kairouan.jpg)
 
-![Tamerza Palace — oasis hotel](images/tamerzapalace.jpg)
-
 **Day 4: Mountain Oases • Chott el Jerid • Sahara Camp**
 4x4 to the mountain oases of Chebika, Tamerza and Midès, then cross the **Chott el Jerid** salt lake and head to the **Dunes Insolites** desert camp for a night among the dunes. Camel ride, campfire, Berber music and traditional dinner.
 *Accommodation:* Dunes Insolites desert camp (or similar) · *Meals:* Breakfast, Lunch, Dinner
 
 ![Mountain oasis — palm groves beneath the canyon cliffs](images/mountain-oasis.jpg)
-
-![Desert camp under the stars](images/desert-camp-setup.jpg)
 
 **Day 5: Sabria & Douz • Tamazret & Matmata • Troglodyte Night**
 From Sabria to Douz (gateway to the Sahara), then into the Berber highlands of Tamazret and Matmata's troglodyte underground dwellings. Tonight: an authentic overnight in a **restored troglodyte house**.
@@ -368,12 +360,14 @@ Single rooms on request.
 
 | Group size | Net land cost p.p. (twin share) | Single supplement |
 |---|---|---|
-| 2 pax (private) | **€3,595** | €420 |
-| 3–4 pax | **€2,760** | €420 |
-| 5–6 pax | **€2,095** | €420 |
-| 7–9 pax | **€1,810** | €420 |
-| 10–12 pax | **€1,595** | €420 |
-| 13–16 pax | **€1,480** | €420 |
+| 2 pax (private) | **€2,952** | €420 |
+| 4 pax | **€1,992** | €420 |
+| 6 pax | **€1,873** | €420 |
+| 8 pax | **€1,663** | €420 |
+| 10 pax | **€1,397** | €420 |
+| 12 pax | **€1,283** | €420 |
+| 14 pax | **€1,222** | €420 |
+| 16 pax | **€1,158** | €420 |
 
 *Shoulder season (Mar–May / Oct–Nov). Net to Exodus, before Exodus margin and international air.*
 
@@ -381,14 +375,16 @@ Single rooms on request.
 
 | Group size | Net land cost p.p. (twin share) | Single supplement |
 |---|---|---|
-| 2 pax (private) | **€2,330** | €265 |
-| 3–4 pax | **€1,790** | €265 |
-| 5–6 pax | **€1,355** | €265 |
-| 7–9 pax | **€1,170** | €265 |
-| 10–12 pax | **€1,030** | €265 |
-| 13–16 pax | **€955** | €265 |
+| 2 pax (private) | **€1,770** | €265 |
+| 4 pax | **€1,270** | €265 |
+| 6 pax | **€1,120** | €265 |
+| 8 pax | **€1,504** | €265 |
+| 10 pax | **€999** | €265 |
+| 12 pax | **€969** | €265 |
+| 14 pax | **€947** | €265 |
+| 16 pax | **€931** | €265 |
 
-*Shoulder season (Mar–May / Oct–Nov); low season approx. −10%. Net to Exodus, before Exodus margin and international air.*
+*Shoulder season (Mar–May / Oct–Nov). Net to Exodus, before Exodus margin and international air.*
 
 **Free-place ratio:** 1 free tour-leader place per 15 paying pax · **Costed response within 72 hours** on any brief or specification change.
 

@@ -229,12 +229,14 @@ Locally-owned boutique and heritage properties throughout. Proposed hotels by lo
 
 | Group size (paying pax) | Net land cost p.p. (twin share) | Single supplement |
 |---|---|---|
-| 2 pax (private) | **€3,595** | €420 |
-| 3–4 pax | **€2,760** | €420 |
-| 5–6 pax | **€2,095** | €420 |
-| 7–9 pax | **€1,810** | €420 |
-| 10–12 pax | **€1,595** | €420 |
-| 13–16 pax | **€1,480** | €420 |
+| 2 pax (private) | **€2,952** | €420 |
+| 4 pax | **€1,992** | €420 |
+| 6 pax | **€1,873** | €420 |
+| 8 pax | **€1,663** | €420 |
+| 10 pax | **€1,397** | €420 |
+| 12 pax | **€1,283** | €420 |
+| 14 pax | **€1,222** | €420 |
+| 16 pax | **€1,158** | €420 |
 
 *Quoted at the lower bound of each tier (worst case for cost coverage). Shoulder season (Mar–May / Oct–Nov). Net to Exodus, before Exodus margin and international air.*
 
@@ -265,12 +267,14 @@ Locally-owned boutique and heritage properties throughout. Proposed hotels by lo
 
 | Group size (paying pax) | Net land cost p.p. (twin share) | Single supplement |
 |---|---|---|
-| 2 pax (private) | **€2,330** | €265 |
-| 3–4 pax | **€1,790** | €265 |
-| 5–6 pax | **€1,355** | €265 |
-| 7–9 pax | **€1,170** | €265 |
-| 10–12 pax | **€1,030** | €265 |
-| 13–16 pax | **€955** | €265 |
+| 2 pax (private) | **€1,770** | €265 |
+| 4 pax | **€1,270** | €265 |
+| 6 pax | **€1,120** | €265 |
+| 8 pax | **€1,504** | €265 |
+| 10 pax | **€999** | €265 |
+| 12 pax | **€969** | €265 |
+| 14 pax | **€947** | €265 |
+| 16 pax | **€931** | €265 |
 
 *Quoted at the lower bound of each tier. Shoulder season (Mar–May / Oct–Nov); low season approx. −10%. Net to Exodus, before Exodus margin and international air. 7 nights boutique/heritage B&B; included meals: welcome dinner, two touring-day lunches, farewell dinner; all listed entrance fees and the 4x4 excursion. Same free-place ratio (1 per 15) and terms as the 12-day product.*
 

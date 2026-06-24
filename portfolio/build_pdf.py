@@ -102,6 +102,9 @@ for _logo_candidate in ("images/logo.png", "images/logodts.jpeg", "images/logodt
 else:
     brand_html = "DEPART TRAVEL SERVICES"
 
+# Cover wordmark only (logo removed from page 1 by request)
+brand_html = "DEPART TRAVEL SERVICES"
+
 for src, out, label, cover, ctitle, csub in DOCS:
     with open(os.path.join(HERE, src), encoding="utf-8") as f:
         text = f.read()
