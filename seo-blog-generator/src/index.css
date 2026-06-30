@@ -1,0 +1,23 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  body {
+    @apply bg-slate-50 text-slate-900;
+  }
+}
+
+/* Prose styles for article preview */
+.prose h1 { @apply text-2xl font-bold mt-6 mb-3 text-slate-900; }
+.prose h2 { @apply text-xl font-bold mt-5 mb-2 text-slate-800; }
+.prose h3 { @apply text-lg font-semibold mt-4 mb-2 text-slate-700; }
+.prose p  { @apply my-3 leading-relaxed; }
+.prose ul { @apply list-disc pl-5 my-3 space-y-1; }
+.prose ol { @apply list-decimal pl-5 my-3 space-y-1; }
+.prose li { @apply leading-relaxed; }
+.prose strong { @apply font-semibold; }
+.prose em    { @apply italic; }
+.prose blockquote { @apply border-l-4 border-blue-400 pl-4 italic text-slate-600 my-4; }
+.prose code { @apply bg-slate-100 px-1 rounded text-sm font-mono; }
+.prose a    { @apply text-blue-600 underline; }
