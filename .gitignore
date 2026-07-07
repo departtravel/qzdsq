@@ -14,3 +14,7 @@ vite.config.d.ts
 
 # Archives livrables
 *.zip
+server/data/
+server/node_modules/
+client/node_modules/
+server/.env
