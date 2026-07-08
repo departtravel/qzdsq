@@ -1,5 +1,12 @@
 import { useCallback, useEffect, useMemo, useState, type ReactNode } from 'react'
 import { supabase } from '../../lib/supabase'
+import {
+  useErpRole,
+  peutCreerReservation,
+  peutTransition,
+  ROLE_LABEL,
+  type BookingStatut as RoleStatut,
+} from '../../lib/roles'
 
 // ============================================================
 //  MODULE RÉSERVATIONS — bookings + workflow métier
@@ -86,6 +93,7 @@ const STATUT_STYLE: Record<BookingStatut, string> = {
 const LANGUES = ['FR', 'EN', 'DE', 'IT', 'ES', 'AR']
 
 export function Reservations() {
+  const { role } = useErpRole()
   const [bookings, setBookings] = useState<Booking[]>([])
   const [excursions, setExcursions] = useState<ExcursionOption[]>([])
   const [otas, setOtas] = useState<OtaOption[]>([])
@@ -169,14 +177,22 @@ export function Reservations() {
 
   return (
     <div>
-      <div className="mb-4 flex flex-wrap items-center justify-between gap-3">
+      <div className="mb-2 flex flex-wrap items-center justify-between gap-3">
         <h2 className="text-lg font-semibold">Réservations ({bookings.length})</h2>
-        <button
-          onClick={() => setShowForm((s) => !s)}
-          className="rounded bg-blue-600 px-3 py-1.5 text-sm font-medium text-white hover:bg-blue-700"
-        >
-          {showForm ? 'Fermer' : '+ Nouvelle réservation'}
-        </button>
+        {peutCreerReservation(role) && (
+          <button
+            onClick={() => setShowForm((s) => !s)}
+            className="rounded bg-blue-600 px-3 py-1.5 text-sm font-medium text-white hover:bg-blue-700"
+          >
+            {showForm ? 'Fermer' : '+ Nouvelle réservation'}
+          </button>
+        )}
+      </div>
+
+      {/* Bandeau du rôle courant */}
+      <div className="mb-4 rounded border border-slate-200 bg-slate-50 px-3 py-2 text-xs text-slate-600">
+        Connecté en tant que <strong>{ROLE_LABEL[role]}</strong>. Vous ne pouvez agir que sur les
+        étapes autorisées à votre rôle — les autres actions sont masquées (et refusées par la base).
       </div>
 
       {showForm && (
@@ -273,7 +289,7 @@ export function Reservations() {
                   </td>
                   <td className="px-3 py-2 text-xs text-slate-500">{RESPONSABLE[b.statut]}</td>
                   <td className="whitespace-nowrap px-3 py-2 text-right">
-                    {next && (
+                    {next && peutTransition(role, b.statut as RoleStatut, next as RoleStatut) && (
                       <button
                         disabled={busy}
                         onClick={() => changerStatut(b, next)}
@@ -282,15 +298,22 @@ export function Reservations() {
                         {NEXT_LABEL[b.statut]} →
                       </button>
                     )}
-                    {b.statut !== 'ANNULEE' && b.statut !== 'TERMINEE' && (
-                      <button
-                        disabled={busy}
-                        onClick={() => changerStatut(b, 'ANNULEE')}
-                        className="rounded border border-red-300 px-2 py-1 text-xs font-medium text-red-600 hover:bg-red-50 disabled:opacity-50"
-                      >
-                        Annuler
-                      </button>
+                    {next && !peutTransition(role, b.statut as RoleStatut, next as RoleStatut) && (
+                      <span className="mr-1 text-xs italic text-slate-400">
+                        en attente de {RESPONSABLE[next].split('—')[0].trim()}
+                      </span>
                     )}
+                    {b.statut !== 'ANNULEE' &&
+                      b.statut !== 'TERMINEE' &&
+                      peutTransition(role, b.statut as RoleStatut, 'ANNULEE') && (
+                        <button
+                          disabled={busy}
+                          onClick={() => changerStatut(b, 'ANNULEE')}
+                          className="rounded border border-red-300 px-2 py-1 text-xs font-medium text-red-600 hover:bg-red-50 disabled:opacity-50"
+                        >
+                          Annuler
+                        </button>
+                      )}
                   </td>
                 </tr>
               )

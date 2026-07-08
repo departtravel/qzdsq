@@ -84,10 +84,38 @@ L'application couvre l'ensemble du cahier des charges via des onglets :
 - **📇 Référentiels** — guides, chauffeurs, restaurants, hébergements, extras, transports, véhicules
   (création automatique du fournisseur associé).
 
+### Rôles & workflow (cloisonnement)
+
+Le workflow métier est **imposé par la base de données** (`supabase/rbac.sql`),
+pas seulement par l'interface. Chaque étape d'une réservation ne peut être
+franchie que par le bon rôle :
+
+| Transition | Rôle autorisé |
+| --- | --- |
+| `NOUVELLE → CONFIRMEE` | CONFIRMATION (Farah) |
+| `CONFIRMEE → EN_OPERATION` | OPERATIONS (Hersi) |
+| `EN_OPERATION → TERMINEE` | OPERATIONS / LOGISTIQUE (Hersi / Karima) |
+| Affectation guide/véhicule/chauffeur | OPERATIONS (Hersi) |
+| Comptabilité fournisseurs | COMPTABLE |
+| Référentiels (guides, restos…) | LOGISTIQUE |
+| Catalogue & paramètres | ADMIN (Direction) |
+
+Ainsi **Hersi ne peut pas démarrer tant que Farah n'a pas confirmé**, et un
+utilisateur qui tente une action hors de son rôle est refusé côté base (et le
+bouton est masqué dans l'interface). Attribue les rôles en fin de `rbac.sql` :
+
+```sql
+update public.profiles set erp_role = 'RESERVATION'  where email = 'hiba@...';
+update public.profiles set erp_role = 'CONFIRMATION' where email = 'farah@...';
+update public.profiles set erp_role = 'OPERATIONS'   where email = 'hersi@...';
+update public.profiles set erp_role = 'LOGISTIQUE'   where email = 'karima@...';
+```
+
 ### Installation de la couche ERP
 
 Dans le **SQL Editor** de Supabase, exécute dans l'ordre :
-`supabase/schema.sql` → `supabase/erp.sql` → `supabase/seed.sql` → `supabase/seed_dts.sql`.
+`supabase/schema.sql` → `supabase/erp.sql` → `supabase/rbac.sql` →
+`supabase/seed.sql` → `supabase/seed_dts.sql`.
 
 ## Installation
 
