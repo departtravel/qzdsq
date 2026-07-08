@@ -42,6 +42,7 @@ export function OrdreMission() {
   const [excursionId, setExcursionId] = useState('')
   const [date, setDate] = useState(todayIso())
   const [bookings, setBookings] = useState<Booking[]>([])
+  const [extrasByBooking, setExtrasByBooking] = useState<Record<string, string[]>>({})
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
   const [msg, setMsg] = useState<string | null>(null)
@@ -85,6 +86,31 @@ export function OrdreMission() {
     if (b.error) setError(b.error.message)
     const list = (b.data as Booking[]) ?? []
     setBookings(list)
+
+    // Extras structurés : booking_extras filtrés sur ces réservations, noms résolus via extras.
+    const bookingIds = list.map((x) => x.id)
+    if (bookingIds.length > 0) {
+      const be = await supabase
+        .from('booking_extras')
+        .select('booking_id, extra_id')
+        .in('booking_id', bookingIds)
+      const rows = (be.data as { booking_id: string; extra_id: string }[]) ?? []
+      const extraIds = Array.from(new Set(rows.map((r) => r.extra_id)))
+      let noms: Record<string, string> = {}
+      if (extraIds.length > 0) {
+        const ex = await supabase.from('extras').select('id, nom').in('id', extraIds)
+        noms = Object.fromEntries(((ex.data as { id: string; nom: string | null }[]) ?? []).map((e) => [e.id, e.nom ?? '']))
+      }
+      const map: Record<string, string[]> = {}
+      for (const r of rows) {
+        const nom = noms[r.extra_id]
+        if (!nom) continue
+        ;(map[r.booking_id] ??= []).push(nom)
+      }
+      setExtrasByBooking(map)
+    } else {
+      setExtrasByBooking({})
+    }
     const ord = (o.data as MissionOrder | null) ?? null
     // Pré-remplit depuis l'ordre existant, sinon depuis la 1ʳᵉ affectation trouvée.
     const firstGuide = list.find((x) => x.guide_id)?.guide_id ?? ''
@@ -252,6 +278,11 @@ export function OrdreMission() {
               <tbody>
                 {bookings.map((b) => {
                   const pax = (b.nombre_adultes ?? 0) + (b.nombre_enfants ?? 0) + (b.nombre_bebes ?? 0)
+                  const extrasList = [
+                    ...(extrasByBooking[b.id] ?? []),
+                    ...(b.extras ? [b.extras] : []),
+                  ].map((s) => s.trim()).filter((s) => s.length > 0)
+                  const extrasTexte = extrasList.length > 0 ? extrasList.join(' / ') : '—'
                   return (
                     <tr key={b.id}>
                       <td className="border px-2 py-1">
@@ -262,7 +293,7 @@ export function OrdreMission() {
                       <td className="border px-2 py-1">{b.hotel ?? '—'}</td>
                       <td className="border px-2 py-1">{b.heure_prise_en_charge ?? '—'}</td>
                       <td className="border px-2 py-1">{b.regime || b.notes || '—'}</td>
-                      <td className="border px-2 py-1">{b.extras ?? '—'}</td>
+                      <td className="border px-2 py-1">{extrasTexte}</td>
                     </tr>
                   )
                 })}

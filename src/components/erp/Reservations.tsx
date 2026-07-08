@@ -63,6 +63,13 @@ interface OtaOption {
   nom: string
 }
 
+interface ExtraOption {
+  id: string
+  nom: string
+  prix_achat: number | null
+  devise_achat: string | null
+}
+
 const STATUTS: BookingStatut[] = [
   'NOUVELLE',
   'CONFIRMEE',
@@ -108,6 +115,8 @@ export function Reservations() {
   const [bookings, setBookings] = useState<Booking[]>([])
   const [excursions, setExcursions] = useState<ExcursionOption[]>([])
   const [otas, setOtas] = useState<OtaOption[]>([])
+  const [extras, setExtras] = useState<ExtraOption[]>([])
+  const [extrasByBooking, setExtrasByBooking] = useState<Map<string, ExtraOption[]>>(new Map())
   const [pricingById, setPricingById] = useState<Map<string, ExcursionPricing>>(new Map())
   const [costLinesByExc, setCostLinesByExc] = useState<Map<string, CostLine[]>>(new Map())
   const [loading, setLoading] = useState(true)
@@ -119,7 +128,7 @@ export function Reservations() {
   const load = useCallback(async () => {
     setLoading(true)
     setError(null)
-    const [b, e, o] = await Promise.all([
+    const [b, e, o, x] = await Promise.all([
       supabase.from('bookings').select('*').order('date_excursion', { ascending: true }),
       supabase
         .from('excursions')
@@ -128,6 +137,7 @@ export function Reservations() {
         )
         .order('code_interne'),
       supabase.from('ota_channels').select('id, nom').order('nom'),
+      supabase.from('extras').select('id, nom, prix_achat, devise_achat').order('nom'),
     ])
     if (b.error) setError(b.error.message)
     else setBookings((b.data as Booking[]) ?? [])
@@ -147,6 +157,10 @@ export function Reservations() {
     }
     setPricingById(pMap)
     setOtas((o.data as OtaOption[]) ?? [])
+    const extraRows = (x.data as ExtraOption[]) ?? []
+    setExtras(extraRows)
+    const extraById = new Map<string, ExtraOption>()
+    for (const ex of extraRows) extraById.set(ex.id, ex)
 
     // Charge les lignes de coût de toutes les excursions utilisées par des bookings.
     const excIds = Array.from(
@@ -169,6 +183,24 @@ export function Reservations() {
       }
     }
     setCostLinesByExc(clMap)
+
+    // Charge les extras choisis pour chaque réservation.
+    const bookingIds = ((b.data as Booking[]) ?? []).map((bk) => bk.id)
+    const beMap = new Map<string, ExtraOption[]>()
+    if (bookingIds.length > 0) {
+      const { data: be } = await supabase
+        .from('booking_extras')
+        .select('booking_id, extra_id')
+        .in('booking_id', bookingIds)
+      for (const link of (be as { booking_id: string; extra_id: string }[]) ?? []) {
+        const extra = extraById.get(link.extra_id)
+        if (!extra) continue
+        const arr = beMap.get(link.booking_id) ?? []
+        arr.push(extra)
+        beMap.set(link.booking_id, arr)
+      }
+    }
+    setExtrasByBooking(beMap)
     setLoading(false)
   }, [])
 
@@ -253,6 +285,7 @@ export function Reservations() {
         <BookingForm
           excursions={excursions}
           otas={otas}
+          extrasCatalog={extras}
           onCreated={() => {
             setShowForm(false)
             load()
@@ -322,6 +355,22 @@ export function Reservations() {
                     {b.client_email && (
                       <div className="text-xs text-slate-400">{b.client_email}</div>
                     )}
+                    {(() => {
+                      const chosen = extrasByBooking.get(b.id) ?? []
+                      if (chosen.length === 0) return null
+                      return (
+                        <div className="mt-1 flex flex-wrap gap-1">
+                          {chosen.map((ex) => (
+                            <span
+                              key={ex.id}
+                              className="rounded-full bg-purple-100 px-2 py-0.5 text-xs font-medium text-purple-700"
+                            >
+                              {ex.nom}
+                            </span>
+                          ))}
+                        </div>
+                      )
+                    })()}
                   </td>
                   <td className="whitespace-nowrap px-3 py-2 text-slate-500">
                     {ota?.nom ?? '—'}
@@ -493,16 +542,27 @@ const EMPTY_FORM: FormState = {
 function BookingForm({
   excursions,
   otas,
+  extrasCatalog,
   onCreated,
   onError,
 }: {
   excursions: ExcursionOption[]
   otas: OtaOption[]
+  extrasCatalog: ExtraOption[]
   onCreated: () => void
   onError: (msg: string) => void
 }) {
   const [form, setForm] = useState<FormState>(EMPTY_FORM)
+  const [selectedExtras, setSelectedExtras] = useState<Set<string>>(new Set())
   const [saving, setSaving] = useState(false)
+
+  const toggleExtra = (id: string) =>
+    setSelectedExtras((prev) => {
+      const next = new Set(prev)
+      if (next.has(id)) next.delete(id)
+      else next.add(id)
+      return next
+    })
 
   const set = <K extends keyof FormState>(key: K, value: FormState[K]) =>
     setForm((f) => ({ ...f, [key]: value }))
@@ -517,7 +577,7 @@ function BookingForm({
       return
     }
     setSaving(true)
-    const { error } = await supabase.from('bookings').insert({
+    const { data: inserted, error } = await supabase.from('bookings').insert({
       excursion_id: form.excursion_id,
       ota_channel_id: form.ota_channel_id || null,
       date_excursion: form.date_excursion,
@@ -535,13 +595,31 @@ function BookingForm({
       notes: form.notes || null,
       statut: 'NOUVELLE',
     })
-    setSaving(false)
+      .select()
+      .single()
     if (error) {
+      setSaving(false)
       onError(error.message)
-    } else {
-      setForm(EMPTY_FORM)
-      onCreated()
+      return
     }
+    // Insère les extras choisis pour cette réservation.
+    const bookingId = (inserted as { id: string } | null)?.id
+    if (bookingId && selectedExtras.size > 0) {
+      const rows = Array.from(selectedExtras).map((extra_id) => ({
+        booking_id: bookingId,
+        extra_id,
+      }))
+      const { error: exErr } = await supabase.from('booking_extras').insert(rows)
+      if (exErr) {
+        setSaving(false)
+        onError(exErr.message)
+        return
+      }
+    }
+    setSaving(false)
+    setForm(EMPTY_FORM)
+    setSelectedExtras(new Set())
+    onCreated()
   }
 
   return (
@@ -679,6 +757,33 @@ function BookingForm({
             placeholder="Camel ride / Quad double"
             className="w-full rounded border border-slate-300 px-2 py-1"
           />
+        </Field>
+
+        <Field label="Extras (options)" full>
+          {extrasCatalog.length === 0 ? (
+            <span className="text-xs italic text-slate-400">Aucun extra disponible.</span>
+          ) : (
+            <div className="flex flex-wrap gap-2">
+              {extrasCatalog.map((ex) => (
+                <label
+                  key={ex.id}
+                  className="flex cursor-pointer items-center gap-1.5 rounded border border-slate-200 px-2 py-1 text-sm hover:bg-slate-50"
+                >
+                  <input
+                    type="checkbox"
+                    checked={selectedExtras.has(ex.id)}
+                    onChange={() => toggleExtra(ex.id)}
+                  />
+                  <span>{ex.nom}</span>
+                  {ex.prix_achat != null && (
+                    <span className="text-xs text-slate-400">
+                      {ex.prix_achat} {ex.devise_achat ?? ''}
+                    </span>
+                  )}
+                </label>
+              ))}
+            </div>
+          )}
         </Field>
 
         <Field label="Notes" full>

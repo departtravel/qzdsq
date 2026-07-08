@@ -89,17 +89,19 @@ export function RelevePartenaire() {
       parExc.set(l.excursion_id, prev)
     }
     const excIds = [...parExc.keys()]
-    if (excIds.length === 0) { setRows([]); setBusy(false); return }
 
     // 2) Réservations (confirmées ou plus) pour ces excursions.
-    const { data: bk, error: e2 } = await supabase
-      .from('bookings')
-      .select('excursion_id, date_excursion, nombre_adultes, nombre_enfants, statut')
-      .in('excursion_id', excIds)
-      .neq('statut', 'ANNULEE')
-      .neq('statut', 'NOUVELLE')
-    if (e2) { setError(e2.message); setBusy(false); return }
-    const bookings = (bk as Booking[]) ?? []
+    const bookings: Booking[] = []
+    if (excIds.length > 0) {
+      const { data: bk, error: e2 } = await supabase
+        .from('bookings')
+        .select('excursion_id, date_excursion, nombre_adultes, nombre_enfants, statut')
+        .in('excursion_id', excIds)
+        .neq('statut', 'ANNULEE')
+        .neq('statut', 'NOUVELLE')
+      if (e2) { setError(e2.message); setBusy(false); return }
+      bookings.push(...((bk as Booking[]) ?? []))
+    }
 
     // 3) Regroupe par (excursion, date) et somme les participants.
     const grouped = new Map<string, { excursion_id: string; date: string; ad: number; en: number }>()
@@ -133,6 +135,58 @@ export function RelevePartenaire() {
         devise: info.devise,
       })
     }
+    // 4) Extras cochés directement dans les réservations (booking_extras) —
+    //    remplit automatiquement la compta de l'extra choisi.
+    if (partner.type === 'EXTRA') {
+      const { data: exRow } = await supabase
+        .from('extras')
+        .select('prix_achat, devise_achat, type_tarification')
+        .eq('id', partner.id)
+        .maybeSingle()
+      const ex = (exRow as { prix_achat: number | null; devise_achat: string | null; type_tarification: string | null } | null)
+      const prix = ex?.prix_achat ?? 0
+      const devEx = ex?.devise_achat ?? 'TND'
+      const modeEx = ex?.type_tarification ?? 'PAR_PERSONNE'
+      const { data: be } = await supabase
+        .from('booking_extras')
+        .select('booking_id')
+        .eq('extra_id', partner.id)
+      const bIds = ((be as { booking_id: string }[]) ?? []).map((r) => r.booking_id)
+      if (bIds.length > 0) {
+        const { data: bk2 } = await supabase
+          .from('bookings')
+          .select('excursion_id, date_excursion, nombre_adultes, nombre_enfants, statut')
+          .in('id', bIds)
+          .neq('statut', 'ANNULEE')
+        const gmap = new Map<string, { excursion_id: string; date: string; ad: number; en: number }>()
+        for (const b of (bk2 as Booking[]) ?? []) {
+          if (!b.date_excursion) continue
+          if (du && b.date_excursion < du) continue
+          if (au && b.date_excursion > au) continue
+          const k = `${b.excursion_id}|${b.date_excursion}`
+          const g = gmap.get(k) ?? { excursion_id: b.excursion_id ?? '', date: b.date_excursion, ad: 0, en: 0 }
+          g.ad += b.nombre_adultes ?? 0
+          g.en += b.nombre_enfants ?? 0
+          gmap.set(k, g)
+        }
+        for (const g of gmap.values()) {
+          const pers = g.ad + g.en
+          const perGroupe = modeEx === 'PAR_GROUPE' || modeEx === 'FIXE'
+          out.push({
+            date: g.date,
+            excursion: excById.get(g.excursion_id)?.nom ?? 'Réservation (extra coché)',
+            adultes: g.ad,
+            enfants: g.en,
+            pers,
+            prixPers: prix,
+            total: perGroupe ? prix : prix * pers,
+            mode: modeEx,
+            devise: devEx,
+          })
+        }
+      }
+    }
+
     out.sort((a, b) => a.date.localeCompare(b.date))
     setRows(out)
     setBusy(false)
