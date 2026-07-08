@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useState } from 'react'
-import { supabase } from '../../lib/supabase'
+import { supabase, makeSignupClient } from '../../lib/supabase'
 import { useErpRole, ROLE_LABEL, type ErpRole } from '../../lib/roles'
 
 // ============================================================
@@ -26,7 +26,13 @@ export function Utilisateurs() {
   const [profiles, setProfiles] = useState<Profile[]>([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
+  const [msg, setMsg] = useState<string | null>(null)
   const [savedId, setSavedId] = useState<string | null>(null)
+  // Formulaire d'ajout d'utilisateur
+  const [newEmail, setNewEmail] = useState('')
+  const [newPassword, setNewPassword] = useState('')
+  const [newRole, setNewRole] = useState<ErpRole>('RESERVATION')
+  const [adding, setAdding] = useState(false)
 
   const load = useCallback(async () => {
     setLoading(true)
@@ -57,6 +63,67 @@ export function Utilisateurs() {
     setTimeout(() => setSavedId((s) => (s === p.id ? null : s)), 1500)
   }
 
+  async function ajouterUtilisateur() {
+    setError(null)
+    setMsg(null)
+    if (!newEmail || !newPassword) {
+      setError('Renseigne un email et un mot de passe.')
+      return
+    }
+    if (newPassword.length < 6) {
+      setError('Le mot de passe doit faire au moins 6 caractères.')
+      return
+    }
+    setAdding(true)
+    const signup = makeSignupClient()
+    if (!signup) {
+      setError('Configuration Supabase absente.')
+      setAdding(false)
+      return
+    }
+    // Crée le compte sans toucher à la session de l'admin (client isolé).
+    const { data, error: e } = await signup.auth.signUp({
+      email: newEmail.trim(),
+      password: newPassword,
+    })
+    if (e) {
+      setError(e.message)
+      setAdding(false)
+      return
+    }
+    const uid = data.user?.id
+    if (uid) {
+      // Crée/complète le profil avec le rôle choisi.
+      await supabase.from('profiles').upsert(
+        {
+          id: uid,
+          email: newEmail.trim(),
+          role: newRole === 'ADMIN' ? 'admin' : 'viewer',
+          erp_role: newRole,
+        },
+        { onConflict: 'id' },
+      )
+    }
+    setMsg(
+      `Compte créé pour ${newEmail}. ` +
+        `Si la confirmation par e-mail est activée dans Supabase, l'utilisateur doit confirmer avant de se connecter.`,
+    )
+    setNewEmail('')
+    setNewPassword('')
+    setNewRole('RESERVATION')
+    setAdding(false)
+    load()
+  }
+
+  async function retirerAcces(p: Profile) {
+    if (!confirm(`Retirer l'accès de ${p.email} ? (rôle ramené à Lecture seule)`)) return
+    await maj(p, { role: 'viewer', erp_role: 'LECTURE' })
+    setMsg(
+      `Accès retiré pour ${p.email}. Pour supprimer définitivement le compte, va dans ` +
+        `Supabase → Authentication → Users.`,
+    )
+  }
+
   if (!ready || loading) return <p className="text-slate-500">Chargement…</p>
 
   if (!superAdmin)
@@ -79,6 +146,59 @@ export function Utilisateurs() {
           {error}
         </div>
       )}
+      {msg && (
+        <div className="mb-3 rounded border border-green-200 bg-green-50 px-3 py-2 text-sm text-green-700">
+          {msg}
+        </div>
+      )}
+
+      {/* Ajouter un utilisateur */}
+      <div className="mb-4 rounded-lg bg-white p-4 shadow">
+        <h3 className="mb-3 font-semibold">➕ Ajouter un utilisateur</h3>
+        <div className="flex flex-wrap items-end gap-3">
+          <label className="text-sm">
+            <span className="mb-1 block text-slate-500">Email</span>
+            <input
+              type="email"
+              value={newEmail}
+              onChange={(e) => setNewEmail(e.target.value)}
+              placeholder="prenom@dts.com"
+              className="w-56 rounded border border-slate-300 px-2 py-1"
+            />
+          </label>
+          <label className="text-sm">
+            <span className="mb-1 block text-slate-500">Mot de passe</span>
+            <input
+              type="text"
+              value={newPassword}
+              onChange={(e) => setNewPassword(e.target.value)}
+              placeholder="min. 6 caractères"
+              className="w-44 rounded border border-slate-300 px-2 py-1"
+            />
+          </label>
+          <label className="text-sm">
+            <span className="mb-1 block text-slate-500">Rôle</span>
+            <select
+              value={newRole}
+              onChange={(e) => setNewRole(e.target.value as ErpRole)}
+              className="rounded border border-slate-300 px-2 py-1"
+            >
+              {ERP_ROLES.map((r) => (
+                <option key={r} value={r}>
+                  {ROLE_LABEL[r]}
+                </option>
+              ))}
+            </select>
+          </label>
+          <button
+            disabled={adding}
+            onClick={ajouterUtilisateur}
+            className="rounded bg-blue-600 px-4 py-1.5 text-sm font-medium text-white hover:bg-blue-700 disabled:opacity-50"
+          >
+            {adding ? 'Création…' : 'Créer le compte'}
+          </button>
+        </div>
+      </div>
 
       <div className="overflow-x-auto rounded-lg bg-white shadow">
         <table className="w-full text-sm">
@@ -124,7 +244,13 @@ export function Utilisateurs() {
                   </label>
                 </td>
                 <td className="px-3 py-2 text-right">
-                  {savedId === p.id && <span className="text-xs text-green-600">✓ enregistré</span>}
+                  {savedId === p.id && <span className="mr-2 text-xs text-green-600">✓ enregistré</span>}
+                  <button
+                    onClick={() => retirerAcces(p)}
+                    className="rounded border border-red-300 px-2 py-1 text-xs font-medium text-red-600 hover:bg-red-50"
+                  >
+                    Retirer l'accès
+                  </button>
                 </td>
               </tr>
             ))}

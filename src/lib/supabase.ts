@@ -35,3 +35,14 @@ export function saveSupabaseConfig(newUrl: string, newKey: string) {
   localStorage.setItem(LS_KEY, newKey.trim())
   location.reload()
 }
+
+/**
+ * Client Supabase isolé (session non persistée) : sert à créer un nouvel
+ * utilisateur (signUp) sans remplacer la session de l'administrateur connecté.
+ */
+export function makeSignupClient(): SupabaseClient | null {
+  if (!url || !key) return null
+  return createClient(url, key, {
+    auth: { persistSession: false, autoRefreshToken: false },
+  })
+}

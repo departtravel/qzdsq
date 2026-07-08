@@ -145,42 +145,43 @@ function FleetApp({ userId, email }: { userId: string; email: string }) {
   return (
     <div className="min-h-screen">
       <header className="border-b bg-white">
-        <div className="mx-auto flex max-w-6xl items-center justify-between gap-2 px-4 py-3">
-          <div className="flex items-center gap-4">
+        <div className="mx-auto max-w-6xl px-4 py-3">
+          <div className="flex items-center justify-between gap-2">
             <span className="text-lg font-bold text-blue-700">DTS Operation ERP</span>
-            <nav className="flex gap-1 text-sm">
-              <button
-                onClick={() => { setSection('flotte'); setView({ name: 'dashboard' }) }}
-                className={`rounded px-3 py-1.5 ${section === 'flotte' ? 'bg-blue-100 font-medium text-blue-700' : 'text-slate-600 hover:bg-slate-100'}`}
-              >
-                🚚 Flotte
-              </button>
-              {ERP_SECTIONS.map((s) => (
-                <button
-                  key={s.key}
-                  onClick={() => setSection(s.key)}
-                  className={`rounded px-3 py-1.5 ${section === s.key ? 'bg-blue-100 font-medium text-blue-700' : 'text-slate-600 hover:bg-slate-100'}`}
+            <div className="flex items-center gap-3 text-sm text-slate-500">
+              <span className="hidden items-center gap-2 sm:flex">
+                {email}
+                <span
+                  className={`rounded px-2 py-0.5 text-xs font-medium ${
+                    isAdmin ? 'bg-blue-100 text-blue-700' : 'bg-slate-200 text-slate-600'
+                  }`}
                 >
-                  {s.emoji} {s.label}
-                </button>
-              ))}
-            </nav>
-          </div>
-          <div className="flex items-center gap-3 text-sm text-slate-500">
-            <span className="hidden items-center gap-2 sm:flex">
-              {email}
-              <span
-                className={`rounded px-2 py-0.5 text-xs font-medium ${
-                  isAdmin ? 'bg-blue-100 text-blue-700' : 'bg-slate-200 text-slate-600'
-                }`}
-              >
-                {isAdmin ? 'Admin' : 'Lecture seule'}
+                  {isAdmin ? 'Admin' : 'Lecture seule'}
+                </span>
               </span>
-            </span>
-            <button onClick={() => supabase.auth.signOut()} className="rounded border border-slate-300 px-3 py-1.5 hover:bg-slate-50">
-              Déconnexion
-            </button>
+              <button onClick={() => supabase.auth.signOut()} className="rounded border border-slate-300 px-3 py-1.5 hover:bg-slate-50">
+                Déconnexion
+              </button>
+            </div>
           </div>
+          {/* Barre de navigation : passe sur plusieurs lignes pour ne rien cacher */}
+          <nav className="mt-2 flex flex-wrap gap-1 text-sm">
+            <button
+              onClick={() => { setSection('flotte'); setView({ name: 'dashboard' }) }}
+              className={`rounded px-3 py-1.5 ${section === 'flotte' ? 'bg-blue-100 font-medium text-blue-700' : 'text-slate-600 hover:bg-slate-100'}`}
+            >
+              🚚 Flotte
+            </button>
+            {ERP_SECTIONS.map((s) => (
+              <button
+                key={s.key}
+                onClick={() => setSection(s.key)}
+                className={`rounded px-3 py-1.5 ${section === s.key ? 'bg-blue-100 font-medium text-blue-700' : 'text-slate-600 hover:bg-slate-100'}`}
+              >
+                {s.emoji} {s.label}
+              </button>
+            ))}
+          </nav>
         </div>
       </header>
 
