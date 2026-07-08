@@ -21,4 +21,4 @@ create policy app_settings_read on public.app_settings
   for select using (auth.role() = 'authenticated');
 drop policy if exists app_settings_write on public.app_settings;
 create policy app_settings_write on public.app_settings for all
-  using (public.has_erp_role()) with check (public.has_erp_role()); -- ADMIN seulement
+  using (public.is_admin()) with check (public.is_admin()); -- ADMIN seulement

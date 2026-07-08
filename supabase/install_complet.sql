@@ -1,6 +1,6 @@
 -- ============================================================
 -- DTS OPERATION ERP — INSTALLATION COMPLETE (fichier unique)
--- Colle TOUT ce fichier dans Supabase > SQL Editor > New query > Run
+-- Colle TOUT ce fichier dans Supabase > SQL Editor > New query > Run without RLS
 -- Ré-exécutable sans risque.
 -- ============================================================
 
@@ -641,7 +641,7 @@ create policy bookings_update on public.bookings for update
   using (public.has_erp_role('RESERVATION','CONFIRMATION','OPERATIONS','LOGISTIQUE'))
   with check (public.has_erp_role('RESERVATION','CONFIRMATION','OPERATIONS','LOGISTIQUE'));
 create policy bookings_delete on public.bookings for delete
-  using (public.has_erp_role());  -- ADMIN uniquement
+  using (public.is_admin());  -- ADMIN uniquement
 
 -- --- Planning : OPERATIONS / LOGISTIQUE
 drop policy if exists operation_planning_write on public.operation_planning;
@@ -678,14 +678,14 @@ begin
 end $$;
 
 -- --- Catalogue / paramètres : ADMIN seulement (inchangé, on garde is_admin
---     via has_erp_role() sans argument => ADMIN)
+--     via is_admin() => ADMIN)
 do $$
 declare t text;
 begin
   foreach t in array array['excursions','excursion_options','excursion_cost_lines','ota_channels','exchange_rates'] loop
     execute format('drop policy if exists %I_write on public.%I;', t, t);
     execute format(
-      'create policy %I_write on public.%I for all using (public.has_erp_role()) with check (public.has_erp_role());',
+      'create policy %I_write on public.%I for all using (public.is_admin()) with check (public.is_admin());',
       t, t);
   end loop;
 end $$;
@@ -772,7 +772,7 @@ create policy app_settings_read on public.app_settings
   for select using (auth.role() = 'authenticated');
 drop policy if exists app_settings_write on public.app_settings;
 create policy app_settings_write on public.app_settings for all
-  using (public.has_erp_role()) with check (public.has_erp_role()); -- ADMIN seulement
+  using (public.is_admin()) with check (public.is_admin()); -- ADMIN seulement
 
 -- >>>>>>>>>>>>>>>>>> seed.sql <<<<<<<<<<<<<<<<<<
 
