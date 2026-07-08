@@ -46,6 +46,83 @@ calcul segment par segment.
 > ⚠️ Saisis le **kilométrage au compteur** à chaque plein : c'est la distance,
 > et non le montant en dirhams, qui révèle une surconsommation (le prix varie).
 
+## DTS Operation ERP (module excursions & rentabilité)
+
+En plus de la gestion de flotte, ce dépôt intègre la première couche de l'ERP
+**Depart Travel Services** décrit dans le cahier des charges : catalogue des
+excursions OTA et calcul automatique de rentabilité.
+
+- **Base de données** — `supabase/erp.sql` crée toutes les tables métier
+  (canaux OTA, excursions, options, lignes de coût, transporteurs, véhicules,
+  guides + tarifs, chauffeurs, restaurants + prix, hébergements + prix, extras,
+  fournisseurs + transactions + factures, réservations, planning, imports OTA,
+  taux de change, historique des coûts) avec Row Level Security.
+- **Données initiales** — `supabase/seed.sql` charge les données réelles :
+  7 canaux OTA (commission GYG 30 %, taux 1 EUR = 3,34 TND), restaurants,
+  hébergements, extras, et le catalogue GetYourGuide (TDE + Tunisia-Trips) avec
+  les lignes de coût de référence (ex. Ksar Ghilane 2 jours).
+- **Moteur de rentabilité** — `src/lib/erp.ts` répond automatiquement à :
+  « combien coûte réellement l'excursion ? », « combien gagne-t-on par
+  personne ? », « combien de participants minimum pour être rentable ? ».
+  Coûts fixes vs variables, répartition PAR_PERSONNE / PAR_VEHICULE /
+  PAR_GROUPE, exclusion comptable, conversion EUR→TND. Couvert par
+  `src/lib/erp.test.ts`.
+- **Interface** — onglet **🧭 Excursions** : catalogue cliquable + simulateur
+  d'effectif affichant CA net, coût total, marge et seuil de rentabilité.
+
+### Modules ERP disponibles
+
+L'application couvre l'ensemble du cahier des charges via des onglets :
+
+- **🧭 Excursions** — catalogue OTA + simulateur de rentabilité.
+- **📅 Réservations** — création + workflow Hiba→Farah→Hersi→Karima→Amine/Aymen.
+- **📆 Planning** — vue jour/semaine des sorties + affectation guide/véhicule/chauffeur.
+- **💰 Comptabilité** — fournisseurs, transactions, avances, alerte factures manquantes.
+- **📊 Direction** — dashboard KPI (CA, commissions, marge, top/déficitaires, à payer).
+- **📥 Import OTA** — import CSV de réservations avec mapping et prévisualisation.
+- **📋 Ordre de mission** — document imprimable par excursion + date (guide + infos,
+  chauffeur + infos, liste des participants avec noms, pax, hôtel, heure de prise en
+  charge, remarques, extras) + **signature et cachet** enregistrés en base.
+- **🗒️ Réservations à effectuer** — fiche logistique par excursion + date : transport,
+  guide, repas par jour (restaurant + effectifs + régimes), hébergement, extras — tout
+  ce qui doit être réservé auprès des partenaires.
+- **🧠 IA Analytique** — « pourquoi la marge baisse ? », simulations, longue durée vs ponctuelle.
+- **📇 Référentiels** — guides, chauffeurs, restaurants, hébergements, extras, transports, véhicules
+  (création automatique du fournisseur associé).
+
+### Rôles & workflow (cloisonnement)
+
+Le workflow métier est **imposé par la base de données** (`supabase/rbac.sql`),
+pas seulement par l'interface. Chaque étape d'une réservation ne peut être
+franchie que par le bon rôle :
+
+| Transition | Rôle autorisé |
+| --- | --- |
+| `NOUVELLE → CONFIRMEE` | CONFIRMATION (Farah) |
+| `CONFIRMEE → EN_OPERATION` | OPERATIONS (Hersi) |
+| `EN_OPERATION → TERMINEE` | OPERATIONS / LOGISTIQUE (Hersi / Karima) |
+| Affectation guide/véhicule/chauffeur | OPERATIONS (Hersi) |
+| Comptabilité fournisseurs | COMPTABLE |
+| Référentiels (guides, restos…) | LOGISTIQUE |
+| Catalogue & paramètres | ADMIN (Direction) |
+
+Ainsi **Hersi ne peut pas démarrer tant que Farah n'a pas confirmé**, et un
+utilisateur qui tente une action hors de son rôle est refusé côté base (et le
+bouton est masqué dans l'interface). Attribue les rôles en fin de `rbac.sql` :
+
+```sql
+update public.profiles set erp_role = 'RESERVATION'  where email = 'hiba@...';
+update public.profiles set erp_role = 'CONFIRMATION' where email = 'farah@...';
+update public.profiles set erp_role = 'OPERATIONS'   where email = 'hersi@...';
+update public.profiles set erp_role = 'LOGISTIQUE'   where email = 'karima@...';
+```
+
+### Installation de la couche ERP
+
+Dans le **SQL Editor** de Supabase, exécute dans l'ordre :
+`supabase/schema.sql` → `supabase/erp.sql` → `supabase/rbac.sql` →
+`supabase/missions.sql` → `supabase/seed.sql` → `supabase/seed_dts.sql`.
+
 ## Installation
 
 1. **Dépendances** — `npm install`

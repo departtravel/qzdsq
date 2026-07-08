@@ -5,3 +5,20 @@
 body {
   @apply bg-slate-100 text-slate-800;
 }
+
+/* Impression : ne garder que le document (.printable), masquer le reste. */
+@media print {
+  body {
+    @apply bg-white;
+  }
+  .no-print {
+    display: none !important;
+  }
+  header {
+    display: none !important;
+  }
+  .printable {
+    box-shadow: none !important;
+    border: none !important;
+  }
+}

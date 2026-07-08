@@ -1,0 +1,155 @@
+import { useCallback, useEffect, useState } from 'react'
+import { supabase } from '../../lib/supabase'
+import { useErpRole, ROLE_LABEL, type ErpRole } from '../../lib/roles'
+
+// ============================================================
+//  UTILISATEURS & RÔLES — réservé au SUPER ADMIN (Direction)
+//  Permet de désigner / modifier le rôle ERP de chaque compte
+//  et de promouvoir/révoquer le statut super administrateur.
+// ============================================================
+
+interface Profile {
+  id: string
+  email: string | null
+  role: string            // 'admin' (super admin) | 'viewer'
+  erp_role: ErpRole
+}
+
+const ERP_ROLES: ErpRole[] = [
+  'ADMIN', 'RESERVATION', 'CONFIRMATION', 'OPERATIONS', 'LOGISTIQUE', 'COMPTABLE', 'LECTURE',
+]
+
+export function Utilisateurs() {
+  const { role, ready } = useErpRole()
+  const superAdmin = role === 'ADMIN'
+
+  const [profiles, setProfiles] = useState<Profile[]>([])
+  const [loading, setLoading] = useState(true)
+  const [error, setError] = useState<string | null>(null)
+  const [savedId, setSavedId] = useState<string | null>(null)
+
+  const load = useCallback(async () => {
+    setLoading(true)
+    setError(null)
+    const { data, error } = await supabase
+      .from('profiles')
+      .select('id, email, role, erp_role')
+      .order('email')
+    if (error) setError(error.message)
+    setProfiles((data as Profile[]) ?? [])
+    setLoading(false)
+  }, [])
+
+  useEffect(() => {
+    if (superAdmin) load()
+    else setLoading(false)
+  }, [superAdmin, load])
+
+  async function maj(p: Profile, patch: Partial<Profile>) {
+    setError(null)
+    const { error } = await supabase.from('profiles').update(patch).eq('id', p.id)
+    if (error) {
+      setError(error.message)
+      return
+    }
+    setProfiles((prev) => prev.map((x) => (x.id === p.id ? { ...x, ...patch } : x)))
+    setSavedId(p.id)
+    setTimeout(() => setSavedId((s) => (s === p.id ? null : s)), 1500)
+  }
+
+  if (!ready || loading) return <p className="text-slate-500">Chargement…</p>
+
+  if (!superAdmin)
+    return (
+      <div className="rounded border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-800">
+        🔒 La gestion des rôles est réservée au <strong>super administrateur</strong> (Direction).
+      </div>
+    )
+
+  return (
+    <div>
+      <h2 className="mb-1 text-lg font-semibold">Utilisateurs & rôles</h2>
+      <p className="mb-4 text-sm text-slate-500">
+        Désigne le rôle de chaque compte. Le rôle pilote ce que la personne peut faire
+        (et est imposé par la base). Seul un super administrateur voit cet écran.
+      </p>
+
+      {error && (
+        <div className="mb-3 rounded border border-red-200 bg-red-50 px-3 py-2 text-sm text-red-700">
+          {error}
+        </div>
+      )}
+
+      <div className="overflow-x-auto rounded-lg bg-white shadow">
+        <table className="w-full text-sm">
+          <thead className="border-b bg-slate-50 text-left text-slate-500">
+            <tr>
+              <th className="px-3 py-2">Email</th>
+              <th className="px-3 py-2">Rôle ERP</th>
+              <th className="px-3 py-2">Super admin</th>
+              <th className="px-3 py-2"></th>
+            </tr>
+          </thead>
+          <tbody>
+            {profiles.map((p) => (
+              <tr key={p.id} className="border-b last:border-0">
+                <td className="px-3 py-2">{p.email ?? <span className="text-slate-400">—</span>}</td>
+                <td className="px-3 py-2">
+                  <select
+                    value={p.erp_role}
+                    onChange={(e) => maj(p, { erp_role: e.target.value as ErpRole })}
+                    className="rounded border border-slate-300 px-2 py-1"
+                  >
+                    {ERP_ROLES.map((r) => (
+                      <option key={r} value={r}>
+                        {ROLE_LABEL[r]}
+                      </option>
+                    ))}
+                  </select>
+                </td>
+                <td className="px-3 py-2">
+                  <label className="inline-flex items-center gap-2">
+                    <input
+                      type="checkbox"
+                      checked={p.role === 'admin'}
+                      onChange={(e) =>
+                        maj(p, {
+                          role: e.target.checked ? 'admin' : 'viewer',
+                          // Un super admin est ADMIN en ERP ; sinon on repasse en LECTURE.
+                          erp_role: e.target.checked ? 'ADMIN' : (p.erp_role === 'ADMIN' ? 'LECTURE' : p.erp_role),
+                        })
+                      }
+                    />
+                    <span className="text-xs text-slate-500">accès total</span>
+                  </label>
+                </td>
+                <td className="px-3 py-2 text-right">
+                  {savedId === p.id && <span className="text-xs text-green-600">✓ enregistré</span>}
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+
+      {profiles.length === 0 && (
+        <p className="mt-4 text-sm text-slate-500">
+          Aucun compte. Crée des utilisateurs dans Supabase → Authentication → Users.
+        </p>
+      )}
+
+      <div className="mt-4 rounded border border-slate-200 bg-slate-50 px-4 py-3 text-xs text-slate-600">
+        <p className="mb-1 font-medium">Rappel des rôles :</p>
+        <ul className="list-disc space-y-0.5 pl-5">
+          <li><strong>Réservation (Hiba)</strong> — crée les réservations.</li>
+          <li><strong>Confirmation (Farah)</strong> — confirme les réservations.</li>
+          <li><strong>Opérations (Hersi)</strong> — affecte guide/véhicule/chauffeur, met en opération.</li>
+          <li><strong>Logistique (Karima)</strong> — réservations partenaires, référentiels.</li>
+          <li><strong>Comptabilité</strong> — fournisseurs, factures, paiements.</li>
+          <li><strong>Contrôle / Lecture (Amine, Aymen)</strong> — analyse et rapports.</li>
+          <li><strong>Administrateur</strong> — accès total (super admin).</li>
+        </ul>
+      </div>
+    </div>
+  )
+}
