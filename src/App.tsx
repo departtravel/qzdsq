@@ -18,6 +18,7 @@ import { OrdreMission } from './components/erp/OrdreMission'
 import { FicheReservation } from './components/erp/FicheReservation'
 import { Utilisateurs } from './components/erp/Utilisateurs'
 import { Parametres } from './components/erp/Parametres'
+import { RelevePartenaire } from './components/erp/RelevePartenaire'
 
 type View = { name: 'dashboard' } | { name: 'detail'; id: string } | { name: 'new' }
 type Section =
@@ -34,6 +35,7 @@ type Section =
   | 'fichereservation'
   | 'utilisateurs'
   | 'parametres'
+  | 'relevepartenaire'
 
 const ERP_SECTIONS: { key: Section; emoji: string; label: string }[] = [
   { key: 'excursions', emoji: '🧭', label: 'Excursions' },
@@ -42,6 +44,7 @@ const ERP_SECTIONS: { key: Section; emoji: string; label: string }[] = [
   { key: 'ordremission', emoji: '📋', label: 'Ordre de mission' },
   { key: 'fichereservation', emoji: '🗒️', label: 'Réservations à effectuer' },
   { key: 'comptabilite', emoji: '💰', label: 'Comptabilité' },
+  { key: 'relevepartenaire', emoji: '🧾', label: 'Relevé prestataire' },
   { key: 'dashboard', emoji: '📊', label: 'Direction' },
   { key: 'importota', emoji: '📥', label: 'Import OTA' },
   { key: 'ia', emoji: '🧠', label: 'IA Analytique' },
@@ -63,6 +66,7 @@ const ERP_COMPONENTS: Record<Exclude<Section, 'flotte'>, JSX.Element> = {
   referentiels: <Referentiels />,
   utilisateurs: <Utilisateurs />,
   parametres: <Parametres />,
+  relevepartenaire: <RelevePartenaire />,
 }
 
 export default function App() {

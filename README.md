@@ -121,7 +121,8 @@ update public.profiles set erp_role = 'LOGISTIQUE'   where email = 'karima@...';
 
 Dans le **SQL Editor** de Supabase, exécute dans l'ordre :
 `supabase/schema.sql` → `supabase/erp.sql` → `supabase/rbac.sql` →
-`supabase/missions.sql` → `supabase/seed.sql` → `supabase/seed_dts.sql`.
+`supabase/missions.sql` → `supabase/settings.sql` → `supabase/seed.sql` →
+`supabase/seed_dts.sql` → `supabase/compta_partenaires.sql`.
 
 ## Installation
 
