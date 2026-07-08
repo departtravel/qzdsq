@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { supabase } from '../../lib/supabase'
 import { useErpRole, peutAffecter } from '../../lib/roles'
+import { useSettings } from '../../lib/settings'
 import { SignaturePad } from './SignaturePad'
 
 // ============================================================
@@ -32,6 +33,7 @@ const todayIso = () => new Date().toISOString().slice(0, 10)
 export function OrdreMission() {
   const { role } = useErpRole()
   const canWrite = peutAffecter(role)
+  const settings = useSettings()
 
   const [excursions, setExcursions] = useState<ExcursionOption[]>([])
   const [guides, setGuides] = useState<Guide[]>([])
@@ -181,9 +183,15 @@ export function OrdreMission() {
           {/* Document imprimable */}
           <div className="printable rounded-lg border bg-white p-6 shadow">
             <div className="mb-4 flex items-start justify-between border-b pb-3">
-              <div>
-                <h1 className="text-xl font-bold">ORDRE DE MISSION</h1>
-                <p className="text-sm text-slate-500">Depart Travel Services</p>
+              <div className="flex items-center gap-3">
+                {settings.logo && <img src={settings.logo} alt="logo" className="max-h-16" />}
+                <div>
+                  <h1 className="text-xl font-bold">ORDRE DE MISSION</h1>
+                  <p className="text-sm text-slate-500">{settings.company_name}</p>
+                  {settings.company_info && (
+                    <p className="whitespace-pre-line text-xs text-slate-400">{settings.company_info}</p>
+                  )}
+                </div>
               </div>
               <div className="text-right text-sm">
                 <p><strong>Date :</strong> {date}</p>

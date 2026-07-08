@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { supabase } from '../../lib/supabase'
+import { useSettings } from '../../lib/settings'
 
 // ============================================================
 //  FICHE DES RÉSERVATIONS À EFFECTUER — par excursion + date
@@ -29,6 +30,7 @@ const CAT_LABEL: Record<string, string> = {
 const ORDER = ['TRANSPORT', 'GUIDE', 'CHAUFFEUR', 'RESTAURANT', 'HEBERGEMENT', 'EXTRA', 'GASOIL', 'PEAGE', 'PARKING', 'AUTRE']
 
 export function FicheReservation() {
+  const settings = useSettings()
   const [excursions, setExcursions] = useState<ExcursionOption[]>([])
   const [excursionId, setExcursionId] = useState('')
   const [date, setDate] = useState(todayIso())
@@ -118,9 +120,12 @@ export function FicheReservation() {
       ) : (
         <div className="printable rounded-lg border bg-white p-6 shadow">
           <div className="mb-4 flex items-start justify-between border-b pb-3">
-            <div>
-              <h1 className="text-xl font-bold">RÉSERVATIONS À EFFECTUER</h1>
-              <p className="text-sm text-slate-500">Depart Travel Services · logistique (Karima)</p>
+            <div className="flex items-center gap-3">
+              {settings.logo && <img src={settings.logo} alt="logo" className="max-h-16" />}
+              <div>
+                <h1 className="text-xl font-bold">RÉSERVATIONS À EFFECTUER</h1>
+                <p className="text-sm text-slate-500">{settings.company_name} · logistique (Karima)</p>
+              </div>
             </div>
             <div className="text-right text-sm">
               <p><strong>Date :</strong> {date}</p>
