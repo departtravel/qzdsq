@@ -14,6 +14,8 @@ import { DashboardDirection } from './components/erp/DashboardDirection'
 import { ImportOTA } from './components/erp/ImportOTA'
 import { IAAnalytics } from './components/erp/IAAnalytics'
 import { Referentiels } from './components/erp/Referentiels'
+import { OrdreMission } from './components/erp/OrdreMission'
+import { FicheReservation } from './components/erp/FicheReservation'
 
 type View = { name: 'dashboard' } | { name: 'detail'; id: string } | { name: 'new' }
 type Section =
@@ -26,11 +28,15 @@ type Section =
   | 'importota'
   | 'ia'
   | 'referentiels'
+  | 'ordremission'
+  | 'fichereservation'
 
 const ERP_SECTIONS: { key: Section; emoji: string; label: string }[] = [
   { key: 'excursions', emoji: '🧭', label: 'Excursions' },
   { key: 'reservations', emoji: '📅', label: 'Réservations' },
   { key: 'planning', emoji: '📆', label: 'Planning' },
+  { key: 'ordremission', emoji: '📋', label: 'Ordre de mission' },
+  { key: 'fichereservation', emoji: '🗒️', label: 'Réservations à effectuer' },
   { key: 'comptabilite', emoji: '💰', label: 'Comptabilité' },
   { key: 'dashboard', emoji: '📊', label: 'Direction' },
   { key: 'importota', emoji: '📥', label: 'Import OTA' },
@@ -42,6 +48,8 @@ const ERP_COMPONENTS: Record<Exclude<Section, 'flotte'>, JSX.Element> = {
   excursions: <Excursions />,
   reservations: <Reservations />,
   planning: <Planning />,
+  ordremission: <OrdreMission />,
+  fichereservation: <FicheReservation />,
   comptabilite: <Comptabilite />,
   dashboard: <DashboardDirection />,
   importota: <ImportOTA />,

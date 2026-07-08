@@ -367,6 +367,10 @@ interface FormState {
   nombre_enfants: number
   nombre_bebes: number
   langue: string
+  hotel: string
+  heure_prise_en_charge: string
+  regime: string
+  extras: string
   notes: string
 }
 
@@ -381,6 +385,10 @@ const EMPTY_FORM: FormState = {
   nombre_enfants: 0,
   nombre_bebes: 0,
   langue: 'FR',
+  hotel: '',
+  heure_prise_en_charge: '',
+  regime: '',
+  extras: '',
   notes: '',
 }
 
@@ -422,6 +430,10 @@ function BookingForm({
       nombre_enfants: form.nombre_enfants,
       nombre_bebes: form.nombre_bebes,
       langue: form.langue || null,
+      hotel: form.hotel || null,
+      heure_prise_en_charge: form.heure_prise_en_charge || null,
+      regime: form.regime || null,
+      extras: form.extras || null,
       notes: form.notes || null,
       statut: 'NOUVELLE',
     })
@@ -529,6 +541,46 @@ function BookingForm({
               </option>
             ))}
           </select>
+        </Field>
+
+        <Field label="Hôtel / lieu de prise en charge">
+          <input
+            type="text"
+            value={form.hotel}
+            onChange={(e) => set('hotel', e.target.value)}
+            placeholder="Hôtel Télémaque Djerba"
+            className="w-full rounded border border-slate-300 px-2 py-1"
+          />
+        </Field>
+
+        <Field label="Heure de prise en charge">
+          <input
+            type="text"
+            value={form.heure_prise_en_charge}
+            onChange={(e) => set('heure_prise_en_charge', e.target.value)}
+            placeholder="8h15"
+            className="w-full rounded border border-slate-300 px-2 py-1"
+          />
+        </Field>
+
+        <Field label="Régime / remarques repas">
+          <input
+            type="text"
+            value={form.regime}
+            onChange={(e) => set('regime', e.target.value)}
+            placeholder="végétarien, vegan, allergie…"
+            className="w-full rounded border border-slate-300 px-2 py-1"
+          />
+        </Field>
+
+        <Field label="Extras" full>
+          <input
+            type="text"
+            value={form.extras}
+            onChange={(e) => set('extras', e.target.value)}
+            placeholder="Camel ride / Quad double"
+            className="w-full rounded border border-slate-300 px-2 py-1"
+          />
         </Field>
 
         <Field label="Notes" full>

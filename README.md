@@ -80,6 +80,12 @@ L'application couvre l'ensemble du cahier des charges via des onglets :
 - **💰 Comptabilité** — fournisseurs, transactions, avances, alerte factures manquantes.
 - **📊 Direction** — dashboard KPI (CA, commissions, marge, top/déficitaires, à payer).
 - **📥 Import OTA** — import CSV de réservations avec mapping et prévisualisation.
+- **📋 Ordre de mission** — document imprimable par excursion + date (guide + infos,
+  chauffeur + infos, liste des participants avec noms, pax, hôtel, heure de prise en
+  charge, remarques, extras) + **signature et cachet** enregistrés en base.
+- **🗒️ Réservations à effectuer** — fiche logistique par excursion + date : transport,
+  guide, repas par jour (restaurant + effectifs + régimes), hébergement, extras — tout
+  ce qui doit être réservé auprès des partenaires.
 - **🧠 IA Analytique** — « pourquoi la marge baisse ? », simulations, longue durée vs ponctuelle.
 - **📇 Référentiels** — guides, chauffeurs, restaurants, hébergements, extras, transports, véhicules
   (création automatique du fournisseur associé).
@@ -115,7 +121,7 @@ update public.profiles set erp_role = 'LOGISTIQUE'   where email = 'karima@...';
 
 Dans le **SQL Editor** de Supabase, exécute dans l'ordre :
 `supabase/schema.sql` → `supabase/erp.sql` → `supabase/rbac.sql` →
-`supabase/seed.sql` → `supabase/seed_dts.sql`.
+`supabase/missions.sql` → `supabase/seed.sql` → `supabase/seed_dts.sql`.
 
 ## Installation
 
