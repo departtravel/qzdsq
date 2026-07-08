@@ -26,10 +26,15 @@ interface SupplierInvoice {
 interface Booking {
   id: string
   excursion_id: string | null
+  date_excursion: string | null
+  client_nom: string | null
   nombre_adultes: number
   nombre_enfants: number
   nombre_bebes: number
   statut: string
+  guide_id: string | null
+  vehicle_id: string | null
+  driver_id: string | null
 }
 
 // Effectif de référence utilisé quand aucune réservation réelle n'existe.
@@ -141,6 +146,22 @@ export function DashboardDirection() {
     )
   }, [kpis])
 
+  // À faire en urgence.
+  const urgences = useMemo(() => {
+    const today = new Date().toISOString().slice(0, 10)
+    const nomExc = (id: string | null) =>
+      excursions.find((e) => e.id === id)?.nom ?? 'Excursion'
+    const aConfirmer = bookings.filter((b) => b.statut === 'NOUVELLE')
+    const aVenirSansAffectation = bookings.filter(
+      (b) =>
+        b.statut !== 'ANNULEE' &&
+        b.statut !== 'TERMINEE' &&
+        (b.date_excursion ?? '') >= today &&
+        (!b.guide_id || !b.vehicle_id || !b.driver_id),
+    )
+    return { today, nomExc, aConfirmer, aVenirSansAffectation }
+  }, [bookings, excursions])
+
   const topRentables = useMemo(
     () => [...kpis].sort((a, b) => b.result.margeTnd - a.result.margeTnd).slice(0, 10),
     [kpis],
@@ -216,6 +237,36 @@ export function DashboardDirection() {
           ou réservations réelles quand elles existent.
         </p>
       </div>
+
+      {/* À faire en urgence */}
+      {(urgences.aConfirmer.length > 0 ||
+        urgences.aVenirSansAffectation.length > 0 ||
+        totalFacturesManquantes > 0) && (
+        <div className="mb-6 rounded-lg border border-amber-300 bg-amber-50 p-4">
+          <h3 className="mb-2 font-semibold text-amber-900">⚠️ À faire en urgence</h3>
+          <div className="grid grid-cols-1 gap-3 sm:grid-cols-3">
+            <UrgenceCard
+              n={urgences.aConfirmer.length}
+              label="réservation(s) à confirmer"
+              detail={urgences.aConfirmer.slice(0, 4).map(
+                (b) => `${b.date_excursion ?? '?'} · ${urgences.nomExc(b.excursion_id)}`,
+              )}
+            />
+            <UrgenceCard
+              n={urgences.aVenirSansAffectation.length}
+              label="sortie(s) à venir sans guide/véhicule/chauffeur"
+              detail={urgences.aVenirSansAffectation.slice(0, 4).map(
+                (b) => `${b.date_excursion ?? '?'} · ${urgences.nomExc(b.excursion_id)}`,
+              )}
+            />
+            <UrgenceCard
+              n={totalFacturesManquantes}
+              label="facture(s) fournisseur manquante(s)"
+              detail={[]}
+            />
+          </div>
+        </div>
+      )}
 
       {/* Cartes KPI */}
       <div className="mb-6 grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-5">
@@ -379,6 +430,23 @@ export function DashboardDirection() {
           </div>
         )}
       </section>
+    </div>
+  )
+}
+
+function UrgenceCard({ n, label, detail }: { n: number; label: string; detail: string[] }) {
+  const actif = n > 0
+  return (
+    <div className={`rounded border p-3 ${actif ? 'border-amber-300 bg-white' : 'border-slate-200 bg-white/50'}`}>
+      <p className={`text-2xl font-bold ${actif ? 'text-amber-700' : 'text-slate-300'}`}>{n}</p>
+      <p className="text-xs text-slate-600">{label}</p>
+      {detail.length > 0 && (
+        <ul className="mt-1 space-y-0.5 text-xs text-slate-400">
+          {detail.map((d, i) => (
+            <li key={i}>• {d}</li>
+          ))}
+        </ul>
+      )}
     </div>
   )
 }

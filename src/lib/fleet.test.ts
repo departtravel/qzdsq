@@ -31,6 +31,11 @@ function makeVehicle(over: Partial<Vehicle> = {}): Vehicle {
     date_assurance: null,
     date_visite_technique: null,
     date_vignette: null,
+    places: null,
+    mode_possession: null,
+    leasing_mensuel: null,
+    loyer_mensuel: null,
+    tarif_excursion: null,
     created_at: '2024-01-01',
     ...over,
   }

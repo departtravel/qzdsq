@@ -39,6 +39,45 @@ const rowColor: Record<Severity, string> = {
   unknown: '',
 }
 
+function modePossessionLabel(mode: Vehicle['mode_possession']): string {
+  switch (mode) {
+    case 'PROPRIETE':
+      return 'Propriété'
+    case 'LOCATION_LONGUE_DUREE':
+      return 'Location longue durée'
+    case 'LOCATION_EXCURSION':
+      return 'Location par excursion'
+    default:
+      return '—'
+  }
+}
+
+function fmtTnd(value: number): string {
+  return `${value.toLocaleString('fr-FR', { minimumFractionDigits: 0, maximumFractionDigits: 3 })} TND`
+}
+
+function coutInfo(vehicle: Vehicle): { label: string; value: string } {
+  switch (vehicle.mode_possession) {
+    case 'PROPRIETE':
+      return {
+        label: 'Mensualité leasing / crédit',
+        value: vehicle.leasing_mensuel != null ? `${fmtTnd(vehicle.leasing_mensuel)} / mois` : '—',
+      }
+    case 'LOCATION_LONGUE_DUREE':
+      return {
+        label: 'Loyer mensuel',
+        value: vehicle.loyer_mensuel != null ? `${fmtTnd(vehicle.loyer_mensuel)} / mois` : '—',
+      }
+    case 'LOCATION_EXCURSION':
+      return {
+        label: 'Tarif par excursion',
+        value: vehicle.tarif_excursion != null ? `${fmtTnd(vehicle.tarif_excursion)} / sortie` : '—',
+      }
+    default:
+      return { label: 'Coût', value: '—' }
+  }
+}
+
 export function VehicleDetail({ vehicle, isAdmin, onBack, onChanged }: Props) {
   const [logs, setLogs] = useState<FuelLog[]>([])
   const [maint, setMaint] = useState<MaintenanceLog[]>([])
@@ -153,6 +192,24 @@ export function VehicleDetail({ vehicle, isAdmin, onBack, onChanged }: Props) {
         <StatusBadge status={assuranceStatus(vehicle)} />
         <StatusBadge status={visiteTechniqueStatus(vehicle)} />
         <StatusBadge status={vignetteStatus(vehicle)} />
+      </div>
+
+      <div className="rounded-lg bg-white p-6 shadow">
+        <h3 className="mb-3 font-semibold">Caractéristiques</h3>
+        <dl className="grid grid-cols-2 gap-3 text-sm sm:grid-cols-3">
+          <div>
+            <dt className="text-xs uppercase text-slate-500">Places</dt>
+            <dd className="font-medium">{vehicle.places != null ? vehicle.places : '—'}</dd>
+          </div>
+          <div>
+            <dt className="text-xs uppercase text-slate-500">Mode de possession</dt>
+            <dd className="font-medium">{modePossessionLabel(vehicle.mode_possession)}</dd>
+          </div>
+          <div>
+            <dt className="text-xs uppercase text-slate-500">{coutInfo(vehicle).label}</dt>
+            <dd className="font-medium">{coutInfo(vehicle).value}</dd>
+          </div>
+        </dl>
       </div>
 
       {isAdmin && (

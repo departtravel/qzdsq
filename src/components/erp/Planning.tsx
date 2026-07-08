@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useMemo, useState } from 'react'
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { supabase } from '../../lib/supabase'
 
 // ----- Types locaux (lecture seule, alignés sur supabase/erp.sql) -----
@@ -52,6 +52,8 @@ export function Planning({ today }: { today?: string }) {
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
   const [savingId, setSavingId] = useState<string | null>(null)
+  const [prochaines, setProchaines] = useState<{ date: string; count: number }[]>([])
+  const autoSelected = useRef(false)
 
   // Fenêtre de 7 jours à partir de la date sélectionnée (pour la vue semaine).
   const weekDays = useMemo<string[]>(() => {
@@ -98,9 +100,40 @@ export function Planning({ today }: { today?: string }) {
     setLoading(false)
   }, [date, weekDays])
 
+  // Prochaines sorties à venir (>= aujourd'hui, hors annulées) + auto-sélection.
+  const loadProchaines = useCallback(async () => {
+    const from = todayISO()
+    const { data, error: err } = await supabase
+      .from('bookings')
+      .select('date_excursion')
+      .gte('date_excursion', from)
+      .neq('statut', 'ANNULEE')
+      .order('date_excursion', { ascending: true })
+    if (err) return
+    const counts = new Map<string, number>()
+    for (const row of (data as { date_excursion: string | null }[]) ?? []) {
+      const d = row.date_excursion
+      if (d) counts.set(d, (counts.get(d) ?? 0) + 1)
+    }
+    const list = Array.from(counts.entries())
+      .map(([date, count]) => ({ date, count }))
+      .sort((a, b) => a.date.localeCompare(b.date))
+    setProchaines(list.slice(0, 5))
+
+    // Si aujourd'hui n'a aucune sortie, sélectionne la prochaine date qui en a.
+    if (!autoSelected.current && !today) {
+      autoSelected.current = true
+      const todayHas = counts.has(from)
+      if (!todayHas && list.length > 0) {
+        setDate(list[0].date)
+      }
+    }
+  }, [today])
+
   useEffect(() => {
     loadReferentiels()
-  }, [loadReferentiels])
+    loadProchaines()
+  }, [loadReferentiels, loadProchaines])
 
   useEffect(() => {
     loadBookings()
@@ -208,6 +241,40 @@ export function Planning({ today }: { today?: string }) {
           sub={`${weekDays[0]} → ${weekDays[6]}`}
         />
       </div>
+
+      {/* Prochaines sorties */}
+      {prochaines.length > 0 && (
+        <div className="mb-4 rounded-lg bg-white p-4 shadow">
+          <h3 className="mb-2 font-semibold">Prochaines sorties</h3>
+          <div className="flex flex-wrap gap-2">
+            {prochaines.map((p) => {
+              const isSelected = p.date === date
+              return (
+                <button
+                  key={p.date}
+                  onClick={() => setDate(p.date)}
+                  className={`rounded border px-3 py-1.5 text-sm transition ${
+                    isSelected
+                      ? 'border-blue-500 bg-blue-50 text-blue-700'
+                      : 'border-slate-200 hover:bg-slate-50'
+                  }`}
+                >
+                  <span className="font-medium">
+                    {new Date(p.date + 'T00:00:00').toLocaleDateString('fr-FR', {
+                      weekday: 'short',
+                      day: '2-digit',
+                      month: '2-digit',
+                    })}
+                  </span>{' '}
+                  <span className="text-slate-400">
+                    · {p.count} sortie{p.count > 1 ? 's' : ''}
+                  </span>
+                </button>
+              )
+            })}
+          </div>
+        </div>
+      )}
 
       {/* Vue semaine */}
       <div className="mb-4 rounded-lg bg-white p-4 shadow">

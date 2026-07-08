@@ -1,12 +1,23 @@
 import { useCallback, useEffect, useMemo, useState, type ReactNode } from 'react'
 import { supabase } from '../../lib/supabase'
 import {
+  calculerRentabilite,
+  type CostLine,
+  type Excursion,
+} from '../../lib/erp'
+import {
   useErpRole,
   peutCreerReservation,
   peutTransition,
   ROLE_LABEL,
   type BookingStatut as RoleStatut,
 } from '../../lib/roles'
+
+// Sous-ensemble tarifaire d'une excursion nécessaire au calcul de rentabilité.
+type ExcursionPricing = Pick<
+  Excursion,
+  'prix_adulte' | 'prix_enfant' | 'prix_bebe' | 'commission_ota' | 'taux_conversion'
+>
 
 // ============================================================
 //  MODULE RÉSERVATIONS — bookings + workflow métier
@@ -97,6 +108,8 @@ export function Reservations() {
   const [bookings, setBookings] = useState<Booking[]>([])
   const [excursions, setExcursions] = useState<ExcursionOption[]>([])
   const [otas, setOtas] = useState<OtaOption[]>([])
+  const [pricingById, setPricingById] = useState<Map<string, ExcursionPricing>>(new Map())
+  const [costLinesByExc, setCostLinesByExc] = useState<Map<string, CostLine[]>>(new Map())
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
   const [filtre, setFiltre] = useState<BookingStatut | 'TOUS'>('TOUS')
@@ -108,13 +121,54 @@ export function Reservations() {
     setError(null)
     const [b, e, o] = await Promise.all([
       supabase.from('bookings').select('*').order('date_excursion', { ascending: true }),
-      supabase.from('excursions').select('id, code_interne, nom').order('code_interne'),
+      supabase
+        .from('excursions')
+        .select(
+          'id, code_interne, nom, prix_adulte, prix_enfant, prix_bebe, commission_ota, taux_conversion',
+        )
+        .order('code_interne'),
       supabase.from('ota_channels').select('id, nom').order('nom'),
     ])
     if (b.error) setError(b.error.message)
     else setBookings((b.data as Booking[]) ?? [])
-    setExcursions((e.data as ExcursionOption[]) ?? [])
+
+    type ExcursionRow = ExcursionOption & ExcursionPricing & { id: string }
+    const excRows = (e.data as ExcursionRow[]) ?? []
+    setExcursions(excRows.map((x) => ({ id: x.id, code_interne: x.code_interne, nom: x.nom })))
+    const pMap = new Map<string, ExcursionPricing>()
+    for (const x of excRows) {
+      pMap.set(x.id, {
+        prix_adulte: x.prix_adulte,
+        prix_enfant: x.prix_enfant,
+        prix_bebe: x.prix_bebe,
+        commission_ota: x.commission_ota,
+        taux_conversion: x.taux_conversion,
+      })
+    }
+    setPricingById(pMap)
     setOtas((o.data as OtaOption[]) ?? [])
+
+    // Charge les lignes de coût de toutes les excursions utilisées par des bookings.
+    const excIds = Array.from(
+      new Set(
+        ((b.data as Booking[]) ?? [])
+          .map((bk) => bk.excursion_id)
+          .filter((id): id is string => !!id),
+      ),
+    )
+    const clMap = new Map<string, CostLine[]>()
+    if (excIds.length > 0) {
+      const { data: cl } = await supabase
+        .from('excursion_cost_lines')
+        .select('*')
+        .in('excursion_id', excIds)
+      for (const line of (cl as CostLine[]) ?? []) {
+        const arr = clMap.get(line.excursion_id) ?? []
+        arr.push(line)
+        clMap.set(line.excursion_id, arr)
+      }
+    }
+    setCostLinesByExc(clMap)
     setLoading(false)
   }, [])
 
@@ -233,6 +287,7 @@ export function Reservations() {
               <th className="px-3 py-2">Client</th>
               <th className="px-3 py-2">Canal</th>
               <th className="px-3 py-2 text-right">Pax</th>
+              <th className="px-3 py-2 text-right">Coût / Marge (TND)</th>
               <th className="px-3 py-2">Langue</th>
               <th className="px-3 py-2">Statut</th>
               <th className="px-3 py-2">Étape / Responsable</th>
@@ -276,6 +331,15 @@ export function Reservations() {
                     <div className="text-xs text-slate-400">
                       {b.nombre_adultes}A/{b.nombre_enfants}E/{b.nombre_bebes}B
                     </div>
+                  </td>
+                  <td className="px-3 py-2 text-right">
+                    <RentabiliteCell
+                      pricing={b.excursion_id ? pricingById.get(b.excursion_id) : undefined}
+                      lignes={b.excursion_id ? costLinesByExc.get(b.excursion_id) : undefined}
+                      adultes={b.nombre_adultes ?? 0}
+                      enfants={b.nombre_enfants ?? 0}
+                      bebes={b.nombre_bebes ?? 0}
+                    />
                   </td>
                   <td className="whitespace-nowrap px-3 py-2 text-slate-500">
                     {b.langue ?? '—'}
@@ -353,6 +417,40 @@ function FiltreChip({
     >
       {label}
     </button>
+  )
+}
+
+function RentabiliteCell({
+  pricing,
+  lignes,
+  adultes,
+  enfants,
+  bebes,
+}: {
+  pricing: ExcursionPricing | undefined
+  lignes: CostLine[] | undefined
+  adultes: number
+  enfants: number
+  bebes: number
+}) {
+  if (!pricing) return <span className="text-slate-400">—</span>
+  // Sans aucune ligne de coût, la marge serait trompeuse (= CA net).
+  if (!lignes || lignes.length === 0) {
+    return <span className="text-xs italic text-slate-400">coûts non configurés</span>
+  }
+  const r = calculerRentabilite({ excursion: pricing, lignes, adultes, enfants, bebes })
+  const positif = r.margeTnd >= 0
+  return (
+    <div className="whitespace-nowrap">
+      <div className="text-slate-700">{r.coutTotalTnd.toFixed(2)}</div>
+      <div className={`font-semibold ${positif ? 'text-green-700' : 'text-red-600'}`}>
+        {positif ? '+' : ''}
+        {r.margeTnd.toFixed(2)}
+      </div>
+      {r.seuilRentabilite !== null && (
+        <div className="text-xs text-slate-400">seuil {r.seuilRentabilite} pax</div>
+      )}
+    </div>
   )
 }
 

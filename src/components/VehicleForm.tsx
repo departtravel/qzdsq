@@ -26,6 +26,11 @@ function emptyInput(): VehicleInput {
     date_assurance: null,
     date_visite_technique: null,
     date_vignette: null,
+    places: null,
+    mode_possession: 'PROPRIETE',
+    leasing_mensuel: null,
+    loyer_mensuel: null,
+    tarif_excursion: null,
   }
 }
 
@@ -115,6 +120,46 @@ export function VehicleForm({ initial, onSave, onCancel }: Props) {
             <label className={label}>Seuil d'alerte (% au-dessus du normal)</label>
             <input type="number" step="1" className={input} value={form.seuil_alerte_pct} onChange={(e) => set('seuil_alerte_pct', Number(e.target.value))} />
           </div>
+        </div>
+      </section>
+
+      <section>
+        <h3 className="mb-2 font-semibold text-slate-700">Flotte &amp; possession</h3>
+        <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+          <div>
+            <label className={label}>Nombre de places</label>
+            <input type="number" min="0" className={input} value={form.places ?? ''} onChange={(e) => set('places', num(e.target.value))} />
+          </div>
+          <div>
+            <label className={label}>Mode de possession</label>
+            <select
+              className={input}
+              value={form.mode_possession ?? 'PROPRIETE'}
+              onChange={(e) => set('mode_possession', e.target.value as VehicleInput['mode_possession'])}
+            >
+              <option value="PROPRIETE">Propriété</option>
+              <option value="LOCATION_LONGUE_DUREE">Location longue durée</option>
+              <option value="LOCATION_EXCURSION">Location par excursion</option>
+            </select>
+          </div>
+          {form.mode_possession === 'PROPRIETE' && (
+            <div>
+              <label className={label}>Mensualité leasing / crédit (TND, 0 si payé)</label>
+              <input type="number" step="0.001" min="0" className={input} value={form.leasing_mensuel ?? ''} onChange={(e) => set('leasing_mensuel', num(e.target.value))} />
+            </div>
+          )}
+          {form.mode_possession === 'LOCATION_LONGUE_DUREE' && (
+            <div>
+              <label className={label}>Loyer par mois (TND)</label>
+              <input type="number" step="0.001" min="0" className={input} value={form.loyer_mensuel ?? ''} onChange={(e) => set('loyer_mensuel', num(e.target.value))} />
+            </div>
+          )}
+          {form.mode_possession === 'LOCATION_EXCURSION' && (
+            <div>
+              <label className={label}>Tarif par excursion (TND)</label>
+              <input type="number" step="0.001" min="0" className={input} value={form.tarif_excursion ?? ''} onChange={(e) => set('tarif_excursion', num(e.target.value))} />
+            </div>
+          )}
         </div>
       </section>
 

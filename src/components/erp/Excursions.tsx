@@ -5,13 +5,17 @@ import {
   type CostLine,
   type Excursion,
 } from '../../lib/erp'
+import { ExcursionForm } from './ExcursionForm'
+import { useErpRole, peutEcrire } from '../../lib/roles'
 
 // Vue catalogue des excursions OTA + simulateur de rentabilité.
 export function Excursions() {
+  const { role } = useErpRole()
   const [excursions, setExcursions] = useState<Excursion[]>([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
   const [selectedId, setSelectedId] = useState<string | null>(null)
+  const [showForm, setShowForm] = useState(false)
 
   const load = useCallback(async () => {
     setLoading(true)
@@ -40,9 +44,30 @@ export function Excursions() {
   if (selected)
     return <ExcursionDetail excursion={selected} onBack={() => setSelectedId(null)} />
 
+  if (showForm)
+    return (
+      <ExcursionForm
+        onCancel={() => setShowForm(false)}
+        onCreated={() => {
+          setShowForm(false)
+          load()
+        }}
+      />
+    )
+
   return (
     <div>
-      <h2 className="mb-4 text-lg font-semibold">Catalogue excursions ({excursions.length})</h2>
+      <div className="mb-4 flex flex-wrap items-center justify-between gap-3">
+        <h2 className="text-lg font-semibold">Catalogue excursions ({excursions.length})</h2>
+        {peutEcrire.catalogue(role) && (
+          <button
+            onClick={() => setShowForm(true)}
+            className="rounded bg-blue-600 px-3 py-1.5 text-sm font-medium text-white hover:bg-blue-700"
+          >
+            + Ajouter une excursion
+          </button>
+        )}
+      </div>
       <div className="overflow-x-auto rounded-lg bg-white shadow">
         <table className="w-full text-sm">
           <thead className="border-b bg-slate-50 text-left text-slate-500">
