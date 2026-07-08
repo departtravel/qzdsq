@@ -7,9 +7,47 @@ import { VehicleDetail } from './components/VehicleDetail'
 import { VehicleForm } from './components/VehicleForm'
 import { Login } from './components/Login'
 import { Excursions } from './components/erp/Excursions'
+import { Reservations } from './components/erp/Reservations'
+import { Planning } from './components/erp/Planning'
+import { Comptabilite } from './components/erp/Comptabilite'
+import { DashboardDirection } from './components/erp/DashboardDirection'
+import { ImportOTA } from './components/erp/ImportOTA'
+import { IAAnalytics } from './components/erp/IAAnalytics'
+import { Referentiels } from './components/erp/Referentiels'
 
 type View = { name: 'dashboard' } | { name: 'detail'; id: string } | { name: 'new' }
-type Section = 'flotte' | 'excursions'
+type Section =
+  | 'flotte'
+  | 'excursions'
+  | 'reservations'
+  | 'planning'
+  | 'comptabilite'
+  | 'dashboard'
+  | 'importota'
+  | 'ia'
+  | 'referentiels'
+
+const ERP_SECTIONS: { key: Section; emoji: string; label: string }[] = [
+  { key: 'excursions', emoji: '🧭', label: 'Excursions' },
+  { key: 'reservations', emoji: '📅', label: 'Réservations' },
+  { key: 'planning', emoji: '📆', label: 'Planning' },
+  { key: 'comptabilite', emoji: '💰', label: 'Comptabilité' },
+  { key: 'dashboard', emoji: '📊', label: 'Direction' },
+  { key: 'importota', emoji: '📥', label: 'Import OTA' },
+  { key: 'ia', emoji: '🧠', label: 'IA Analytique' },
+  { key: 'referentiels', emoji: '📇', label: 'Référentiels' },
+]
+
+const ERP_COMPONENTS: Record<Exclude<Section, 'flotte'>, JSX.Element> = {
+  excursions: <Excursions />,
+  reservations: <Reservations />,
+  planning: <Planning />,
+  comptabilite: <Comptabilite />,
+  dashboard: <DashboardDirection />,
+  importota: <ImportOTA />,
+  ia: <IAAnalytics />,
+  referentiels: <Referentiels />,
+}
 
 export default function App() {
   const [session, setSession] = useState<Session | null>(null)
@@ -97,12 +135,15 @@ function FleetApp({ userId, email }: { userId: string; email: string }) {
               >
                 🚚 Flotte
               </button>
-              <button
-                onClick={() => setSection('excursions')}
-                className={`rounded px-3 py-1.5 ${section === 'excursions' ? 'bg-blue-100 font-medium text-blue-700' : 'text-slate-600 hover:bg-slate-100'}`}
-              >
-                🧭 Excursions
-              </button>
+              {ERP_SECTIONS.map((s) => (
+                <button
+                  key={s.key}
+                  onClick={() => setSection(s.key)}
+                  className={`rounded px-3 py-1.5 ${section === s.key ? 'bg-blue-100 font-medium text-blue-700' : 'text-slate-600 hover:bg-slate-100'}`}
+                >
+                  {s.emoji} {s.label}
+                </button>
+              ))}
             </nav>
           </div>
           <div className="flex items-center gap-3 text-sm text-slate-500">
@@ -130,8 +171,8 @@ function FleetApp({ userId, email }: { userId: string; email: string }) {
           </div>
         )}
 
-        {section === 'excursions' ? (
-          <Excursions />
+        {section !== 'flotte' ? (
+          ERP_COMPONENTS[section]
         ) : loading ? (
           <p className="text-slate-500">Chargement…</p>
         ) : view.name === 'new' && isAdmin ? (

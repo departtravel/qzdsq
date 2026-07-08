@@ -70,10 +70,24 @@ excursions OTA et calcul automatique de rentabilité.
 - **Interface** — onglet **🧭 Excursions** : catalogue cliquable + simulateur
   d'effectif affichant CA net, coût total, marge et seuil de rentabilité.
 
+### Modules ERP disponibles
+
+L'application couvre l'ensemble du cahier des charges via des onglets :
+
+- **🧭 Excursions** — catalogue OTA + simulateur de rentabilité.
+- **📅 Réservations** — création + workflow Hiba→Farah→Hersi→Karima→Amine/Aymen.
+- **📆 Planning** — vue jour/semaine des sorties + affectation guide/véhicule/chauffeur.
+- **💰 Comptabilité** — fournisseurs, transactions, avances, alerte factures manquantes.
+- **📊 Direction** — dashboard KPI (CA, commissions, marge, top/déficitaires, à payer).
+- **📥 Import OTA** — import CSV de réservations avec mapping et prévisualisation.
+- **🧠 IA Analytique** — « pourquoi la marge baisse ? », simulations, longue durée vs ponctuelle.
+- **📇 Référentiels** — guides, chauffeurs, restaurants, hébergements, extras, transports, véhicules
+  (création automatique du fournisseur associé).
+
 ### Installation de la couche ERP
 
 Dans le **SQL Editor** de Supabase, exécute dans l'ordre :
-`supabase/schema.sql` → `supabase/erp.sql` → `supabase/seed.sql`.
+`supabase/schema.sql` → `supabase/erp.sql` → `supabase/seed.sql` → `supabase/seed_dts.sql`.
 
 ## Installation
 
