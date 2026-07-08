@@ -46,6 +46,35 @@ calcul segment par segment.
 > ⚠️ Saisis le **kilométrage au compteur** à chaque plein : c'est la distance,
 > et non le montant en dirhams, qui révèle une surconsommation (le prix varie).
 
+## DTS Operation ERP (module excursions & rentabilité)
+
+En plus de la gestion de flotte, ce dépôt intègre la première couche de l'ERP
+**Depart Travel Services** décrit dans le cahier des charges : catalogue des
+excursions OTA et calcul automatique de rentabilité.
+
+- **Base de données** — `supabase/erp.sql` crée toutes les tables métier
+  (canaux OTA, excursions, options, lignes de coût, transporteurs, véhicules,
+  guides + tarifs, chauffeurs, restaurants + prix, hébergements + prix, extras,
+  fournisseurs + transactions + factures, réservations, planning, imports OTA,
+  taux de change, historique des coûts) avec Row Level Security.
+- **Données initiales** — `supabase/seed.sql` charge les données réelles :
+  7 canaux OTA (commission GYG 30 %, taux 1 EUR = 3,34 TND), restaurants,
+  hébergements, extras, et le catalogue GetYourGuide (TDE + Tunisia-Trips) avec
+  les lignes de coût de référence (ex. Ksar Ghilane 2 jours).
+- **Moteur de rentabilité** — `src/lib/erp.ts` répond automatiquement à :
+  « combien coûte réellement l'excursion ? », « combien gagne-t-on par
+  personne ? », « combien de participants minimum pour être rentable ? ».
+  Coûts fixes vs variables, répartition PAR_PERSONNE / PAR_VEHICULE /
+  PAR_GROUPE, exclusion comptable, conversion EUR→TND. Couvert par
+  `src/lib/erp.test.ts`.
+- **Interface** — onglet **🧭 Excursions** : catalogue cliquable + simulateur
+  d'effectif affichant CA net, coût total, marge et seuil de rentabilité.
+
+### Installation de la couche ERP
+
+Dans le **SQL Editor** de Supabase, exécute dans l'ordre :
+`supabase/schema.sql` → `supabase/erp.sql` → `supabase/seed.sql`.
+
 ## Installation
 
 1. **Dépendances** — `npm install`
