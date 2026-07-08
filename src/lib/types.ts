@@ -26,8 +26,19 @@ export interface Vehicle {
   date_assurance: string | null
   date_visite_technique: string | null
   date_vignette: string | null
+  // Caractéristiques ERP
+  places: number | null
+  mode_possession: ModePossession | null
+  leasing_mensuel: number | null   // si PROPRIETE
+  loyer_mensuel: number | null     // si LOCATION_LONGUE_DUREE
+  tarif_excursion: number | null   // si LOCATION_EXCURSION
   created_at: string
 }
+
+export type ModePossession =
+  | 'PROPRIETE'
+  | 'LOCATION_LONGUE_DUREE'
+  | 'LOCATION_EXCURSION'
 
 export interface FuelLog {
   id: string
