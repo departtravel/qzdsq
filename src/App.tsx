@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useState } from 'react'
 import type { Session } from '@supabase/supabase-js'
-import { isSupabaseConfigured, supabase } from './lib/supabase'
+import { isSupabaseConfigured, supabase, saveSupabaseConfig } from './lib/supabase'
 import type { FuelLog, Role, Vehicle, VehicleInput } from './lib/types'
 import { Dashboard } from './components/Dashboard'
 import { VehicleDetail } from './components/VehicleDetail'
@@ -226,13 +226,49 @@ function Centered({ children }: { children: React.ReactNode }) {
 }
 
 function ConfigNotice() {
+  const [url, setUrl] = useState('')
+  const [key, setKey] = useState('')
   return (
     <div className="mx-auto max-w-2xl px-4 py-16">
-      <div className="rounded-lg border border-amber-200 bg-amber-50 p-6">
-        <h1 className="mb-2 text-xl font-bold text-amber-900">Configuration requise</h1>
-        <p className="mb-4 text-amber-800">
-          L'application n'est pas encore connectée à Supabase. Pour démarrer :
+      <div className="mb-6 rounded-lg border border-blue-200 bg-white p-6 shadow">
+        <h1 className="mb-1 text-xl font-bold text-slate-900">Connexion à Supabase</h1>
+        <p className="mb-4 text-sm text-slate-600">
+          Colle ici l'URL et la clé <strong>anon public</strong> de ton projet Supabase
+          (Supabase → Settings → API). Elles sont enregistrées dans ce navigateur.
         </p>
+        <div className="space-y-3">
+          <label className="block text-sm">
+            <span className="mb-1 block text-slate-500">Project URL</span>
+            <input
+              type="text"
+              value={url}
+              onChange={(e) => setUrl(e.target.value)}
+              placeholder="https://xxxx.supabase.co"
+              className="w-full rounded border border-slate-300 px-2 py-1.5"
+            />
+          </label>
+          <label className="block text-sm">
+            <span className="mb-1 block text-slate-500">Clé anon public</span>
+            <input
+              type="text"
+              value={key}
+              onChange={(e) => setKey(e.target.value)}
+              placeholder="eyJhbG..."
+              className="w-full rounded border border-slate-300 px-2 py-1.5"
+            />
+          </label>
+          <button
+            disabled={!url || !key}
+            onClick={() => saveSupabaseConfig(url, key)}
+            className="rounded bg-blue-600 px-4 py-2 text-sm font-medium text-white hover:bg-blue-700 disabled:opacity-50"
+          >
+            Connecter
+          </button>
+        </div>
+      </div>
+
+      <div className="rounded-lg border border-amber-200 bg-amber-50 p-6">
+        <h2 className="mb-2 text-lg font-bold text-amber-900">Étapes de mise en place</h2>
         <ol className="list-decimal space-y-2 pl-5 text-sm text-amber-900">
           <li>
             Crée un projet sur{' '}
