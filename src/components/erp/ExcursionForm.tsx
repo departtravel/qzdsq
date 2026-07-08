@@ -9,6 +9,11 @@ interface OtaOption {
   nom: string
 }
 
+interface PartnerOption {
+  id: string
+  nom: string
+}
+
 interface ExtraOption {
   id: string
   nom: string
@@ -27,6 +32,8 @@ interface CostLineDraft {
   inclure_comptabilite: boolean
   /** id de l'extra sélectionné, '' = saisie manuelle. */
   extraId: string
+  /** id du partenaire (restaurant ou hébergement) sélectionné, '' = saisie manuelle. */
+  partnerId: string
 }
 
 const CATEGORIES: CostCategory[] = [
@@ -51,6 +58,7 @@ function emptyLine(): CostLineDraft {
     devise: 'TND',
     inclure_comptabilite: true,
     extraId: '',
+    partnerId: '',
   }
 }
 
@@ -74,6 +82,8 @@ export function ExcursionForm({
 }) {
   const [otaChannels, setOtaChannels] = useState<OtaOption[]>([])
   const [extras, setExtras] = useState<ExtraOption[]>([])
+  const [restaurants, setRestaurants] = useState<PartnerOption[]>([])
+  const [accommodations, setAccommodations] = useState<PartnerOption[]>([])
 
   const [codeInterne, setCodeInterne] = useState('')
   const [nom, setNom] = useState('')
@@ -104,6 +114,16 @@ export function ExcursionForm({
       .select('id,nom,prix_achat,devise_achat,type_tarification')
       .order('nom')
       .then(({ data }) => setExtras((data as ExtraOption[]) ?? []))
+    supabase
+      .from('restaurants')
+      .select('id,nom')
+      .order('nom')
+      .then(({ data }) => setRestaurants((data as PartnerOption[]) ?? []))
+    supabase
+      .from('accommodations')
+      .select('id,nom')
+      .order('nom')
+      .then(({ data }) => setAccommodations((data as PartnerOption[]) ?? []))
   }, [])
 
   function updateLine(index: number, patch: Partial<CostLineDraft>) {
@@ -113,12 +133,26 @@ export function ExcursionForm({
   }
 
   function onCategorieChange(index: number, categorie: CostCategory) {
-    // Si on quitte EXTRA, on réinitialise la sélection d'extra.
-    if (categorie !== 'EXTRA') {
-      updateLine(index, { categorie, extraId: '' })
-    } else {
-      updateLine(index, { categorie })
+    // On réinitialise les sélecteurs de partenaire quand la catégorie change.
+    updateLine(index, { categorie, extraId: '', partnerId: '' })
+  }
+
+  function onPartnerChange(
+    index: number,
+    categorie: 'RESTAURANT' | 'HEBERGEMENT',
+    partnerId: string,
+  ) {
+    if (partnerId === '') {
+      updateLine(index, { partnerId: '' })
+      return
     }
+    const list = categorie === 'RESTAURANT' ? restaurants : accommodations
+    const partner = list.find((p) => p.id === partnerId)
+    if (!partner) {
+      updateLine(index, { partnerId })
+      return
+    }
+    updateLine(index, { partnerId, nom_depense: partner.nom })
   }
 
   function onExtraChange(index: number, extraId: string) {
@@ -177,17 +211,33 @@ export function ExcursionForm({
     const excursionId = (data as { id: string }).id
 
     if (lignes.length > 0) {
-      const rows = lignes.map((l) => ({
-        excursion_id: excursionId,
-        jour: l.jour,
-        categorie: l.categorie,
-        type_depense: l.type_depense,
-        nom_depense: l.nom_depense.trim(),
-        quantite: 1,
-        prix_unitaire: l.prix_unitaire,
-        devise: l.devise,
-        inclure_comptabilite: l.inclure_comptabilite,
-      }))
+      const rows = lignes.map((l) => {
+        let partner_type: string | null = null
+        let partner_id: string | null = null
+        if (l.categorie === 'EXTRA' && l.extraId) {
+          partner_type = 'EXTRA'
+          partner_id = l.extraId
+        } else if (l.categorie === 'RESTAURANT' && l.partnerId) {
+          partner_type = 'RESTAURANT'
+          partner_id = l.partnerId
+        } else if (l.categorie === 'HEBERGEMENT' && l.partnerId) {
+          partner_type = 'HEBERGEMENT'
+          partner_id = l.partnerId
+        }
+        return {
+          excursion_id: excursionId,
+          jour: l.jour,
+          categorie: l.categorie,
+          type_depense: l.type_depense,
+          nom_depense: l.nom_depense.trim(),
+          quantite: 1,
+          prix_unitaire: l.prix_unitaire,
+          devise: l.devise,
+          inclure_comptabilite: l.inclure_comptabilite,
+          partner_type,
+          partner_id,
+        }
+      })
       const { error: linesErr } = await supabase
         .from('excursion_cost_lines')
         .insert(rows)
@@ -282,6 +332,28 @@ export function ExcursionForm({
                     options={[
                       { value: '', label: '➕ Saisir manuellement' },
                       ...extras.map((e) => ({ value: e.id, label: e.nom })),
+                    ]}
+                  />
+                )}
+                {l.categorie === 'RESTAURANT' && (
+                  <SelectField
+                    label="Restaurant"
+                    value={l.partnerId}
+                    onChange={(v) => onPartnerChange(i, 'RESTAURANT', v)}
+                    options={[
+                      { value: '', label: '➕ Saisir manuellement' },
+                      ...restaurants.map((r) => ({ value: r.id, label: r.nom })),
+                    ]}
+                  />
+                )}
+                {l.categorie === 'HEBERGEMENT' && (
+                  <SelectField
+                    label="Hébergement"
+                    value={l.partnerId}
+                    onChange={(v) => onPartnerChange(i, 'HEBERGEMENT', v)}
+                    options={[
+                      { value: '', label: '➕ Saisir manuellement' },
+                      ...accommodations.map((a) => ({ value: a.id, label: a.nom })),
                     ]}
                   />
                 )}

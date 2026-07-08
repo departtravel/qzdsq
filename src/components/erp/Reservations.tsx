@@ -487,7 +487,14 @@ function RentabiliteCell({
   if (!lignes || lignes.length === 0) {
     return <span className="text-xs italic text-slate-400">coûts non configurés</span>
   }
-  const r = calculerRentabilite({ excursion: pricing, lignes, adultes, enfants, bebes })
+  const r = calculerRentabilite({
+    excursion: pricing,
+    lignes,
+    adultes,
+    enfants,
+    bebes,
+    capaciteVehicule: 5,
+  })
   const positif = r.margeTnd >= 0
   return (
     <div className="whitespace-nowrap">

@@ -18,6 +18,11 @@ interface Booking {
   langue: string | null; hotel: string | null; heure_prise_en_charge: string | null
   regime: string | null; extras: string | null; notes: string | null; statut: string
   guide_id: string | null; driver_id: string | null; vehicle_id: string | null
+  departure_id: string | null
+}
+interface Departure {
+  id: string; guide_id: string | null; driver_id: string | null
+  vehicle_id: string | null; transport_id: string | null
 }
 interface Guide { id: string; nom: string; prenom: string | null; telephone: string | null; langues: string[] | null; numero_carte_professionnelle: string | null }
 interface Chauffeur { id: string; nom: string; prenom: string | null; telephone: string | null; cin: string | null; permis: string | null }
@@ -112,10 +117,24 @@ export function OrdreMission() {
       setExtrasByBooking({})
     }
     const ord = (o.data as MissionOrder | null) ?? null
-    // Pré-remplit depuis l'ordre existant, sinon depuis la 1ʳᵉ affectation trouvée.
-    const firstGuide = list.find((x) => x.guide_id)?.guide_id ?? ''
-    const firstDriver = list.find((x) => x.driver_id)?.driver_id ?? ''
-    const firstVeh = list.find((x) => x.vehicle_id)?.vehicle_id ?? ''
+
+    // L'affectation réelle est portée par la SORTIE (departures), pas par bookings.
+    // On récupère les departure_id distincts non nuls, puis les sorties correspondantes.
+    const departureIds = Array.from(
+      new Set(list.map((x) => x.departure_id).filter((id): id is string => !!id)),
+    )
+    let departures: Departure[] = []
+    if (departureIds.length > 0) {
+      const d = await supabase
+        .from('departures')
+        .select('id, guide_id, driver_id, vehicle_id, transport_id')
+        .in('id', departureIds)
+      departures = (d.data as Departure[]) ?? []
+    }
+    // S'il y a plusieurs sorties, on prend la première affectation non vide.
+    const firstGuide = departures.find((s) => s.guide_id)?.guide_id ?? ''
+    const firstDriver = departures.find((s) => s.driver_id)?.driver_id ?? ''
+    const firstVeh = departures.find((s) => s.vehicle_id)?.vehicle_id ?? ''
     setGuideId(ord?.guide_id ?? firstGuide)
     setDriverId(ord?.driver_id ?? firstDriver)
     setVehicleId(ord?.vehicle_id ?? firstVeh)

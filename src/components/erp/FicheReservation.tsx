@@ -36,6 +36,7 @@ export function FicheReservation() {
   const [date, setDate] = useState(todayIso())
   const [lignes, setLignes] = useState<CostLine[]>([])
   const [bookings, setBookings] = useState<Booking[]>([])
+  const [extrasByBooking, setExtrasByBooking] = useState<Record<string, string[]>>({})
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
 
@@ -55,7 +56,35 @@ export function FicheReservation() {
     ])
     if (c.error) setError(c.error.message)
     setLignes((c.data as CostLine[]) ?? [])
-    setBookings((b.data as Booking[]) ?? [])
+    const list = (b.data as Booking[]) ?? []
+    setBookings(list)
+
+    // Extras structurés : booking_extras filtrés sur ces réservations, noms résolus via extras.
+    const bookingIds = list.map((x) => x.id)
+    if (bookingIds.length > 0) {
+      const be = await supabase
+        .from('booking_extras')
+        .select('booking_id, extra_id')
+        .in('booking_id', bookingIds)
+      const rows = (be.data as { booking_id: string; extra_id: string }[]) ?? []
+      const extraIds = Array.from(new Set(rows.map((r) => r.extra_id)))
+      let noms: Record<string, string> = {}
+      if (extraIds.length > 0) {
+        const ex = await supabase.from('extras').select('id, nom').in('id', extraIds)
+        noms = Object.fromEntries(
+          ((ex.data as { id: string; nom: string | null }[]) ?? []).map((e) => [e.id, e.nom ?? '']),
+        )
+      }
+      const map: Record<string, string[]> = {}
+      for (const r of rows) {
+        const nom = noms[r.extra_id]
+        if (!nom) continue
+        ;(map[r.booking_id] ??= []).push(nom)
+      }
+      setExtrasByBooking(map)
+    } else {
+      setExtrasByBooking({})
+    }
   }, [excursionId, date])
 
   useEffect(() => { load() }, [load])
@@ -73,9 +102,18 @@ export function FicheReservation() {
     [bookings],
   )
   const extrasList = useMemo(
-    () => bookings.filter((b) => b.extras && b.extras.trim())
-      .map((b) => `${b.client_nom ?? 'Client'} : ${b.extras}`),
-    [bookings],
+    () =>
+      bookings
+        .map((b) => {
+          const parts = [
+            ...(extrasByBooking[b.id] ?? []),
+            ...(b.extras && b.extras.trim() ? [b.extras.trim()] : []),
+          ]
+          if (parts.length === 0) return null
+          return `${b.client_nom ?? 'Client'} : ${parts.join(' / ')}`
+        })
+        .filter((x): x is string => x !== null),
+    [bookings, extrasByBooking],
   )
 
   // Regroupe les lignes de coût par catégorie puis par jour.

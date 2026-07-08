@@ -34,6 +34,8 @@ interface DepartureRow {
   vehicle_id: string | null
   driver_id: string | null
   transport_id: string | null
+  transport_mode: string | null
+  transport_cout: number | null
   statut: string
 }
 
@@ -105,6 +107,15 @@ export function Planning(_props: { today?: string } = {}) {
   const [busy, setBusy] = useState(false)
   const [selectError, setSelectError] = useState<string | null>(null)
 
+  const promouvoirReservations = useCallback(async (depId: string) => {
+    const { error: promoErr } = await supabase
+      .from('bookings')
+      .update({ statut: 'EN_OPERATION' })
+      .eq('departure_id', depId)
+      .eq('statut', 'CONFIRMEE')
+    if (promoErr) setError(promoErr.message)
+  }, [])
+
   const from = useMemo(() => firstDayISO(year, month), [year, month])
   const to = useMemo(() => lastDayISO(year, month), [year, month])
 
@@ -153,7 +164,7 @@ export function Planning(_props: { today?: string } = {}) {
         .order('date_excursion'),
       supabase
         .from('departures')
-        .select('id,date,excursion_id,guide_id,vehicle_id,driver_id,transport_id,statut')
+        .select('id,date,excursion_id,guide_id,vehicle_id,driver_id,transport_id,transport_mode,transport_cout,statut')
         .gte('date', from)
         .lte('date', to)
         .order('date'),
@@ -195,7 +206,9 @@ export function Planning(_props: { today?: string } = {}) {
   const nonAffectees = useMemo(
     () =>
       bookings
-        .filter((b) => !b.departure_id)
+        .filter(
+          (b) => !b.departure_id && b.statut !== 'ANNULEE' && b.statut !== 'TERMINEE',
+        )
         .sort((a, b) => {
           const d = (a.date_excursion ?? '').localeCompare(b.date_excursion ?? '')
           if (d !== 0) return d
@@ -247,16 +260,17 @@ export function Planning(_props: { today?: string } = {}) {
         rows.map((r) => r.id),
       )
     if (updErr) setError(updErr.message)
+    await promouvoirReservations(depId)
     setBusy(false)
     await loadMonth()
-  }, [nonAffectees, selected, loadMonth])
+  }, [nonAffectees, selected, loadMonth, promouvoirReservations])
 
   // ----- Mise à jour affectation d'une sortie -----
   const majDeparture = useCallback(
     async (
       depId: string,
-      field: 'guide_id' | 'vehicle_id' | 'driver_id' | 'transport_id',
-      value: string | null,
+      field: 'guide_id' | 'vehicle_id' | 'driver_id' | 'transport_id' | 'transport_mode' | 'transport_cout',
+      value: string | number | null,
     ) => {
       setDepartures((prev) =>
         prev.map((d) => (d.id === depId ? { ...d, [field]: value } : d)),
@@ -266,8 +280,10 @@ export function Planning(_props: { today?: string } = {}) {
         .update({ [field]: value })
         .eq('id', depId)
       if (updErr) setError(updErr.message)
+      await promouvoirReservations(depId)
+      await loadMonth()
     },
-    [],
+    [promouvoirReservations, loadMonth],
   )
 
   const dissocier = useCallback(
@@ -539,6 +555,36 @@ export function Planning(_props: { today?: string } = {}) {
                       onChange={(v) => majDeparture(dep.id, 'transport_id', v)}
                       options={transports.map((t) => ({ id: t.id, label: transportLabel(t) }))}
                     />
+                    <label className="text-sm">
+                      <span className="mb-1 block text-slate-500">Mode transport</span>
+                      <select
+                        value={dep.transport_mode ?? ''}
+                        onChange={(e) => majDeparture(dep.id, 'transport_mode', e.target.value || null)}
+                        className="w-full rounded border border-slate-300 px-2 py-1"
+                      >
+                        <option value="">—</option>
+                        <option value="PARC">Parc roulant (interne)</option>
+                        <option value="LONGUE_DUREE">Location longue durée</option>
+                        <option value="JOURNALIERE">Location journalière</option>
+                      </select>
+                    </label>
+                    <label className="text-sm">
+                      <span className="mb-1 block text-slate-500">Coût transport (DT)</span>
+                      <input
+                        type="number"
+                        min={0}
+                        defaultValue={dep.transport_cout ?? ''}
+                        placeholder="location journalière"
+                        onBlur={(e) =>
+                          majDeparture(
+                            dep.id,
+                            'transport_cout',
+                            e.target.value === '' ? null : Number(e.target.value),
+                          )
+                        }
+                        className="w-full rounded border border-slate-300 px-2 py-1"
+                      />
+                    </label>
                   </div>
                 </div>
               )

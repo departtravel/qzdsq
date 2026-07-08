@@ -24,6 +24,7 @@ interface Chauffeur {
   prenom: string | null
   telephone: string | null
   type_chauffeur: string
+  tarif_jour: number | null
 }
 interface Restaurant {
   id: string
@@ -51,6 +52,7 @@ interface Transport {
   nom: string
   type_transport: string
   telephone: string | null
+  tarif_sortie: number | null
 }
 interface Vehicle {
   id: string
@@ -323,12 +325,13 @@ function ChauffeursPanel() {
   const [prenom, setPrenom] = useState('')
   const [telephone, setTelephone] = useState('')
   const [type, setType] = useState('EXTRA')
+  const [tarifJour, setTarifJour] = useState('')
 
   const load = useCallback(async () => {
     setLoading(true)
     const { data, error } = await supabase
       .from('chauffeurs')
-      .select('id,nom,prenom,telephone,type_chauffeur')
+      .select('id,nom,prenom,telephone,type_chauffeur,tarif_jour')
       .order('nom')
     if (error) setError(error.message)
     setRows((data as Chauffeur[]) ?? [])
@@ -350,6 +353,7 @@ function ChauffeursPanel() {
       prenom: prenom.trim() || null,
       telephone: telephone.trim() || null,
       type_chauffeur: type,
+      tarif_jour: tarifJour ? Number(tarifJour) : null,
     })
     if (error) {
       setError(error.message)
@@ -359,6 +363,7 @@ function ChauffeursPanel() {
     setNom('')
     setPrenom('')
     setTelephone('')
+    setTarifJour('')
     load()
   }
 
@@ -383,6 +388,15 @@ function ChauffeursPanel() {
               <option value="SALARIE">SALARIE</option>
             </select>
           </Field>
+          <Field label="Tarif / jour (DT)">
+            <input
+              type="number"
+              min={0}
+              className={inputCls}
+              value={tarifJour}
+              onChange={(e) => setTarifJour(e.target.value)}
+            />
+          </Field>
           <SubmitBtn>Ajouter le chauffeur</SubmitBtn>
         </form>
       </Card>
@@ -401,6 +415,7 @@ function ChauffeursPanel() {
                   <th className="px-2 py-1">Nom</th>
                   <th className="px-2 py-1">Téléphone</th>
                   <th className="px-2 py-1">Type</th>
+                  <th className="px-2 py-1 text-right">Tarif/jour</th>
                 </tr>
               </thead>
               <tbody>
@@ -414,6 +429,9 @@ function ChauffeursPanel() {
                       <span className="rounded bg-slate-100 px-1.5 py-0.5 text-xs text-slate-600">
                         {c.type_chauffeur}
                       </span>
+                    </td>
+                    <td className="px-2 py-1 text-right">
+                      {c.tarif_jour != null ? `${c.tarif_jour} DT` : '—'}
                     </td>
                   </tr>
                 ))}
@@ -879,12 +897,13 @@ function TransportsPanel() {
   const [nom, setNom] = useState('')
   const [type, setType] = useState('PRESTATAIRE')
   const [telephone, setTelephone] = useState('')
+  const [tarifSortie, setTarifSortie] = useState('')
 
   const load = useCallback(async () => {
     setLoading(true)
     const { data, error } = await supabase
       .from('transports')
-      .select('id,nom,type_transport,telephone')
+      .select('id,nom,type_transport,telephone,tarif_sortie')
       .order('nom')
     if (error) setError(error.message)
     setRows((data as Transport[]) ?? [])
@@ -905,6 +924,7 @@ function TransportsPanel() {
       nom: nom.trim(),
       type_transport: type,
       telephone: telephone.trim() || null,
+      tarif_sortie: tarifSortie ? Number(tarifSortie) : null,
     })
     if (error) {
       setError(error.message)
@@ -913,6 +933,7 @@ function TransportsPanel() {
     await creerFournisseur(nom.trim(), 'TRANSPORT', telephone.trim() || null)
     setNom('')
     setTelephone('')
+    setTarifSortie('')
     load()
   }
 
@@ -936,6 +957,15 @@ function TransportsPanel() {
           <Field label="Téléphone">
             <input className={inputCls} value={telephone} onChange={(e) => setTelephone(e.target.value)} />
           </Field>
+          <Field label="Tarif / sortie (DT)">
+            <input
+              type="number"
+              min={0}
+              className={inputCls}
+              value={tarifSortie}
+              onChange={(e) => setTarifSortie(e.target.value)}
+            />
+          </Field>
           <SubmitBtn>Ajouter le transporteur</SubmitBtn>
         </form>
       </Card>
@@ -954,6 +984,7 @@ function TransportsPanel() {
                   <th className="px-2 py-1">Nom</th>
                   <th className="px-2 py-1">Type</th>
                   <th className="px-2 py-1">Téléphone</th>
+                  <th className="px-2 py-1 text-right">Tarif/sortie</th>
                 </tr>
               </thead>
               <tbody>
@@ -962,6 +993,9 @@ function TransportsPanel() {
                     <td className="px-2 py-1">{t.nom}</td>
                     <td className="px-2 py-1 text-xs text-slate-500">{t.type_transport}</td>
                     <td className="px-2 py-1 text-slate-500">{t.telephone ?? '—'}</td>
+                    <td className="px-2 py-1 text-right">
+                      {t.tarif_sortie != null ? `${t.tarif_sortie} DT` : '—'}
+                    </td>
                   </tr>
                 ))}
               </tbody>
@@ -991,7 +1025,7 @@ function VehiclesPanel() {
     setLoading(true)
     const [{ data: veh, error: vErr }, { data: tr }] = await Promise.all([
       supabase.from('erp_vehicles').select('id,immatriculation,type,capacite,transport_id').order('immatriculation'),
-      supabase.from('transports').select('id,nom,type_transport,telephone').order('nom'),
+      supabase.from('transports').select('id,nom,type_transport,telephone,tarif_sortie').order('nom'),
     ])
     if (vErr) setError(vErr.message)
     setRows((veh as Vehicle[]) ?? [])
