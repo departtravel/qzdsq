@@ -20,10 +20,12 @@ interface Booking {
   guide_id: string | null; driver_id: string | null; vehicle_id: string | null
   departure_id: string | null
 }
-interface Departure {
-  id: string; guide_id: string | null; driver_id: string | null
-  vehicle_id: string | null; transport_id: string | null
+interface DepartureGuide { guide_id: string }
+interface DepartureTransport {
+  transport_id: string | null; vehicle_id: string | null; chauffeur_id: string | null
+  cout: number | null; mode: string | null
 }
+interface Transport { id: string; nom: string | null; type_transport: string | null }
 interface Guide { id: string; nom: string; prenom: string | null; telephone: string | null; langues: string[] | null; numero_carte_professionnelle: string | null }
 interface Chauffeur { id: string; nom: string; prenom: string | null; telephone: string | null; cin: string | null; permis: string | null }
 interface Vehicle { id: string; immatriculation: string | null; marque: string | null; modele: string | null; type: string | null; capacite: number | null }
@@ -35,7 +37,13 @@ interface MissionOrder {
 
 const todayIso = () => new Date().toISOString().slice(0, 10)
 
-export function OrdreMission() {
+const MODE_LABEL: Record<string, string> = {
+  PARC: 'Parc', LONGUE_DUREE: 'Longue durée', JOURNALIERE: 'Journalière',
+}
+
+interface OrdreMissionProps { initialExcursionId?: string; initialDate?: string }
+
+export function OrdreMission({ initialExcursionId, initialDate }: OrdreMissionProps = {}) {
   const { role } = useErpRole()
   const canWrite = peutAffecter(role)
   const settings = useSettings()
@@ -44,9 +52,12 @@ export function OrdreMission() {
   const [guides, setGuides] = useState<Guide[]>([])
   const [chauffeurs, setChauffeurs] = useState<Chauffeur[]>([])
   const [vehicles, setVehicles] = useState<Vehicle[]>([])
-  const [excursionId, setExcursionId] = useState('')
-  const [date, setDate] = useState(todayIso())
+  const [transports, setTransports] = useState<Transport[]>([])
+  const [excursionId, setExcursionId] = useState(initialExcursionId ?? '')
+  const [date, setDate] = useState(initialDate ?? todayIso())
   const [bookings, setBookings] = useState<Booking[]>([])
+  const [sortieGuideIds, setSortieGuideIds] = useState<string[]>([])
+  const [sortieTransports, setSortieTransports] = useState<DepartureTransport[]>([])
   const [extrasByBooking, setExtrasByBooking] = useState<Record<string, string[]>>({})
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
@@ -67,11 +78,13 @@ export function OrdreMission() {
       supabase.from('guides').select('id, nom, prenom, telephone, langues, numero_carte_professionnelle').order('nom'),
       supabase.from('chauffeurs').select('id, nom, prenom, telephone, cin, permis').order('nom'),
       supabase.from('erp_vehicles').select('id, immatriculation, marque, modele, type, capacite').order('immatriculation'),
-    ]).then(([ex, g, c, v]) => {
+      supabase.from('transports').select('id, nom, type_transport').order('nom'),
+    ]).then(([ex, g, c, v, t]) => {
       setExcursions((ex.data as ExcursionOption[]) ?? [])
       setGuides((g.data as Guide[]) ?? [])
       setChauffeurs((c.data as Chauffeur[]) ?? [])
       setVehicles((v.data as Vehicle[]) ?? [])
+      setTransports((t.data as Transport[]) ?? [])
       setLoading(false)
     })
   }, [])
@@ -118,23 +131,33 @@ export function OrdreMission() {
     }
     const ord = (o.data as MissionOrder | null) ?? null
 
-    // L'affectation réelle est portée par la SORTIE (departures), pas par bookings.
-    // On récupère les departure_id distincts non nuls, puis les sorties correspondantes.
+    // L'affectation réelle est portée par la SORTIE (departures) via les tables de
+    // liaison : departure_guides (plusieurs guides) et departure_transports
+    // (plusieurs transports/véhicules/chauffeurs, chacun avec son coût et son mode).
     const departureIds = Array.from(
       new Set(list.map((x) => x.departure_id).filter((id): id is string => !!id)),
     )
-    let departures: Departure[] = []
+    let guideIds: string[] = []
+    let depTransports: DepartureTransport[] = []
     if (departureIds.length > 0) {
-      const d = await supabase
-        .from('departures')
-        .select('id, guide_id, driver_id, vehicle_id, transport_id')
-        .in('id', departureIds)
-      departures = (d.data as Departure[]) ?? []
+      const [dg, dt] = await Promise.all([
+        supabase.from('departure_guides').select('guide_id').in('departure_id', departureIds),
+        supabase.from('departure_transports')
+          .select('transport_id, vehicle_id, chauffeur_id, cout, mode')
+          .in('departure_id', departureIds),
+      ])
+      guideIds = Array.from(
+        new Set(((dg.data as DepartureGuide[]) ?? []).map((r) => r.guide_id).filter((id): id is string => !!id)),
+      )
+      depTransports = (dt.data as DepartureTransport[]) ?? []
     }
-    // S'il y a plusieurs sorties, on prend la première affectation non vide.
-    const firstGuide = departures.find((s) => s.guide_id)?.guide_id ?? ''
-    const firstDriver = departures.find((s) => s.driver_id)?.driver_id ?? ''
-    const firstVeh = departures.find((s) => s.vehicle_id)?.vehicle_id ?? ''
+    setSortieGuideIds(guideIds)
+    setSortieTransports(depTransports)
+
+    // Valeurs par défaut du formulaire mission_orders : première affectation non vide.
+    const firstGuide = guideIds[0] ?? ''
+    const firstDriver = depTransports.find((t) => t.chauffeur_id)?.chauffeur_id ?? ''
+    const firstVeh = depTransports.find((t) => t.vehicle_id)?.vehicle_id ?? ''
     setGuideId(ord?.guide_id ?? firstGuide)
     setDriverId(ord?.driver_id ?? firstDriver)
     setVehicleId(ord?.vehicle_id ?? firstVeh)
@@ -149,9 +172,22 @@ export function OrdreMission() {
   }, [loadMission])
 
   const excursion = excursions.find((e) => e.id === excursionId) ?? null
-  const guide = guides.find((g) => g.id === guideId) ?? null
-  const chauffeur = chauffeurs.find((c) => c.id === driverId) ?? null
-  const vehicle = vehicles.find((v) => v.id === vehicleId) ?? null
+
+  // Affectation complète de la sortie : tous les guides, tous les transports.
+  const sortieGuides = useMemo(
+    () => sortieGuideIds.map((id) => guides.find((g) => g.id === id)).filter((g): g is Guide => !!g),
+    [sortieGuideIds, guides],
+  )
+  const sortieLignesTransport = useMemo(
+    () => sortieTransports.map((t) => ({
+      transport: t.transport_id ? transports.find((x) => x.id === t.transport_id) ?? null : null,
+      vehicle: t.vehicle_id ? vehicles.find((x) => x.id === t.vehicle_id) ?? null : null,
+      chauffeur: t.chauffeur_id ? chauffeurs.find((x) => x.id === t.chauffeur_id) ?? null : null,
+      cout: t.cout,
+      mode: t.mode,
+    })),
+    [sortieTransports, transports, vehicles, chauffeurs],
+  )
 
   const totaux = useMemo(() => {
     return bookings.reduce(
@@ -249,34 +285,43 @@ export function OrdreMission() {
               Départ : {excursion.ville_depart ?? '—'} · {totaux.a} adulte(s), {totaux.e} enfant(s), {totaux.b} bébé(s)
             </p>
 
-            {/* Guide & chauffeur */}
-            <div className="mb-4 grid grid-cols-1 gap-3 sm:grid-cols-3">
-              <InfoCard titre="Guide">
-                {guide ? (
-                  <>
-                    <p className="font-medium">{guide.nom} {guide.prenom}</p>
-                    <p className="text-slate-500">📞 {guide.telephone ?? '—'}</p>
-                    <p className="text-slate-500">Langues : {(guide.langues ?? []).join(', ') || '—'}</p>
-                    {guide.numero_carte_professionnelle && <p className="text-slate-500">Carte pro : {guide.numero_carte_professionnelle}</p>}
-                  </>
+            {/* Guides & transports de la sortie (tables de liaison) */}
+            <div className="mb-4 grid grid-cols-1 gap-3 sm:grid-cols-2">
+              <InfoCard titre={`Guide(s) (${sortieGuides.length})`}>
+                {sortieGuides.length > 0 ? (
+                  <ul className="space-y-2">
+                    {sortieGuides.map((g) => (
+                      <li key={g.id}>
+                        <p className="font-medium">{g.nom} {g.prenom}</p>
+                        <p className="text-slate-500">📞 {g.telephone ?? '—'}</p>
+                        <p className="text-slate-500">Langues : {(g.langues ?? []).join(', ') || '—'}</p>
+                        {g.numero_carte_professionnelle && <p className="text-slate-500">Carte pro : {g.numero_carte_professionnelle}</p>}
+                      </li>
+                    ))}
+                  </ul>
                 ) : <p className="text-slate-400">Non affecté</p>}
               </InfoCard>
-              <InfoCard titre="Chauffeur">
-                {chauffeur ? (
-                  <>
-                    <p className="font-medium">{chauffeur.nom} {chauffeur.prenom}</p>
-                    <p className="text-slate-500">📞 {chauffeur.telephone ?? '—'}</p>
-                    <p className="text-slate-500">CIN : {chauffeur.cin ?? '—'} · Permis : {chauffeur.permis ?? '—'}</p>
-                  </>
-                ) : <p className="text-slate-400">Non affecté</p>}
-              </InfoCard>
-              <InfoCard titre="Véhicule">
-                {vehicle ? (
-                  <>
-                    <p className="font-medium">{vehicle.marque} {vehicle.modele} ({vehicle.type})</p>
-                    <p className="text-slate-500">{vehicle.immatriculation ?? '—'}</p>
-                    <p className="text-slate-500">Capacité : {vehicle.capacite ?? '—'}</p>
-                  </>
+              <InfoCard titre={`Transport(s) / véhicule(s) / chauffeur(s) (${sortieLignesTransport.length})`}>
+                {sortieLignesTransport.length > 0 ? (
+                  <ul className="space-y-2">
+                    {sortieLignesTransport.map((t, i) => (
+                      <li key={i} className="border-b pb-2 last:border-0 last:pb-0">
+                        <p className="font-medium">
+                          {t.vehicle
+                            ? `${t.vehicle.marque ?? ''} ${t.vehicle.modele ?? ''} (${t.vehicle.type ?? '—'})`.trim()
+                            : t.transport?.nom ?? '—'}
+                          {t.mode && <span className="ml-2 rounded bg-slate-100 px-1.5 text-xs text-slate-500">{MODE_LABEL[t.mode] ?? t.mode}</span>}
+                        </p>
+                        {t.vehicle && <p className="text-slate-500">{t.vehicle.immatriculation ?? '—'} · Capacité : {t.vehicle.capacite ?? '—'}</p>}
+                        {t.transport && <p className="text-slate-500">Prestataire : {t.transport.nom ?? '—'}</p>}
+                        {t.chauffeur ? (
+                          <p className="text-slate-500">
+                            Chauffeur : {t.chauffeur.nom} {t.chauffeur.prenom} · 📞 {t.chauffeur.telephone ?? '—'}
+                          </p>
+                        ) : <p className="text-slate-400">Chauffeur non affecté</p>}
+                      </li>
+                    ))}
+                  </ul>
                 ) : <p className="text-slate-400">Non affecté</p>}
               </InfoCard>
             </div>

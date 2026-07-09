@@ -29,11 +29,13 @@ const CAT_LABEL: Record<string, string> = {
 }
 const ORDER = ['TRANSPORT', 'GUIDE', 'CHAUFFEUR', 'RESTAURANT', 'HEBERGEMENT', 'EXTRA', 'GASOIL', 'PEAGE', 'PARKING', 'AUTRE']
 
-export function FicheReservation() {
+interface FicheReservationProps { initialExcursionId?: string; initialDate?: string }
+
+export function FicheReservation({ initialExcursionId, initialDate }: FicheReservationProps = {}) {
   const settings = useSettings()
   const [excursions, setExcursions] = useState<ExcursionOption[]>([])
-  const [excursionId, setExcursionId] = useState('')
-  const [date, setDate] = useState(todayIso())
+  const [excursionId, setExcursionId] = useState(initialExcursionId ?? '')
+  const [date, setDate] = useState(initialDate ?? todayIso())
   const [lignes, setLignes] = useState<CostLine[]>([])
   const [bookings, setBookings] = useState<Booking[]>([])
   const [extrasByBooking, setExtrasByBooking] = useState<Record<string, string[]>>({})
