@@ -24,6 +24,8 @@ interface ExcursionRow {
   prix_bebe: number
   commission_ota: number
   taux_conversion: number
+  duree: string | null
+  nombre_jours: number
 }
 
 interface DepartureRow {
@@ -36,6 +38,9 @@ interface DepartureRow {
   transport_id: string | null
   transport_mode: string | null
   transport_cout: number | null
+  gasoil: number | null
+  parking: number | null
+  peage: number | null
   statut: string
 }
 
@@ -43,11 +48,14 @@ interface GuideRef {
   id: string
   nom: string
   prenom: string | null
+  type_guide: string | null
 }
 interface ChauffeurRef {
   id: string
   nom: string
   prenom: string | null
+  type_chauffeur: string | null
+  tarif_jour: number | null
 }
 interface VehicleRef {
   id: string
@@ -96,6 +104,8 @@ export function Planning(_props: { today?: string } = {}) {
   const [departures, setDepartures] = useState<DepartureRow[]>([])
   const [excursions, setExcursions] = useState<ExcursionRow[]>([])
   const [costLines, setCostLines] = useState<Map<string, CostLine[]>>(new Map())
+  const [guidePrix, setGuidePrix] = useState<Map<string, { demi: number; jour: number; deux: number }>>(new Map())
+  const [transportTarif, setTransportTarif] = useState<Map<string, number>>(new Map())
   const [guides, setGuides] = useState<GuideRef[]>([])
   const [chauffeurs, setChauffeurs] = useState<ChauffeurRef[]>([])
   const [vehicles, setVehicles] = useState<VehicleRef[]>([])
@@ -120,22 +130,34 @@ export function Planning(_props: { today?: string } = {}) {
   const to = useMemo(() => lastDayISO(year, month), [year, month])
 
   const loadReferentiels = useCallback(async () => {
-    const [ex, cl, gu, ch, ve, tr] = await Promise.all([
+    const [ex, cl, gu, ch, ve, tr, gp] = await Promise.all([
       supabase
         .from('excursions')
         .select(
-          'id,code_interne,nom,prix_adulte,prix_enfant,prix_bebe,commission_ota,taux_conversion',
+          'id,code_interne,nom,prix_adulte,prix_enfant,prix_bebe,commission_ota,taux_conversion,duree,nombre_jours',
         )
         .order('code_interne'),
       supabase.from('excursion_cost_lines').select('*'),
-      supabase.from('guides').select('id,nom,prenom').order('nom'),
-      supabase.from('chauffeurs').select('id,nom,prenom').order('nom'),
+      supabase.from('guides').select('id,nom,prenom,type_guide').order('nom'),
+      supabase.from('chauffeurs').select('id,nom,prenom,type_chauffeur,tarif_jour').order('nom'),
       supabase.from('erp_vehicles').select('id,immatriculation,type,capacite').order('immatriculation'),
-      supabase.from('transports').select('id,nom,type_transport').order('nom'),
+      supabase.from('transports').select('id,nom,type_transport,tarif_sortie').order('nom'),
+      supabase.from('guide_prices').select('guide_id,demi_journee,journee,deux_jours,date_application').order('date_application', { ascending: false }),
     ])
     const firstErr = ex.error || cl.error || gu.error || ch.error || ve.error || tr.error
     if (firstErr) setError(firstErr.message)
     setExcursions((ex.data as ExcursionRow[]) ?? [])
+    // Tarif guide extra le plus récent (par guide, sinon barème par défaut guide_id null).
+    const gpMap = new Map<string, { demi: number; jour: number; deux: number }>()
+    for (const p of (gp.data as { guide_id: string | null; demi_journee: number; journee: number; deux_jours: number }[]) ?? []) {
+      const key = p.guide_id ?? 'DEFAUT'
+      if (!gpMap.has(key)) gpMap.set(key, { demi: p.demi_journee, jour: p.journee, deux: p.deux_jours })
+    }
+    setGuidePrix(gpMap)
+    const trMap = new Map<string, number>()
+    for (const t of (tr.data as { id: string; tarif_sortie: number | null }[]) ?? [])
+      trMap.set(t.id, t.tarif_sortie ?? 0)
+    setTransportTarif(trMap)
     const clMap = new Map<string, CostLine[]>()
     for (const line of (cl.data as CostLine[]) ?? []) {
       const arr = clMap.get(line.excursion_id) ?? []
@@ -164,7 +186,7 @@ export function Planning(_props: { today?: string } = {}) {
         .order('date_excursion'),
       supabase
         .from('departures')
-        .select('id,date,excursion_id,guide_id,vehicle_id,driver_id,transport_id,transport_mode,transport_cout,statut')
+        .select('id,date,excursion_id,guide_id,vehicle_id,driver_id,transport_id,transport_mode,transport_cout,gasoil,parking,peage,statut')
         .gte('date', from)
         .lte('date', to)
         .order('date'),
@@ -269,7 +291,7 @@ export function Planning(_props: { today?: string } = {}) {
   const majDeparture = useCallback(
     async (
       depId: string,
-      field: 'guide_id' | 'vehicle_id' | 'driver_id' | 'transport_id' | 'transport_mode' | 'transport_cout',
+      field: 'guide_id' | 'vehicle_id' | 'driver_id' | 'transport_id' | 'transport_mode' | 'transport_cout' | 'gasoil' | 'parking' | 'peage',
       value: string | number | null,
     ) => {
       setDepartures((prev) =>
@@ -451,8 +473,27 @@ export function Planning(_props: { today?: string } = {}) {
               const paxTotal = adultes + enfants + bebes
               const exc = excById(dep.excursion_id)
               const veh = vehicles.find((v) => v.id === dep.vehicle_id)
+              // Frais PARTAGÉS de la sortie (divisés sur le nb de personnes) :
+              // guide + chauffeur + transport + gasoil + parking + autoroute.
+              const jours = exc?.nombre_jours ?? 1
+              const guide = guides.find((g) => g.id === dep.guide_id)
+              const chauf = chauffeurs.find((c) => c.id === dep.driver_id)
+              let guideAmt = 0
+              if (guide && guide.type_guide === 'EXTRA') {
+                const b = guidePrix.get(dep.guide_id!) ?? guidePrix.get('DEFAUT')
+                if (b) guideAmt = jours >= 2 ? b.deux : (exc?.duree ?? '').toLowerCase().startsWith('demi') ? b.demi : b.jour
+              }
+              const chaufAmt = chauf && chauf.type_chauffeur === 'EXTRA' ? (chauf.tarif_jour ?? 0) * jours : 0
+              const transportAmt = dep.transport_cout ?? (dep.transport_id ? transportTarif.get(dep.transport_id) ?? 0 : 0)
+              const fraisPartages = guideAmt + chaufAmt + transportAmt + (dep.gasoil ?? 0) + (dep.parking ?? 0) + (dep.peage ?? 0)
+
               let rentab: ReturnType<typeof calculerRentabilite> | null = null
               if (exc) {
+                // On ne garde que les charges par personne du produit (repas, hébergement,
+                // extras) ; guide/transport/gasoil/parking/péage sont au niveau de la sortie.
+                const lignesPax = (costLines.get(exc.id) ?? []).filter(
+                  (l) => !['GUIDE', 'CHAUFFEUR', 'TRANSPORT', 'GASOIL', 'PEAGE', 'PARKING'].includes(l.categorie),
+                )
                 rentab = calculerRentabilite({
                   excursion: {
                     prix_adulte: exc.prix_adulte,
@@ -461,13 +502,17 @@ export function Planning(_props: { today?: string } = {}) {
                     commission_ota: exc.commission_ota,
                     taux_conversion: exc.taux_conversion,
                   },
-                  lignes: costLines.get(exc.id) ?? [],
+                  lignes: lignesPax,
                   adultes,
                   enfants,
                   bebes,
                   capaciteVehicule: veh?.capacite ?? 1,
                 })
               }
+              // Coût & marge RÉELS de la sortie = par-personne + frais partagés.
+              const coutReel = rentab ? rentab.coutTotalTnd + fraisPartages : 0
+              const margeReelle = rentab ? rentab.caNetTnd - coutReel : 0
+              const coutParPers = paxTotal > 0 ? coutReel / paxTotal : 0
               return (
                 <div key={dep.id} className="rounded-lg border border-slate-200 p-3">
                   <div className="mb-2 flex flex-wrap items-center justify-between gap-2">
@@ -551,21 +596,19 @@ export function Planning(_props: { today?: string } = {}) {
                       <>
                         <div className="rounded bg-slate-50 px-2 py-1">
                           <span className="text-slate-500">Coût total</span>
-                          <div className="font-semibold">{rentab.coutTotalTnd} TND</div>
+                          <div className="font-semibold">{coutReel.toFixed(0)} TND</div>
+                          <div className="text-xs text-slate-400">{coutParPers.toFixed(1)}/pers</div>
                         </div>
                         <div className="rounded bg-slate-50 px-2 py-1">
                           <span className="text-slate-500">Marge</span>
-                          <div
-                            className={`font-semibold ${
-                              rentab.margeTnd >= 0 ? 'text-green-700' : 'text-red-700'
-                            }`}
-                          >
-                            {rentab.margeTnd} TND
+                          <div className={`font-semibold ${margeReelle >= 0 ? 'text-green-700' : 'text-red-700'}`}>
+                            {margeReelle.toFixed(0)} TND
                           </div>
                         </div>
                         <div className="rounded bg-slate-50 px-2 py-1">
-                          <span className="text-slate-500">Marge %</span>
-                          <div className="font-semibold">{rentab.margePct}%</div>
+                          <span className="text-slate-500">dont frais partagés</span>
+                          <div className="font-semibold">{fraisPartages.toFixed(0)} TND</div>
+                          <div className="text-xs text-slate-400">guide+transport+route</div>
                         </div>
                       </>
                     )}
@@ -627,6 +670,9 @@ export function Planning(_props: { today?: string } = {}) {
                         className="w-full rounded border border-slate-300 px-2 py-1"
                       />
                     </label>
+                    <FraisInput label="Gasoil (DT)" value={dep.gasoil} onSave={(v) => majDeparture(dep.id, 'gasoil', v)} />
+                    <FraisInput label="Parking (DT)" value={dep.parking} onSave={(v) => majDeparture(dep.id, 'parking', v)} />
+                    <FraisInput label="Autoroute (DT)" value={dep.peage} onSave={(v) => majDeparture(dep.id, 'peage', v)} />
                   </div>
                 </div>
               )
@@ -635,6 +681,23 @@ export function Planning(_props: { today?: string } = {}) {
         )}
       </div>
     </div>
+  )
+}
+
+function FraisInput({
+  label, value, onSave,
+}: { label: string; value: number | null; onSave: (v: number) => void }) {
+  return (
+    <label className="text-sm">
+      <span className="mb-1 block text-slate-500">{label}</span>
+      <input
+        type="number"
+        min={0}
+        defaultValue={value ?? ''}
+        onBlur={(e) => onSave(e.target.value === '' ? 0 : Number(e.target.value))}
+        className="w-full rounded border border-slate-300 px-2 py-1"
+      />
+    </label>
   )
 }
 
