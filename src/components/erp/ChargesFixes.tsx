@@ -99,6 +99,14 @@ export function ChargesFixes() {
     else load()
   }
 
+  // Édition du montant en place (pratique pour les lignes « à remplir »).
+  async function majMontant(id: string, valeur: number) {
+    setError(null)
+    const { error } = await supabase.from('fixed_charges').update({ montant: valeur }).eq('id', id)
+    if (error) setError(error.message)
+    else setRows((prev) => prev.map((r) => (r.id === id ? { ...r, montant: valeur } : r)))
+  }
+
   const totalMensuel = useMemo(
     () => rows.filter((r) => r.actif).reduce((s, r) => s + mensuel(r), 0),
     [rows],
@@ -193,7 +201,25 @@ export function ChargesFixes() {
                         {vehLabel(r.vehicle_id) && <span className="ml-2 rounded bg-slate-100 px-1.5 text-xs text-slate-500">🚚 {vehLabel(r.vehicle_id)}</span>}
                         {r.note && <span className="ml-2 text-xs text-slate-400">{r.note}</span>}
                       </td>
-                      <td className="px-3 py-1.5 text-right text-slate-500">{r.montant} DT / {r.periodicite.toLowerCase()}</td>
+                      <td className="px-3 py-1.5 text-right text-slate-500">
+                        {canWrite ? (
+                          <span className="inline-flex items-center gap-1">
+                            <input
+                              type="number"
+                              min={0}
+                              defaultValue={r.montant}
+                              onBlur={(e) => {
+                                const v = Number(e.target.value) || 0
+                                if (v !== r.montant) majMontant(r.id, v)
+                              }}
+                              className={`w-24 rounded border px-1 py-0.5 text-right ${r.montant === 0 ? 'border-amber-300 bg-amber-50' : 'border-slate-200'}`}
+                            />
+                            DT / {r.periodicite.toLowerCase()}
+                          </span>
+                        ) : (
+                          <>{r.montant} DT / {r.periodicite.toLowerCase()}</>
+                        )}
+                      </td>
                       <td className="px-3 py-1.5 text-right">{mensuel(r).toFixed(0)} DT/mois</td>
                       <td className="w-10 px-3 py-1.5 text-right">
                         {canWrite && (

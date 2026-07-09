@@ -38,7 +38,6 @@ interface Booking {
 }
 
 // Effectif de référence utilisé quand aucune réservation réelle n'existe.
-const EFFECTIF_REFERENCE_ADULTES = 10
 const CAPACITE_VEHICULE_DEFAUT = 5
 
 interface ExcursionKpi {
@@ -90,39 +89,31 @@ export function DashboardDirection() {
     }
   }, [])
 
-  // Calcul de rentabilité par excursion.
+  // Calcul de rentabilité par excursion — UNIQUEMENT sur les réservations
+  // réelles. Le tableau de bord reste vide tant qu'aucune réservation n'existe.
   const kpis = useMemo<ExcursionKpi[]>(() => {
-    return excursions.map((excursion) => {
-      const lignesExc = lignes.filter((l) => l.excursion_id === excursion.id)
-      const bookingsExc = bookings.filter(
-        (b) =>
-          b.excursion_id === excursion.id && b.statut !== 'ANNULEE',
-      )
-      let adultes = EFFECTIF_REFERENCE_ADULTES
-      let enfants = 0
-      let bebes = 0
-      let reel = false
-      if (bookingsExc.length > 0) {
-        adultes = bookingsExc.reduce((s, b) => s + b.nombre_adultes, 0)
-        enfants = bookingsExc.reduce((s, b) => s + b.nombre_enfants, 0)
-        bebes = bookingsExc.reduce((s, b) => s + b.nombre_bebes, 0)
-        reel = adultes + enfants + bebes > 0
-        if (!reel) {
-          adultes = EFFECTIF_REFERENCE_ADULTES
-          enfants = 0
-          bebes = 0
-        }
-      }
-      const result = calculerRentabilite({
-        excursion,
-        lignes: lignesExc,
-        adultes,
-        enfants,
-        bebes,
-        capaciteVehicule: CAPACITE_VEHICULE_DEFAUT,
+    return excursions
+      .map((excursion): ExcursionKpi | null => {
+        const bookingsExc = bookings.filter(
+          (b) => b.excursion_id === excursion.id && b.statut !== 'ANNULEE',
+        )
+        const adultes = bookingsExc.reduce((s, b) => s + b.nombre_adultes, 0)
+        const enfants = bookingsExc.reduce((s, b) => s + b.nombre_enfants, 0)
+        const bebes = bookingsExc.reduce((s, b) => s + b.nombre_bebes, 0)
+        // Pas de réservation payante -> on n'affiche pas cette excursion.
+        if (adultes + enfants + bebes === 0) return null
+        const lignesExc = lignes.filter((l) => l.excursion_id === excursion.id)
+        const result = calculerRentabilite({
+          excursion,
+          lignes: lignesExc,
+          adultes,
+          enfants,
+          bebes,
+          capaciteVehicule: CAPACITE_VEHICULE_DEFAUT,
+        })
+        return { excursion, result, reel: true }
       })
-      return { excursion, result, reel }
-    })
+      .filter((k): k is ExcursionKpi => k !== null)
   }, [excursions, lignes, bookings])
 
   // Agrégats globaux.
@@ -233,8 +224,8 @@ export function DashboardDirection() {
       <div className="mb-4">
         <h2 className="text-lg font-semibold">Tableau de bord direction</h2>
         <p className="text-sm text-slate-500">
-          {excursions.length} excursions · effectif de référence {EFFECTIF_REFERENCE_ADULTES} adultes,
-          ou réservations réelles quand elles existent.
+          {excursions.length} excursions au catalogue · chiffres basés uniquement sur les
+          réservations réelles ({kpis.length} excursion(s) avec réservations).
         </p>
       </div>
 
