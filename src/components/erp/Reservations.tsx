@@ -253,6 +253,18 @@ export function Reservations() {
     [],
   )
 
+  const supprimer = useCallback(
+    async (booking: Booking) => {
+      if (!confirm(`Supprimer définitivement la réservation de ${booking.client_nom ?? 'ce client'} ? Tout ce qui y est lié (extras, factures fournisseurs liées, planning) sera aussi mis à jour/supprimé.`)) return
+      setBusyId(booking.id)
+      const { error } = await supabase.from('bookings').delete().eq('id', booking.id)
+      if (error) setError(error.message)
+      else setBookings((prev) => prev.filter((b) => b.id !== booking.id))
+      setBusyId(null)
+    },
+    [],
+  )
+
   if (loading) return <p className="text-slate-500">Chargement des réservations…</p>
   if (error)
     return (
@@ -427,6 +439,16 @@ export function Reservations() {
                           Annuler
                         </button>
                       )}
+                    {peutCreerReservation(role) && (
+                      <button
+                        disabled={busy}
+                        onClick={() => supprimer(b)}
+                        className="ml-1 rounded border border-red-400 px-2 py-1 text-xs font-medium text-red-700 hover:bg-red-100 disabled:opacity-50"
+                        title="Supprimer définitivement"
+                      >
+                        🗑 Supprimer
+                      </button>
+                    )}
                   </td>
                 </tr>
               )
