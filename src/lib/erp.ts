@@ -53,6 +53,8 @@ export interface CostLine {
   quantite: number
   unite: string | null
   prix_unitaire: number
+  /** Prix enfant pour les lignes PAR_PERSONNE (défaut = prix_unitaire adulte). */
+  prix_enfant?: number | null
   devise: string
   inclure_comptabilite: boolean
 }
@@ -101,29 +103,33 @@ const round2 = (n: number) => Math.round(n * 100) / 100
 
 /**
  * Coût d'une ligne, exprimé en TND, pour un effectif donné.
- * - PAR_PERSONNE  : prix × quantité × (adultes + enfants)
+ * - PAR_PERSONNE  : prix adulte × adultes + prix enfant × enfants
+ *                   (le prix enfant vaut le prix adulte s'il n'est pas renseigné)
  * - PAR_GROUPE / FIXE : prix × quantité (une seule fois)
  * - PAR_VEHICULE  : prix × nb véhicules nécessaires (ceil(pax / capacité))
  */
 export function ligneCoutTnd(
   ligne: CostLine,
-  payants: number,
+  adultes: number,
+  enfants: number,
   taux: number,
   capaciteVehicule: number,
 ): number {
-  const enTnd = ligne.devise === 'TND' ? ligne.prix_unitaire : ligne.prix_unitaire * taux
-  const base = enTnd * ligne.quantite
+  const enTnd = (v: number) => (ligne.devise === 'TND' ? v : v * taux)
+  const prixAdulte = enTnd(ligne.prix_unitaire) * ligne.quantite
+  const prixEnfant = enTnd(ligne.prix_enfant ?? ligne.prix_unitaire) * ligne.quantite
+  const payants = adultes + enfants
   switch (ligne.type_depense) {
     case 'PAR_PERSONNE':
-      return base * payants
+      return prixAdulte * adultes + prixEnfant * enfants
     case 'PAR_VEHICULE': {
       const cap = Math.max(1, capaciteVehicule)
-      return base * Math.max(1, Math.ceil(payants / cap))
+      return prixAdulte * Math.max(1, Math.ceil(payants / cap))
     }
     case 'PAR_GROUPE':
     case 'FIXE':
     default:
-      return base
+      return prixAdulte
   }
 }
 
@@ -160,7 +166,7 @@ export function calculerRentabilite(input: RentabilityInput): RentabilityResult 
 
   const comptabilisees = lignes.filter((l) => l.inclure_comptabilite)
   for (const ligne of comptabilisees) {
-    const total = ligneCoutTnd(ligne, payants, taux, capaciteVehicule)
+    const total = ligneCoutTnd(ligne, adultes, enfants, taux, capaciteVehicule)
     coutTotalTnd += total
     const variable = ligneEstVariable(ligne)
     if (variable) {

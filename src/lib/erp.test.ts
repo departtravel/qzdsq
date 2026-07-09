@@ -105,6 +105,30 @@ describe('coûts PAR_VEHICULE (4x4 réparti par capacité)', () => {
   })
 })
 
+describe('prix enfant distinct sur les lignes PAR_PERSONNE', () => {
+  it('restaurant 15/7.5 avec 10 adultes + 2 enfants = 165 TND', () => {
+    const r = calculerRentabilite({
+      excursion: { prix_adulte: 100, prix_enfant: 50, prix_bebe: 0, commission_ota: 30, taux_conversion: 3.34 },
+      lignes: [
+        ligne({ categorie: 'RESTAURANT', type_depense: 'PAR_PERSONNE', nom_depense: 'Sidi Idriss', prix_unitaire: 15, prix_enfant: 7.5 }),
+      ],
+      adultes: 10, enfants: 2, bebes: 0,
+    })
+    // 15×10 + 7.5×2 = 150 + 15 = 165
+    expect(r.coutTotalTnd).toBe(165)
+  })
+
+  it('sans prix enfant, le prix adulte s\'applique à tous', () => {
+    const r = calculerRentabilite({
+      excursion: { prix_adulte: 100, prix_enfant: 50, prix_bebe: 0, commission_ota: 30, taux_conversion: 3.34 },
+      lignes: [ligne({ categorie: 'RESTAURANT', type_depense: 'PAR_PERSONNE', nom_depense: 'X', prix_unitaire: 15 })],
+      adultes: 10, enfants: 2, bebes: 0,
+    })
+    // 15 × 12 = 180
+    expect(r.coutTotalTnd).toBe(180)
+  })
+})
+
 describe('lignes exclues de la comptabilité', () => {
   it('une ligne inclure_comptabilite=false est ignorée', () => {
     const r = calculerRentabilite({

@@ -264,8 +264,8 @@ function CostLinesEditor({
   const [accommodations, setAccommodations] = useState<Partner[]>([])
   const [extras, setExtras] = useState<(Partner & { prix_achat: number | null; devise_achat: string | null })[]>([])
   // Prix adulte du partenaire (dernier tarif connu), pour pré-remplissage.
-  const [restoPrix, setRestoPrix] = useState<Map<string, number>>(new Map())
-  const [hebergPrix, setHebergPrix] = useState<Map<string, number>>(new Map())
+  const [restoPrix, setRestoPrix] = useState<Map<string, { a: number; e: number }>>(new Map())
+  const [hebergPrix, setHebergPrix] = useState<Map<string, { a: number; e: number }>>(new Map())
   const [error, setError] = useState<string | null>(null)
 
   const [jour, setJour] = useState(1)
@@ -273,6 +273,7 @@ function CostLinesEditor({
   const [typeDep, setTypeDep] = useState<string>('PAR_PERSONNE')
   const [nom, setNom] = useState('')
   const [prix, setPrix] = useState('')
+  const [prixEnf, setPrixEnf] = useState('')
   const [devise, setDevise] = useState('TND')
   const [tva, setTva] = useState('19')
   const [partnerId, setPartnerId] = useState('')
@@ -282,20 +283,20 @@ function CostLinesEditor({
       supabase.from('restaurants').select('id, nom').order('nom'),
       supabase.from('accommodations').select('id, nom').order('nom'),
       supabase.from('extras').select('id, nom, prix_achat, devise_achat').order('nom'),
-      supabase.from('restaurant_prices').select('restaurant_id, prix_adulte, date_debut').order('date_debut', { ascending: false }),
-      supabase.from('accommodation_prices').select('accommodation_id, prix_adulte, date').order('date', { ascending: false }),
+      supabase.from('restaurant_prices').select('restaurant_id, prix_adulte, prix_enfant, date_debut').order('date_debut', { ascending: false }),
+      supabase.from('accommodation_prices').select('accommodation_id, prix_adulte, prix_enfant, date').order('date', { ascending: false }),
     ]).then(([r, a, e, rp, ap]) => {
       setRestaurants((r.data as Partner[]) ?? [])
       setAccommodations((a.data as Partner[]) ?? [])
       setExtras((e.data as (Partner & { prix_achat: number | null; devise_achat: string | null })[]) ?? [])
       // On garde le tarif le plus récent (la requête est triée décroissant).
-      const rm = new Map<string, number>()
-      for (const x of (rp.data as { restaurant_id: string; prix_adulte: number }[]) ?? [])
-        if (!rm.has(x.restaurant_id)) rm.set(x.restaurant_id, x.prix_adulte)
+      const rm = new Map<string, { a: number; e: number }>()
+      for (const x of (rp.data as { restaurant_id: string; prix_adulte: number; prix_enfant: number }[]) ?? [])
+        if (!rm.has(x.restaurant_id)) rm.set(x.restaurant_id, { a: x.prix_adulte, e: x.prix_enfant })
       setRestoPrix(rm)
-      const am = new Map<string, number>()
-      for (const x of (ap.data as { accommodation_id: string; prix_adulte: number }[]) ?? [])
-        if (!am.has(x.accommodation_id)) am.set(x.accommodation_id, x.prix_adulte)
+      const am = new Map<string, { a: number; e: number }>()
+      for (const x of (ap.data as { accommodation_id: string; prix_adulte: number; prix_enfant: number }[]) ?? [])
+        if (!am.has(x.accommodation_id)) am.set(x.accommodation_id, { a: x.prix_adulte, e: x.prix_enfant })
       setHebergPrix(am)
     })
   }, [])
@@ -313,6 +314,7 @@ function CostLinesEditor({
       type_depense: typeDep,
       nom_depense: nom.trim(),
       prix_unitaire: prix ? Number(prix) : 0,
+      prix_enfant: prixEnf !== '' ? Number(prixEnf) : null,
       devise,
       taux_tva: Number(tva) || 0,
       inclure_comptabilite: true,
@@ -320,7 +322,7 @@ function CostLinesEditor({
       partner_id: partnerType ? (partnerId || null) : null,
     })
     if (error) { setError(error.message); return }
-    setNom(''); setPrix(''); setPartnerId('')
+    setNom(''); setPrix(''); setPrixEnf(''); setPartnerId('')
     onChanged()
   }
 
@@ -353,11 +355,13 @@ function CostLinesEditor({
                 setNom(p.nom)
                 if (categorie === 'EXTRA') {
                   const ex = extras.find((x) => x.id === id)
-                  if (ex) { setPrix(String(ex.prix_achat ?? '')); setDevise(ex.devise_achat ?? 'TND') }
+                  if (ex) { setPrix(String(ex.prix_achat ?? '')); setPrixEnf(''); setDevise(ex.devise_achat ?? 'TND') }
                 } else if (categorie === 'RESTAURANT') {
-                  setPrix(String(restoPrix.get(id) ?? '')); setDevise('TND'); setTypeDep('PAR_PERSONNE')
+                  const p = restoPrix.get(id)
+                  setPrix(String(p?.a ?? '')); setPrixEnf(String(p?.e ?? '')); setDevise('TND'); setTypeDep('PAR_PERSONNE')
                 } else if (categorie === 'HEBERGEMENT') {
-                  setPrix(String(hebergPrix.get(id) ?? '')); setDevise('TND'); setTypeDep('PAR_PERSONNE')
+                  const p = hebergPrix.get(id)
+                  setPrix(String(p?.a ?? '')); setPrixEnf(String(p?.e ?? '')); setDevise('TND'); setTypeDep('PAR_PERSONNE')
                 }
               }}
               className={ipt}
@@ -373,7 +377,8 @@ function CostLinesEditor({
           </select>
         </Lbl>
         <Lbl t="Nom dépense"><input value={nom} onChange={(e) => setNom(e.target.value)} className={ipt} /></Lbl>
-        <Lbl t="Prix unitaire"><input type="number" min={0} step="0.01" value={prix} onChange={(e) => setPrix(e.target.value)} className={ipt} /></Lbl>
+        <Lbl t="Prix adulte"><input type="number" min={0} step="0.01" value={prix} onChange={(e) => setPrix(e.target.value)} className={ipt} /></Lbl>
+        <Lbl t="Prix enfant"><input type="number" min={0} step="0.01" value={prixEnf} placeholder="= adulte si vide" onChange={(e) => setPrixEnf(e.target.value)} className={ipt} /></Lbl>
         <Lbl t="Devise"><input value={devise} onChange={(e) => setDevise(e.target.value)} className={ipt} /></Lbl>
         <Lbl t="TVA (TTC)">
           <select value={tva} onChange={(e) => setTva(e.target.value)} className={ipt}>
