@@ -2,10 +2,12 @@ import { useEffect, useMemo, useState } from 'react'
 import { supabase } from '../../lib/supabase'
 import {
   calculerRentabilite,
+  decomposerTtc,
   type CostLine,
   type Excursion,
   type RentabilityResult,
 } from '../../lib/erp'
+import { useSettings } from '../../lib/settings'
 
 // ----- Types locaux (miroir lecture seule des tables Supabase) -----
 interface Supplier {
@@ -54,6 +56,8 @@ interface ExcursionKpi {
 
 // Tableau de bord agrégé pour la direction.
 export function DashboardDirection() {
+  const settings = useSettings()
+  const tauxTva = Number(settings.tva_taux) || 19
   const [excursions, setExcursions] = useState<Excursion[]>([])
   const [lignes, setLignes] = useState<CostLine[]>([])
   const [bookings, setBookings] = useState<Booking[]>([])
@@ -330,7 +334,14 @@ export function DashboardDirection() {
         </div>
         <p className="mt-2 text-xs text-slate-400">
           Marge des sorties du mois (CA net − coûts variables) moins les charges fixes mensualisées.
+          Montants TTC (TVA {tauxTva} % incluse).
         </p>
+        <div className="mt-2 rounded bg-slate-50 px-3 py-2 text-xs text-slate-500">
+          TVA sur marge (indicatif, {tauxTva} %) :{' '}
+          <strong>{decomposerTtc(Math.max(0, resultatMois.margeMois), tauxTva).tva.toFixed(0)} TND</strong>
+          {' '}· HT {decomposerTtc(Math.max(0, resultatMois.margeMois), tauxTva).ht.toFixed(0)} TND.
+          À valider avec ton comptable (régime TVA sur marge probable pour une agence réceptive).
+        </div>
       </div>
 
       {/* Cartes KPI (cumul basé sur les réservations réelles) */}

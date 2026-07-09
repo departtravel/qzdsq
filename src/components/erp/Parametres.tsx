@@ -106,6 +106,18 @@ export function Parametres() {
           />
         </label>
 
+        <label className="block text-sm">
+          <span className="mb-1 block text-slate-500">Taux de TVA (%) — les tarifs sont saisis TTC</span>
+          <input
+            type="number"
+            min={0}
+            step="0.5"
+            defaultValue={settings.tva_taux}
+            onBlur={(e) => save('tva_taux', e.target.value)}
+            className="w-32 rounded border border-slate-300 px-2 py-1"
+          />
+        </label>
+
         <p className="text-xs text-slate-400">Les changements sont enregistrés automatiquement.</p>
       </div>
     </div>

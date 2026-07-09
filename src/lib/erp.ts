@@ -222,3 +222,12 @@ export const eurToTnd = (eur: number, taux = 3.34) => round2(eur * taux)
 /** Prix net (EUR) après commission OTA. */
 export const prixNetEur = (brut: number, commissionPct: number) =>
   round2(brut * (1 - commissionPct / 100))
+
+/**
+ * Décompose un montant TTC en HT + TVA au taux donné (défaut 19 %).
+ * Tous les tarifs de l'ERP sont saisis TTC.
+ */
+export function decomposerTtc(ttc: number, tauxTva = 19): { ht: number; tva: number; ttc: number } {
+  const ht = ttc / (1 + tauxTva / 100)
+  return { ht: round2(ht), tva: round2(ttc - ht), ttc: round2(ttc) }
+}

@@ -6,12 +6,14 @@ export interface AppSettings {
   company_name: string
   company_info: string
   logo: string // data URL de l'image, ou ''
+  tva_taux: string // taux de TVA en % (les tarifs sont TTC)
 }
 
 const DEFAULTS: AppSettings = {
   company_name: 'Depart Travel Services',
   company_info: '',
   logo: '',
+  tva_taux: '19',
 }
 
 export async function loadSettings(): Promise<AppSettings> {

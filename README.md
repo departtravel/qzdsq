@@ -1,172 +1,136 @@
-# 🚚 Gestion de Flotte
+# DTS Operation ERP — Depart Travel Services
 
-Système web complet pour gérer une flotte de véhicules : suivi des échéances
-(vidange, distribution, assurance, visite technique, vignette), historique
-d'entretien, et **détection automatique des surconsommations de gasoil**.
+ERP complet pour agence réceptive : catalogue OTA, réservations, opérations,
+comptabilité fournisseurs **automatique**, charges fixes et rentabilité.
 
 Stack : **React + Vite + TypeScript + Tailwind**, backend **Supabase**
-(Postgres + Auth), logique métier **couverte par des tests**.
+(PostgreSQL + Auth + RLS). Devise commerciale **EUR**, comptabilité **TND**
+(taux 1 EUR = 3,34 TND). **Tous les tarifs sont saisis TTC** (TVA incluse).
 
-## Fonctionnalités
+---
 
-- **Authentification** (Supabase) — accès réservé aux comptes connectés.
-- **Rôles & permissions** : `admin` (lecture + écriture) et `viewer` (lecture
-  seule). Les boutons de modification/suppression et les formulaires sont masqués
-  pour les comptes en lecture seule, et l'écriture est bloquée côté base (RLS).
-- **Notifications e-mail** des échéances proches (Supabase Edge Function + cron).
-- **Export PDF** (rapport de flotte + fiche véhicule imprimable).
-- **Fiche véhicule** : matricule, marque/modèle, chauffeur, conso de référence,
-  statut actif/archivé.
-- **Échéances** avec badges de couleur : 🟢 OK · 🟠 bientôt · 🔴 dépassé pour
-  vidange, distribution, assurance, visite technique et vignette.
-  - Vidange & distribution gérées par **date *et* kilométrage** (la plus proche
-    des deux l'emporte).
-- **Journal des pleins** : date, km, litres, prix/montant, plein complet ou non.
-- **Contrôle de consommation** : conso réelle par plein **et** moyenne globale
-  robuste, comparées à la conso normale ; alerte au-delà du seuil (déf. +15 %).
-- **Historique d'entretien** générique (type, km, coût, note).
-- **Tableau de bord** : panneau d'alertes consolidé, recherche, filtre archivés.
-- **Export CSV** (flotte entière + pleins par véhicule), compatible Excel FR.
-- **Export PDF** via la vue d'impression du navigateur (rapport flotte + fiche).
+## 1. Mise en route (une seule fois)
 
-## Comment fonctionne le contrôle de consommation
+### A. Créer la base Supabase
+1. Crée un projet sur [supabase.com](https://supabase.com).
+2. **SQL Editor → New query** : colle et exécute (**Run without RLS**), dans l'ordre :
+   1. `supabase/install_complet.sql` — toute la base + catalogue GYG (TDE + Tunisia-Trips)
+   2. `supabase/maj_operations.sql` — sorties, flotte, catalogue **DTS** (58 excursions)
+   3. `supabase/maj_finale.sql` — compta automatique + charges fixes
+   4. `supabase/maj_corrections.sql` — correctifs comptables (anti-doublon, validation)
+   5. `supabase/tva.sql` — TVA (TTC) + numérotation des factures
+   6. `supabase/seed_donnees.sql` — tes charges fixes, guides, restos, hôtels, camps
+3. **Authentication → Users → Add user** : crée ton compte.
+4. **SQL Editor** : deviens super admin (remplace l'email) :
+   ```sql
+   update public.profiles set role = 'admin', erp_role = 'ADMIN'
+   where email = 'ton-email@exemple.com';
+   ```
+5. **Settings → API** : note **Project URL** et la clé **anon public**.
 
-Méthode **« plein à plein »** : les litres d'un plein couvrent la distance
-parcourue depuis le plein **complet** précédent.
+### B. Mettre l'application en ligne
+1. `npm run build` produit le dossier `dist/` (ou récupère l'archive fournie).
+2. Sur [app.netlify.com](https://app.netlify.com) → ton site → **Deploys** → glisse le dossier `dist`.
+   (Ne recrée pas un site à chaque fois : mets à jour le **même** pour garder l'adresse.)
+3. Ouvre l'adresse → écran **« Connexion à Supabase »** → colle l'URL + la clé anon → **Connecter**.
+4. Connecte-toi avec ton compte. C'est prêt.
 
-```
-conso réelle (L/100km) = litres ÷ (km actuel − km du plein précédent) × 100
-écart (%)              = (conso réelle − conso normale) ÷ conso normale × 100
-```
+> En local : `npm install` puis `npm run dev` (http://localhost:5173).
 
-Une **moyenne globale** (somme des litres ÷ distance totale) sert d'indicateur
-robuste pour le tableau de bord. Les pleins marqués « partiels » sont exclus du
-calcul segment par segment.
+---
 
-> ⚠️ Saisis le **kilométrage au compteur** à chaque plein : c'est la distance,
-> et non le montant en dirhams, qui révèle une surconsommation (le prix varie).
+## 2. Les rôles (qui fait quoi)
 
-## DTS Operation ERP (module excursions & rentabilité)
+Le workflow est **imposé par la base** : chaque étape n'est franchissable que par le bon rôle.
 
-En plus de la gestion de flotte, ce dépôt intègre la première couche de l'ERP
-**Depart Travel Services** décrit dans le cahier des charges : catalogue des
-excursions OTA et calcul automatique de rentabilité.
+| Rôle | Personne | Peut faire |
+| --- | --- | --- |
+| **ADMIN** (super admin) | Direction (Amine, Aymen) | Tout, dont gérer les comptes et le catalogue |
+| **RESERVATION** | Hiba | Créer les réservations, importer les OTA |
+| **CONFIRMATION** | Farah | Confirmer les réservations |
+| **OPERATIONS** | Hersi | Regrouper en sorties, affecter guide/véhicule/chauffeur |
+| **LOGISTIQUE** | Karima | Réservations partenaires, référentiels, mettre en opération |
+| **COMPTABLE** | Comptabilité | **Valider les factures**, saisir paiements/avances |
+| **LECTURE** | Contrôle | Consulter, analyser |
 
-- **Base de données** — `supabase/erp.sql` crée toutes les tables métier
-  (canaux OTA, excursions, options, lignes de coût, transporteurs, véhicules,
-  guides + tarifs, chauffeurs, restaurants + prix, hébergements + prix, extras,
-  fournisseurs + transactions + factures, réservations, planning, imports OTA,
-  taux de change, historique des coûts) avec Row Level Security.
-- **Données initiales** — `supabase/seed.sql` charge les données réelles :
-  7 canaux OTA (commission GYG 30 %, taux 1 EUR = 3,34 TND), restaurants,
-  hébergements, extras, et le catalogue GetYourGuide (TDE + Tunisia-Trips) avec
-  les lignes de coût de référence (ex. Ksar Ghilane 2 jours).
-- **Moteur de rentabilité** — `src/lib/erp.ts` répond automatiquement à :
-  « combien coûte réellement l'excursion ? », « combien gagne-t-on par
-  personne ? », « combien de participants minimum pour être rentable ? ».
-  Coûts fixes vs variables, répartition PAR_PERSONNE / PAR_VEHICULE /
-  PAR_GROUPE, exclusion comptable, conversion EUR→TND. Couvert par
-  `src/lib/erp.test.ts`.
-- **Interface** — onglet **🧭 Excursions** : catalogue cliquable + simulateur
-  d'effectif affichant CA net, coût total, marge et seuil de rentabilité.
+Gestion des comptes : onglet **🔐 Utilisateurs** (super admin uniquement) — ajouter,
+changer le rôle, retirer l'accès.
 
-### Modules ERP disponibles
+---
 
-L'application couvre l'ensemble du cahier des charges via des onglets :
+## 3. Le flux quotidien (ce que tu dois faire)
 
-- **🧭 Excursions** — catalogue OTA + simulateur de rentabilité.
-- **📅 Réservations** — création + workflow Hiba→Farah→Hersi→Karima→Amine/Aymen.
-- **📆 Planning** — vue jour/semaine des sorties + affectation guide/véhicule/chauffeur.
-- **💰 Comptabilité** — fournisseurs, transactions, avances, alerte factures manquantes.
-- **📊 Direction** — dashboard KPI (CA, commissions, marge, top/déficitaires, à payer).
-- **📥 Import OTA** — import CSV de réservations avec mapping et prévisualisation.
-- **📋 Ordre de mission** — document imprimable par excursion + date (guide + infos,
-  chauffeur + infos, liste des participants avec noms, pax, hôtel, heure de prise en
-  charge, remarques, extras) + **signature et cachet** enregistrés en base.
-- **🗒️ Réservations à effectuer** — fiche logistique par excursion + date : transport,
-  guide, repas par jour (restaurant + effectifs + régimes), hébergement, extras — tout
-  ce qui doit être réservé auprès des partenaires.
-- **🧠 IA Analytique** — « pourquoi la marge baisse ? », simulations, longue durée vs ponctuelle.
-- **📇 Référentiels** — guides, chauffeurs, restaurants, hébergements, extras, transports, véhicules
-  (création automatique du fournisseur associé).
+1. **📅 Réservations** — Hiba crée la réservation (client, date, effectif, hôtel,
+   heure de prise en charge, régime, **extras cochés**) — ou **📥 Import OTA** (CSV,
+   anti-doublon par référence). Puis Farah **confirme**.
+2. **📆 Planning** (feuille du mois) — coche plusieurs réservations **du même produit
+   et de la même date** → **« Créer une sortie »**. Affecte **guide + chauffeur +
+   véhicule + transport** (mode : parc / longue durée / journalière + coût).
+3. **✓ Confirmer la sortie** (bouton dans le Planning) → **les factures fournisseurs
+   sont générées automatiquement** (guide, chauffeur, transport, restos, hôtels,
+   camps, extras), au statut « en attente ».
+4. **💰 Comptabilité** — le responsable facturation **valide** chaque facture
+   (elle reçoit un n° `FAC-AAAA-000N` et se fige), puis saisit **paiements/avances**.
+5. **📋 Ordre de mission** — document imprimable (guide, chauffeur, participants,
+   hôtels, heures, extras) avec **signature + cachet** ; **🗒️ Réservations à effectuer**
+   pour Karima (repas, hébergement, extras à réserver).
 
-### Rôles & workflow (cloisonnement)
+---
 
-Le workflow métier est **imposé par la base de données** (`supabase/rbac.sql`),
-pas seulement par l'interface. Chaque étape d'une réservation ne peut être
-franchie que par le bon rôle :
+## 4. Les modules
 
-| Transition | Rôle autorisé |
-| --- | --- |
-| `NOUVELLE → CONFIRMEE` | CONFIRMATION (Farah) |
-| `CONFIRMEE → EN_OPERATION` | OPERATIONS (Hersi) |
-| `EN_OPERATION → TERMINEE` | OPERATIONS / LOGISTIQUE (Hersi / Karima) |
-| Affectation guide/véhicule/chauffeur | OPERATIONS (Hersi) |
-| Comptabilité fournisseurs | COMPTABLE |
-| Référentiels (guides, restos…) | LOGISTIQUE |
-| Catalogue & paramètres | ADMIN (Direction) |
+- **🧭 Excursions** — catalogue 3 comptes GYG + DTS. Bouton **+ Ajouter une excursion**
+  (infos, prix, lignes de coût, extras). Fiche = simulateur de rentabilité + seuil.
+- **📅 Réservations** — création + workflow + coût/marge par réservation.
+- **📆 Planning** — feuilles mensuelles, regroupement en sorties, affectations, statut.
+- **📋 Ordre de mission / 🗒️ Réservations à effectuer** — documents imprimables (logo inclus).
+- **💰 Comptabilité** — fournisseurs, factures **auto**, validation, paiements, alertes.
+- **🧾 Relevé prestataire** — relevé par fournisseur (facturé / payé / **solde à payer**).
+- **🏢 Charges fixes** — salaires, parc, leasings, loyer, assurances (par véhicule),
+  taxes, internet, abonnements… avec total mensuel/annuel. Montants éditables.
+- **📊 Direction** — **résultat net du mois** (marge des sorties − charges fixes),
+  TVA indicative, KPIs, top rentables, déficitaires, **⚠️ à faire en urgence**.
+- **📥 Import OTA** — import CSV (colonnes : date, excursion, canal, client, adultes,
+  enfants, bebes, langue, **reference**).
+- **🧠 IA Analytique** — pourquoi la marge baisse, simulations, longue durée vs ponctuelle.
+- **📇 Référentiels** — guides (salarié/extra), chauffeurs (**tarif/jour**),
+  restaurants, hébergements, extras, transports (**tarif/sortie**), véhicules.
+- **🔐 Utilisateurs / ⚙️ Paramètres** — comptes & rôles ; logo, coordonnées, **taux de TVA**.
+- **🚚 Flotte** — véhicules, échéances (assurance, visite technique…), consommation gasoil.
 
-Ainsi **Hersi ne peut pas démarrer tant que Farah n'a pas confirmé**, et un
-utilisateur qui tente une action hors de son rôle est refusé côté base (et le
-bouton est masqué dans l'interface). Attribue les rôles en fin de `rbac.sql` :
+---
 
-```sql
-update public.profiles set erp_role = 'RESERVATION'  where email = 'hiba@...';
-update public.profiles set erp_role = 'CONFIRMATION' where email = 'farah@...';
-update public.profiles set erp_role = 'OPERATIONS'   where email = 'hersi@...';
-update public.profiles set erp_role = 'LOGISTIQUE'   where email = 'karima@...';
-```
+## 5. Comptabilité : comment ça marche
 
-### Installation de la couche ERP
+- **Automatique** : à la confirmation d'une sortie, une **facture par prestataire**
+  est créée avec le montant calculé (barèmes guide/chauffeur/transport, charges du
+  produit × pax). Supprimer/modifier une réservation **met à jour** ces factures ;
+  supprimer une sortie **les supprime**.
+- **Validation** : le responsable facturation valide → la facture se **fige** (n°
+  séquentiel, plus recalculée). Les avances/paiements diminuent le solde ;
+  un **avoir (CREDIT)** aussi.
+- **TVA** : tous les tarifs sont **TTC**. La part TVA est isolée au taux configuré
+  (défaut 19 %) — indicateur **indicatif** (régime TVA sur marge à confirmer avec
+  ton comptable).
 
-Dans le **SQL Editor** de Supabase, exécute dans l'ordre :
-`supabase/schema.sql` → `supabase/erp.sql` → `supabase/rbac.sql` →
-`supabase/missions.sql` → `supabase/settings.sql` → `supabase/seed.sql` →
-`supabase/seed_dts.sql` → `supabase/compta_partenaires.sql`.
+---
 
-## Installation
+## 6. Ce qui reste prévu (phase 2, en cours)
 
-1. **Dépendances** — `npm install`
-2. **Supabase**
-   - Crée un projet sur [supabase.com](https://supabase.com).
-   - *SQL Editor* → exécute [`supabase/schema.sql`](supabase/schema.sql).
-   - *Authentication → Users* → crée au moins un compte.
-   - Promeus ton compte en administrateur (sinon tout le monde est en lecture
-     seule) :
-     ```sql
-     update public.profiles set role = 'admin' where email = 'ton-email@exemple.com';
-     ```
-3. **Variables d'environnement** — `cp .env.example .env`, puis renseigne
-   `VITE_SUPABASE_URL` et `VITE_SUPABASE_ANON_KEY` (Settings → API).
-4. **Lancer** — `npm run dev`
+- Numérotation des factures ✅ (posée) · TVA TTC ✅ (posée)
+- Échéances de paiement / balance âgée / trésorerie prévisionnelle
+- Taux de change **figé** à la date de réservation
+- Facture / voucher **client** (PDF) + envoi email
+- Rapprochement des versements OTA · gestion no-show / effectif réalisé
+- Amortissement du leasing (capital/intérêts) · exports comptables
 
-## Scripts
+---
 
-| Commande          | Description                       |
-| ----------------- | --------------------------------- |
-| `npm run dev`     | Serveur de développement          |
-| `npm run build`   | Build de production (`dist/`)     |
-| `npm run preview` | Prévisualise le build             |
-| `npm run lint`    | Vérification TypeScript           |
-| `npm test`        | Tests automatisés (Vitest)        |
+## 7. Sécurité & sauvegardes
 
-## Fiabilité & sécurité
+- **Row Level Security** sur toutes les tables ; écriture selon le rôle.
+- La clé `anon` est publique par conception (c'est la RLS qui protège) ; ne jamais
+  exposer la clé `service_role`.
+- Supabase sauvegarde automatiquement ; pour un export manuel : **Database → Backups**.
 
-- **Tests** : la logique d'échéances et de consommation (`src/lib/fleet.ts`)
-  est couverte par `src/lib/fleet.test.ts` — lance `npm test`.
-- **Contraintes base de données** : valeurs positives, unicité des matricules,
-  suppression en cascade de l'historique.
-- **Row Level Security** activée : lecture pour tout utilisateur connecté,
-  écriture réservée aux administrateurs (fonction `is_admin()`).
-
-## Notifications e-mail
-
-Voir [`supabase/functions/README.md`](supabase/functions/README.md) : déploiement
-de la fonction `notify-echeances` (envoi via Resend) et planification quotidienne
-avec `pg_cron`.
-
-## Pistes d'évolution
-
-- Notifications SMS.
-- Graphiques de tendance de consommation.
-- Rôles supplémentaires (ex. gestionnaire par dépôt).
+Tests de la logique métier : `npm test`.
