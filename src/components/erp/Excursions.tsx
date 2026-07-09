@@ -108,6 +108,8 @@ export function Excursions() {
 }
 
 function ExcursionDetail({ excursion, onBack }: { excursion: Excursion; onBack: () => void }) {
+  const { role } = useErpRole()
+  const canWrite = peutEcrire.catalogue(role)
   const [lignes, setLignes] = useState<CostLine[]>([])
   const [loading, setLoading] = useState(true)
   const [adultes, setAdultes] = useState(10)
@@ -115,17 +117,19 @@ function ExcursionDetail({ excursion, onBack }: { excursion: Excursion; onBack: 
   const [bebes, setBebes] = useState(0)
   const [capacite, setCapacite] = useState(5)
 
-  useEffect(() => {
-    supabase
+  const reload = useCallback(async () => {
+    const { data } = await supabase
       .from('excursion_cost_lines')
       .select('*')
       .eq('excursion_id', excursion.id)
       .order('jour')
-      .then(({ data }) => {
-        setLignes((data as CostLine[]) ?? [])
-        setLoading(false)
-      })
+    setLignes((data as CostLine[]) ?? [])
+    setLoading(false)
   }, [excursion.id])
+
+  useEffect(() => {
+    reload()
+  }, [reload])
 
   const r = useMemo(
     () =>
@@ -157,11 +161,17 @@ function ExcursionDetail({ excursion, onBack }: { excursion: Excursion; onBack: 
       </div>
 
       {/* Simulateur d'effectif */}
-      <div className="mb-4 flex flex-wrap gap-4 rounded-lg bg-white p-4 shadow">
-        <NumField label="Adultes" value={adultes} onChange={setAdultes} />
-        <NumField label="Enfants" value={enfants} onChange={setEnfants} />
-        <NumField label="Bébés" value={bebes} onChange={setBebes} />
-        <NumField label="Capacité véhicule" value={capacite} onChange={setCapacite} min={1} />
+      <div className="mb-4 rounded-lg bg-white p-4 shadow">
+        <p className="mb-2 text-xs text-slate-500">
+          🧮 <strong>Simulateur</strong> — teste une rentabilité « si j'avais X participants ».
+          Ces chiffres ne sont pas une vraie réservation ; modifie-les librement.
+        </p>
+        <div className="flex flex-wrap gap-4">
+          <NumField label="Adultes" value={adultes} onChange={setAdultes} />
+          <NumField label="Enfants" value={enfants} onChange={setEnfants} />
+          <NumField label="Bébés" value={bebes} onChange={setBebes} />
+          <NumField label="Capacité véhicule" value={capacite} onChange={setCapacite} min={1} />
+        </div>
       </div>
 
       {/* Cartes résultat */}
@@ -216,8 +226,151 @@ function ExcursionDetail({ excursion, onBack }: { excursion: Excursion; onBack: 
           </table>
         )}
       </div>
+
+      {canWrite && <CostLinesEditor excursionId={excursion.id} lignes={lignes} onChanged={reload} />}
     </div>
   )
+}
+
+const CATS = ['TRANSPORT', 'GUIDE', 'CHAUFFEUR', 'RESTAURANT', 'HEBERGEMENT', 'EXTRA', 'GASOIL', 'PEAGE', 'PARKING', 'AUTRE'] as const
+const TYPES = ['PAR_PERSONNE', 'PAR_VEHICULE', 'PAR_GROUPE', 'FIXE'] as const
+
+interface Partner { id: string; nom: string }
+
+// Éditeur des lignes de coût d'une excursion existante (repas, hébergement,
+// guide, transport, extras…). Renseigne partner_type/partner_id pour la compta.
+function CostLinesEditor({
+  excursionId, lignes, onChanged,
+}: { excursionId: string; lignes: CostLine[]; onChanged: () => void | Promise<void> }) {
+  const [restaurants, setRestaurants] = useState<Partner[]>([])
+  const [accommodations, setAccommodations] = useState<Partner[]>([])
+  const [extras, setExtras] = useState<(Partner & { prix_achat: number | null; devise_achat: string | null })[]>([])
+  const [error, setError] = useState<string | null>(null)
+
+  const [jour, setJour] = useState(1)
+  const [categorie, setCategorie] = useState<string>('RESTAURANT')
+  const [typeDep, setTypeDep] = useState<string>('PAR_PERSONNE')
+  const [nom, setNom] = useState('')
+  const [prix, setPrix] = useState('')
+  const [devise, setDevise] = useState('TND')
+  const [tva, setTva] = useState('19')
+  const [partnerId, setPartnerId] = useState('')
+
+  useEffect(() => {
+    Promise.all([
+      supabase.from('restaurants').select('id, nom').order('nom'),
+      supabase.from('accommodations').select('id, nom').order('nom'),
+      supabase.from('extras').select('id, nom, prix_achat, devise_achat').order('nom'),
+    ]).then(([r, a, e]) => {
+      setRestaurants((r.data as Partner[]) ?? [])
+      setAccommodations((a.data as Partner[]) ?? [])
+      setExtras((e.data as (Partner & { prix_achat: number | null; devise_achat: string | null })[]) ?? [])
+    })
+  }, [])
+
+  const partenaires = categorie === 'RESTAURANT' ? restaurants : categorie === 'HEBERGEMENT' ? accommodations : categorie === 'EXTRA' ? extras : []
+  const partnerType = categorie === 'RESTAURANT' || categorie === 'HEBERGEMENT' || categorie === 'EXTRA' ? categorie : null
+
+  async function ajouter() {
+    setError(null)
+    if (!nom.trim()) { setError('Nom de la dépense requis.'); return }
+    const { error } = await supabase.from('excursion_cost_lines').insert({
+      excursion_id: excursionId,
+      jour,
+      categorie,
+      type_depense: typeDep,
+      nom_depense: nom.trim(),
+      prix_unitaire: prix ? Number(prix) : 0,
+      devise,
+      taux_tva: Number(tva) || 0,
+      inclure_comptabilite: true,
+      partner_type: partnerType,
+      partner_id: partnerType ? (partnerId || null) : null,
+    })
+    if (error) { setError(error.message); return }
+    setNom(''); setPrix(''); setPartnerId('')
+    onChanged()
+  }
+
+  async function supprimer(id: string) {
+    await supabase.from('excursion_cost_lines').delete().eq('id', id)
+    onChanged()
+  }
+
+  return (
+    <div className="mt-4 rounded-lg bg-white p-4 shadow">
+      <h3 className="mb-3 font-semibold">Ajouter / gérer les charges de cette excursion</h3>
+      {error && <div className="mb-2 rounded border border-red-200 bg-red-50 px-3 py-2 text-sm text-red-700">{error}</div>}
+
+      <div className="mb-3 grid grid-cols-2 gap-2 sm:grid-cols-4 lg:grid-cols-8">
+        <Lbl t="Jour"><input type="number" min={1} value={jour} onChange={(e) => setJour(Number(e.target.value) || 1)} className={ipt} /></Lbl>
+        <Lbl t="Catégorie">
+          <select value={categorie} onChange={(e) => { setCategorie(e.target.value); setPartnerId('') }} className={ipt}>
+            {CATS.map((c) => <option key={c} value={c}>{c}</option>)}
+          </select>
+        </Lbl>
+        {partnerType && (
+          <Lbl t="Prestataire">
+            <select
+              value={partnerId}
+              onChange={(e) => {
+                setPartnerId(e.target.value)
+                const p = partenaires.find((x) => x.id === e.target.value)
+                if (p) {
+                  setNom(p.nom)
+                  const ex = extras.find((x) => x.id === e.target.value)
+                  if (ex) { setPrix(String(ex.prix_achat ?? '')); setDevise(ex.devise_achat ?? 'TND') }
+                }
+              }}
+              className={ipt}
+            >
+              <option value="">— choisir / manuel —</option>
+              {partenaires.map((p) => <option key={p.id} value={p.id}>{p.nom}</option>)}
+            </select>
+          </Lbl>
+        )}
+        <Lbl t="Type">
+          <select value={typeDep} onChange={(e) => setTypeDep(e.target.value)} className={ipt}>
+            {TYPES.map((t) => <option key={t} value={t}>{t}</option>)}
+          </select>
+        </Lbl>
+        <Lbl t="Nom dépense"><input value={nom} onChange={(e) => setNom(e.target.value)} className={ipt} /></Lbl>
+        <Lbl t="Prix unitaire"><input type="number" min={0} step="0.01" value={prix} onChange={(e) => setPrix(e.target.value)} className={ipt} /></Lbl>
+        <Lbl t="Devise"><input value={devise} onChange={(e) => setDevise(e.target.value)} className={ipt} /></Lbl>
+        <Lbl t="TVA (TTC)">
+          <select value={tva} onChange={(e) => setTva(e.target.value)} className={ipt}>
+            <option value="19">19 %</option><option value="7">7 %</option><option value="0">0 %</option>
+          </select>
+        </Lbl>
+      </div>
+      <button onClick={ajouter} className="rounded bg-blue-600 px-4 py-1.5 text-sm font-medium text-white hover:bg-blue-700">
+        + Ajouter la charge
+      </button>
+
+      {lignes.length > 0 && (
+        <table className="mt-4 w-full text-sm">
+          <tbody>
+            {lignes.map((l) => (
+              <tr key={l.id} className="border-t">
+                <td className="py-1 text-slate-500">J{l.jour} · {l.categorie}</td>
+                <td className="py-1">{l.nom_depense}</td>
+                <td className="py-1 text-slate-500">{l.type_depense}</td>
+                <td className="py-1 text-right">{l.prix_unitaire} {l.devise}</td>
+                <td className="py-1 text-right">
+                  <button onClick={() => supprimer(l.id)} className="text-xs text-red-600 hover:underline">✕</button>
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      )}
+    </div>
+  )
+}
+
+const ipt = 'w-full rounded border border-slate-300 px-2 py-1'
+function Lbl({ t, children }: { t: string; children: React.ReactNode }) {
+  return <label className="text-sm"><span className="mb-1 block text-slate-500">{t}</span>{children}</label>
 }
 
 function NumField({
