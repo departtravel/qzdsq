@@ -25,7 +25,7 @@ select v.lib, 'SALAIRE', v.m, 'MENSUEL'
 from (values
   ('Salaire Karima',1500),('Salaire Aymen',1500),('Salaire Amine',1500),
   ('Salaire Hiba',1200),('Salaire Imed',1200),('Salaire Montana',2300),
-  ('Salaire Adel',1000),('Salaire Hersi',900),('Salaire Dhaou Sousse',1500),
+  ('Salaire Adel bureau',1000),('Salaire Hersi',900),('Salaire Dhaou Sousse',1500),
   ('Salaire Farah',800),('Salaire Mohamed',900),
   ('Salaire chauffeur Autocar',1000),('Salaire chauffeur Hiace',1000),
   ('Salaire chauffeur Suzuki',1000),('Salaire chauffeur Ford TTG',1000),
@@ -34,13 +34,14 @@ from (values
 ) as v(lib, m)
 where not exists (select 1 from public.fixed_charges f where f.libelle = v.lib);
 
--- Salaires guides permanents non déjà listés (Adel/Montana déjà en Salaires)
+-- Salaires guides permanents (Adel guide ≠ Adel bureau ; Montana déjà en Salaires)
 insert into public.fixed_charges (libelle, categorie, montant, periodicite, note)
 select v.lib, 'SALAIRE', v.m, 'MENSUEL', 'guide permanent'
 from (values
   ('Salaire guide Ali Msabhia',2000),
   ('Salaire guide Boukéri',2000),
-  ('Salaire guide Hamza',2000)
+  ('Salaire guide Hamza',2000),
+  ('Salaire Adel guide',2000)
 ) as v(lib, m)
 where not exists (select 1 from public.fixed_charges f where f.libelle = v.lib);
 
@@ -105,7 +106,7 @@ insert into public.guides (nom, type_guide, salaire_mensuel, actif)
 select v.nom, 'SALARIE', v.sal, true
 from (values
   ('Ali Msabhia',2000),('Boukéri',2000),('Hamza',2000),
-  ('Adel (guide)',2000),('Montana (guide)',2300)
+  ('Adel guide',2000),('Montana guide',2300)
 ) as v(nom, sal)
 where not exists (select 1 from public.guides g where g.nom = v.nom);
 

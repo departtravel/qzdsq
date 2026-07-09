@@ -23,6 +23,12 @@ interface SupplierInvoice {
   statut: string // RECUE | MANQUANTE | VALIDEE | PAYEE
 }
 
+interface FixedCharge {
+  montant: number
+  periodicite: string
+  actif: boolean
+}
+
 interface Booking {
   id: string
   excursion_id: string | null
@@ -53,20 +59,25 @@ export function DashboardDirection() {
   const [bookings, setBookings] = useState<Booking[]>([])
   const [suppliers, setSuppliers] = useState<Supplier[]>([])
   const [invoices, setInvoices] = useState<SupplierInvoice[]>([])
+  const [charges, setCharges] = useState<FixedCharge[]>([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
+  // Mois analysé pour le résultat net (défaut : mois courant).
+  const now = new Date()
+  const [mois, setMois] = useState(now.toISOString().slice(0, 7)) // 'YYYY-MM'
 
   useEffect(() => {
     let annule = false
     async function load() {
       setLoading(true)
       setError(null)
-      const [exc, lin, boo, sup, inv] = await Promise.all([
+      const [exc, lin, boo, sup, inv, chg] = await Promise.all([
         supabase.from('excursions').select('*').order('code_interne'),
         supabase.from('excursion_cost_lines').select('*'),
         supabase.from('bookings').select('*'),
         supabase.from('suppliers').select('*').order('nom'),
         supabase.from('supplier_invoices').select('*'),
+        supabase.from('fixed_charges').select('montant, periodicite, actif'),
       ])
       if (annule) return
       const firstError =
@@ -81,6 +92,7 @@ export function DashboardDirection() {
       setBookings((boo.data as Booking[]) ?? [])
       setSuppliers((sup.data as Supplier[]) ?? [])
       setInvoices((inv.data as SupplierInvoice[]) ?? [])
+      setCharges((chg.data as FixedCharge[]) ?? [])
       setLoading(false)
     }
     load()
@@ -136,6 +148,42 @@ export function DashboardDirection() {
       },
     )
   }, [kpis])
+
+  // Charges fixes ramenées au mois.
+  const chargesMensuelles = useMemo(() => {
+    return charges
+      .filter((c) => c.actif)
+      .reduce((s, c) => {
+        if (c.periodicite === 'ANNUEL') return s + c.montant / 12
+        if (c.periodicite === 'TRIMESTRIEL') return s + c.montant / 3
+        if (c.periodicite === 'PONCTUEL') return s
+        return s + c.montant
+      }, 0)
+  }, [charges])
+
+  // Résultat net du mois sélectionné = marge des sorties du mois − charges fixes.
+  const resultatMois = useMemo(() => {
+    let margeMois = 0
+    for (const excursion of excursions) {
+      const bk = bookings.filter(
+        (b) =>
+          b.excursion_id === excursion.id &&
+          b.statut !== 'ANNULEE' &&
+          (b.date_excursion ?? '').slice(0, 7) === mois,
+      )
+      const ad = bk.reduce((s, b) => s + b.nombre_adultes, 0)
+      const en = bk.reduce((s, b) => s + b.nombre_enfants, 0)
+      const be = bk.reduce((s, b) => s + b.nombre_bebes, 0)
+      if (ad + en + be === 0) continue
+      const lignesExc = lignes.filter((l) => l.excursion_id === excursion.id)
+      const r = calculerRentabilite({
+        excursion, lignes: lignesExc, adultes: ad, enfants: en, bebes: be,
+        capaciteVehicule: CAPACITE_VEHICULE_DEFAUT,
+      })
+      margeMois += r.margeTnd
+    }
+    return { margeMois, net: margeMois - chargesMensuelles }
+  }, [excursions, bookings, lignes, mois, chargesMensuelles])
 
   // À faire en urgence.
   const urgences = useMemo(() => {
@@ -259,7 +307,33 @@ export function DashboardDirection() {
         </div>
       )}
 
-      {/* Cartes KPI */}
+      {/* Résultat net du mois */}
+      <div className="mb-6 rounded-lg border bg-white p-4 shadow">
+        <div className="mb-3 flex flex-wrap items-center justify-between gap-3">
+          <h3 className="font-semibold">Résultat net du mois</h3>
+          <input
+            type="month"
+            value={mois}
+            onChange={(e) => setMois(e.target.value)}
+            className="rounded border border-slate-300 px-2 py-1 text-sm"
+          />
+        </div>
+        <div className="grid grid-cols-1 gap-3 sm:grid-cols-3">
+          <Stat label="Marge des sorties (mois)" value={`${resultatMois.margeMois.toFixed(0)} TND`} tone={resultatMois.margeMois >= 0 ? 'good' : 'bad'} />
+          <Stat label="Charges fixes / mois" value={`${chargesMensuelles.toFixed(0)} TND`} tone="bad" />
+          <Stat
+            label="RÉSULTAT NET"
+            value={`${resultatMois.net.toFixed(0)} TND`}
+            tone={resultatMois.net >= 0 ? 'good' : 'bad'}
+            sub={resultatMois.net >= 0 ? 'bénéfice' : 'perte'}
+          />
+        </div>
+        <p className="mt-2 text-xs text-slate-400">
+          Marge des sorties du mois (CA net − coûts variables) moins les charges fixes mensualisées.
+        </p>
+      </div>
+
+      {/* Cartes KPI (cumul basé sur les réservations réelles) */}
       <div className="mb-6 grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-5">
         <Stat label="CA brut total" value={`${totaux.caBrutEur.toFixed(0)} €`} />
         <Stat label="Commissions OTA" value={`${totaux.commissionEur.toFixed(0)} €`} tone="bad" />
