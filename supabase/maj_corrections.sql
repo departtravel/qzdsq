@@ -1,4 +1,63 @@
 -- ============================================================
+-- DTS OPERATION ERP — CORRECTIONS COMPTA (bloc audit)
+-- Colle dans Supabase > SQL Editor > Run without RLS. Idempotent.
+-- Prérequis : maj_finale.sql déjà exécuté.
+-- ============================================================
+
+-- Référence OTA (anti-doublon import) sur les réservations
+alter table public.bookings add column if not exists reference text;
+create index if not exists bookings_reference_idx on public.bookings (reference);
+
+-- ---- Garde-fou d'affectation : LOGISTIQUE peut mettre en opération ----
+create or replace function public.bookings_guard()
+returns trigger language plpgsql security definer set search_path = public as $$
+declare r text := public.erp_role();
+begin
+  if r = 'ADMIN' then
+    return new;  -- la Direction n'est pas contrainte
+  end if;
+
+  -- Changement de statut : chaque transition a son rôle
+  if new.statut is distinct from old.statut then
+    if old.statut = 'NOUVELLE' and new.statut = 'CONFIRMEE' then
+      if r <> 'CONFIRMATION' then
+        raise exception 'Seul le rôle CONFIRMATION (Farah) peut confirmer une réservation';
+      end if;
+    elsif old.statut = 'CONFIRMEE' and new.statut = 'EN_OPERATION' then
+      if r not in ('OPERATIONS','LOGISTIQUE') then
+        raise exception 'Seuls OPERATIONS (Hersi) ou LOGISTIQUE (Karima) peuvent mettre en opération';
+      end if;
+    elsif old.statut = 'EN_OPERATION' and new.statut = 'TERMINEE' then
+      if r not in ('OPERATIONS','LOGISTIQUE') then
+        raise exception 'Seuls OPERATIONS (Hersi) ou LOGISTIQUE (Karima) peuvent terminer';
+      end if;
+    elsif new.statut = 'ANNULEE' then
+      if r not in ('RESERVATION','CONFIRMATION') then
+        raise exception 'Annulation non autorisée pour ce rôle';
+      end if;
+    else
+      raise exception 'Transition % -> % non autorisée', old.statut, new.statut;
+    end if;
+  end if;
+
+  -- Affectation opérationnelle réservée au rôle OPERATIONS
+  if (new.guide_id   is distinct from old.guide_id
+   or new.vehicle_id is distinct from old.vehicle_id
+   or new.driver_id  is distinct from old.driver_id)
+   and r <> 'OPERATIONS' then
+     raise exception 'Seul le rôle OPERATIONS (Hersi) peut affecter guide / véhicule / chauffeur';
+  end if;
+
+  return new;
+end $$;
+
+drop trigger if exists bookings_guard_trg on public.bookings;
+create trigger bookings_guard_trg
+  before update on public.bookings
+  for each row execute function public.bookings_guard();
+
+-- ---- Moteur de compta automatique corrigé ----
+-- ============================================================
 --  DTS OPERATION ERP — COMPTA AUTOMATIQUE (moteur de facturation)
 --  À exécuter après erp.sql / rbac.sql / sorties.sql / compta_partenaires.sql.
 --  Idempotent.

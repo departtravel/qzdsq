@@ -29,6 +29,7 @@ interface ParsedRow {
   enfants: number
   bebes: number
   langue: string
+  reference: string
   excursionId: string | null
   channelId: string | null
   valide: boolean
@@ -115,6 +116,7 @@ const COLUMN_ALIASES: Record<string, string[]> = {
   enfants: ['enfants', 'enfant', 'children', 'child', 'pax_enfant'],
   bebes: ['bebes', 'bebe', 'babies', 'baby', 'infant', 'infants'],
   langue: ['langue', 'language', 'lang'],
+  reference: ['reference', 'référence', 'ref', 'booking_reference', 'booking_id', 'reservation', 'numero'],
 }
 
 function buildHeaderMap(header: string[]): Record<string, number> {
@@ -211,7 +213,8 @@ export function ImportOTA() {
       const adultes = toInt(get(cols, 'adultes'))
       const enfants = toInt(get(cols, 'enfants'))
       const bebes = toInt(get(cols, 'bebes'))
-      const langue = get(cols, 'langue')
+      const langue = get(cols, 'langue').toUpperCase()
+      const reference = get(cols, 'reference')
 
       const excursionId = resolveExcursion(excursion)
       const channelId = resolveChannel(canal)
@@ -235,6 +238,7 @@ export function ImportOTA() {
         enfants,
         bebes,
         langue,
+        reference,
         excursionId,
         channelId,
         valide: erreurs.length === 0,
@@ -268,7 +272,27 @@ export function ImportOTA() {
     setError(null)
     setResult(null)
 
-    const payload = valides.map((r) => ({
+    // Anti-doublon : on ignore les lignes dont la référence OTA existe déjà.
+    const refs = valides.map((r) => r.reference).filter((x): x is string => !!x)
+    let dejaImportees = new Set<string>()
+    if (refs.length > 0) {
+      const { data: existing } = await supabase
+        .from('bookings')
+        .select('reference')
+        .in('reference', refs)
+      dejaImportees = new Set(
+        ((existing as { reference: string | null }[]) ?? [])
+          .map((b) => b.reference)
+          .filter((x): x is string => !!x),
+      )
+    }
+
+    const aImporter = valides.filter(
+      (r) => !r.reference || !dejaImportees.has(r.reference),
+    )
+    const ignorees = valides.length - aImporter.length
+
+    const payload = aImporter.map((r) => ({
       date_excursion: r.date,
       excursion_id: r.excursionId,
       ota_channel_id: r.channelId,
@@ -277,10 +301,13 @@ export function ImportOTA() {
       nombre_enfants: r.enfants,
       nombre_bebes: r.bebes,
       langue: r.langue || null,
+      reference: r.reference || null,
       statut: 'NOUVELLE',
     }))
 
-    const { error: insErr } = await supabase.from('bookings').insert(payload)
+    const { error: insErr } = payload.length
+      ? await supabase.from('bookings').insert(payload)
+      : { error: null }
 
     const statut = insErr ? 'ERREUR' : 'IMPORTE'
     await supabase.from('ota_imports').insert({
@@ -293,7 +320,8 @@ export function ImportOTA() {
       setError(insErr.message)
       setResult({ ok: 0, ko: valides.length })
     } else {
-      setResult({ ok: valides.length, ko: invalides })
+      setResult({ ok: payload.length, ko: invalides + ignorees })
+      if (ignorees > 0) setError(`${ignorees} réservation(s) déjà importée(s) (référence existante) ont été ignorées.`)
       setRaw('')
       setFileName('')
     }

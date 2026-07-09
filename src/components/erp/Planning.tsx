@@ -286,6 +286,16 @@ export function Planning(_props: { today?: string } = {}) {
     [promouvoirReservations, loadMonth],
   )
 
+  const majStatutSortie = useCallback(
+    async (depId: string, statut: string) => {
+      setDepartures((prev) => prev.map((d) => (d.id === depId ? { ...d, statut } : d)))
+      const { error: e } = await supabase.from('departures').update({ statut }).eq('id', depId)
+      if (e) setError(e.message)
+      await loadMonth()
+    },
+    [loadMonth],
+  )
+
   const dissocier = useCallback(
     async (bookingId: string) => {
       const { error: updErr } = await supabase
@@ -465,10 +475,42 @@ export function Planning(_props: { today?: string } = {}) {
                       <span className="font-medium">{fmtDate(dep.date)}</span>{' '}
                       <span className="text-slate-500">· {excNom(dep.excursion_id)}</span>
                     </div>
-                    <span className="rounded bg-slate-100 px-2 py-0.5 text-xs text-slate-600">
-                      {dep.statut}
-                    </span>
+                    <div className="flex items-center gap-2">
+                      <span className="rounded bg-slate-100 px-2 py-0.5 text-xs text-slate-600">
+                        {dep.statut}
+                      </span>
+                      {dep.statut === 'PLANIFIEE' && (
+                        <button
+                          onClick={() => majStatutSortie(dep.id, 'CONFIRMEE')}
+                          className="rounded bg-green-600 px-2 py-1 text-xs font-medium text-white hover:bg-green-700"
+                          title="Émet les factures fournisseurs de la sortie"
+                        >
+                          ✓ Confirmer la sortie
+                        </button>
+                      )}
+                      {dep.statut === 'CONFIRMEE' && (
+                        <button
+                          onClick={() => majStatutSortie(dep.id, 'TERMINEE')}
+                          className="rounded border border-slate-300 px-2 py-1 text-xs hover:bg-slate-50"
+                        >
+                          Terminer
+                        </button>
+                      )}
+                      {dep.statut !== 'ANNULEE' && dep.statut !== 'TERMINEE' && (
+                        <button
+                          onClick={() => majStatutSortie(dep.id, 'ANNULEE')}
+                          className="rounded border border-red-300 px-2 py-1 text-xs text-red-600 hover:bg-red-50"
+                        >
+                          Annuler
+                        </button>
+                      )}
+                    </div>
                   </div>
+                  {dep.statut === 'PLANIFIEE' && (
+                    <p className="mb-2 text-xs text-amber-600">
+                      ⚠️ Confirme la sortie pour émettre les factures fournisseurs (guide, transport, prestataires).
+                    </p>
+                  )}
 
                   {/* Réservations de la sortie */}
                   <div className="mb-3 overflow-x-auto">

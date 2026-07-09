@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { supabase } from '../../lib/supabase'
+import { useErpRole, peutEcrire } from '../../lib/roles'
 
 // ============================================================
 //  MODULE COMPTABILITÉ FOURNISSEURS
@@ -52,17 +53,17 @@ const fmt = (n: number) =>
 
 /**
  * Solde d'un fournisseur (ce qu'on lui doit) :
- *   FACTURE / CREDIT  -> augmente la dette
- *   PAIEMENT / AVANCE -> diminue la dette
+ *   FACTURE            -> augmente la dette
+ *   PAIEMENT / AVANCE / CREDIT (avoir) -> diminuent la dette
  */
 function soldeCalcule(txs: SupplierTransaction[]): number {
   return txs.reduce((acc, t) => {
     switch (t.type_operation) {
       case 'FACTURE':
-      case 'CREDIT':
         return acc + t.montant
       case 'PAIEMENT':
       case 'AVANCE':
+      case 'CREDIT':
         return acc - t.montant
       default:
         return acc
@@ -115,7 +116,8 @@ export function Comptabilite() {
     let totalAvances = 0
     let totalPaye = 0
     for (const t of transactions) {
-      if (t.type_operation === 'FACTURE' || t.type_operation === 'CREDIT') totalDu += t.montant
+      if (t.type_operation === 'FACTURE') totalDu += t.montant
+      if (t.type_operation === 'CREDIT') totalDu -= t.montant
       if (t.type_operation === 'AVANCE') totalAvances += t.montant
       if (t.type_operation === 'PAIEMENT') totalPaye += t.montant
     }
@@ -199,7 +201,7 @@ export function Comptabilite() {
 
       {/* Totaux */}
       <div className="mb-4 grid grid-cols-1 gap-3 sm:grid-cols-3">
-        <Stat label="Total dû (factures + crédits)" value={`${fmt(totaux.totalDu)} TND`} tone="bad" />
+        <Stat label="Total facturé (net des avoirs)" value={`${fmt(totaux.totalDu)} TND`} tone="bad" />
         <Stat label="Total avances" value={`${fmt(totaux.totalAvances)} TND`} tone="neutral" />
         <Stat label="Total payé" value={`${fmt(totaux.totalPaye)} TND`} tone="good" />
       </div>
@@ -274,14 +276,26 @@ function SupplierDetail({
   onBack: () => void
   onChanged: () => void | Promise<void>
 }) {
+  const { role } = useErpRole()
+  const peutValider = peutEcrire.comptabilite(role) // COMPTABLE ou ADMIN
   const [showForm, setShowForm] = useState(false)
+
+  // Validation d'une facture par le responsable facturation (EN_ATTENTE -> VALIDEE).
+  async function validerFacture(id: string) {
+    const { error } = await supabase
+      .from('supplier_transactions')
+      .update({ statut: 'VALIDEE' })
+      .eq('id', id)
+    if (!error) await onChanged()
+  }
 
   const totauxSupplier = useMemo(() => {
     let du = 0
     let avances = 0
     let paye = 0
     for (const t of transactions) {
-      if (t.type_operation === 'FACTURE' || t.type_operation === 'CREDIT') du += t.montant
+      if (t.type_operation === 'FACTURE') du += t.montant
+      if (t.type_operation === 'CREDIT') du -= t.montant
       if (t.type_operation === 'AVANCE') avances += t.montant
       if (t.type_operation === 'PAIEMENT') paye += t.montant
     }
@@ -348,6 +362,7 @@ function SupplierDetail({
                   <th className="py-1">Référence</th>
                   <th className="py-1">Description</th>
                   <th className="py-1 text-right">Montant (TND)</th>
+                  <th className="py-1 text-right">Statut</th>
                 </tr>
               </thead>
               <tbody>
@@ -362,6 +377,22 @@ function SupplierDetail({
                     <td className="py-1 text-slate-500">{t.reference ?? '—'}</td>
                     <td className="py-1 text-slate-500">{t.description ?? '—'}</td>
                     <td className="py-1 text-right font-medium">{fmt(t.montant)}</td>
+                    <td className="py-1 text-right">
+                      {t.type_operation === 'FACTURE' && t.statut === 'EN_ATTENTE' ? (
+                        peutValider ? (
+                          <button
+                            onClick={() => validerFacture(t.id)}
+                            className="rounded bg-green-600 px-2 py-1 text-xs font-medium text-white hover:bg-green-700"
+                          >
+                            Valider
+                          </button>
+                        ) : (
+                          <span className="text-xs text-amber-600">à valider</span>
+                        )
+                      ) : (
+                        <span className="text-xs text-slate-400">{t.statut ?? '—'}</span>
+                      )}
+                    </td>
                   </tr>
                 ))}
               </tbody>

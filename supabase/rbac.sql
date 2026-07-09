@@ -55,8 +55,8 @@ begin
         raise exception 'Seul le rôle CONFIRMATION (Farah) peut confirmer une réservation';
       end if;
     elsif old.statut = 'CONFIRMEE' and new.statut = 'EN_OPERATION' then
-      if r <> 'OPERATIONS' then
-        raise exception 'Seul le rôle OPERATIONS (Hersi) peut mettre en opération';
+      if r not in ('OPERATIONS','LOGISTIQUE') then
+        raise exception 'Seuls OPERATIONS (Hersi) ou LOGISTIQUE (Karima) peuvent mettre en opération';
       end if;
     elsif old.statut = 'EN_OPERATION' and new.statut = 'TERMINEE' then
       if r not in ('OPERATIONS','LOGISTIQUE') then

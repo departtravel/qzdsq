@@ -95,8 +95,9 @@ export function RelevePartenaire() {
     for (const t of txns) {
       const m = t.montant ?? 0
       const op = (t.type_operation ?? '').toUpperCase()
-      if (op === 'FACTURE' || op === 'CREDIT') f += m
-      else if (op === 'PAIEMENT' || op === 'AVANCE') p += m
+      // FACTURE = dette ; PAIEMENT/AVANCE/CREDIT (avoir) = réduisent la dette.
+      if (op === 'FACTURE') f += m
+      else if (op === 'PAIEMENT' || op === 'AVANCE' || op === 'CREDIT') p += m
     }
     return { totalFacture: f, totalPaye: p, solde: f - p }
   }, [txns])
