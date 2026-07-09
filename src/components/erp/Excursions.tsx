@@ -116,6 +116,14 @@ function ExcursionDetail({ excursion, onBack }: { excursion: Excursion; onBack: 
   const [enfants, setEnfants] = useState(0)
   const [bebes, setBebes] = useState(0)
   const [capacite, setCapacite] = useState(5)
+  // Prix de vente modifiables
+  const [pa, setPa] = useState(excursion.prix_adulte)
+  const [pe, setPe] = useState(excursion.prix_enfant)
+  const [pb, setPb] = useState(excursion.prix_bebe)
+
+  async function savePrix(patch: { prix_adulte?: number; prix_enfant?: number; prix_bebe?: number }) {
+    await supabase.from('excursions').update(patch).eq('id', excursion.id)
+  }
 
   const reload = useCallback(async () => {
     const { data } = await supabase
@@ -134,14 +142,14 @@ function ExcursionDetail({ excursion, onBack }: { excursion: Excursion; onBack: 
   const r = useMemo(
     () =>
       calculerRentabilite({
-        excursion,
+        excursion: { ...excursion, prix_adulte: pa, prix_enfant: pe, prix_bebe: pb },
         lignes,
         adultes,
         enfants,
         bebes,
         capaciteVehicule: capacite,
       }),
-    [excursion, lignes, adultes, enfants, bebes, capacite],
+    [excursion, lignes, adultes, enfants, bebes, capacite, pa, pe, pb],
   )
 
   const positif = r.margeTnd >= 0
@@ -158,6 +166,16 @@ function ExcursionDetail({ excursion, onBack }: { excursion: Excursion; onBack: 
           {excursion.compte_ota} · {excursion.duree} · Commission {excursion.commission_ota}% · Taux{' '}
           {excursion.taux_conversion} TND/EUR
         </p>
+      </div>
+
+      {/* Prix de vente (modifiables) */}
+      <div className="mb-4 rounded-lg bg-white p-4 shadow">
+        <p className="mb-2 text-xs text-slate-500">💶 Prix de vente (EUR) — modifiables</p>
+        <div className="flex flex-wrap gap-4">
+          <PrixField label="Prix adulte" value={pa} onChange={setPa} onSave={(v) => savePrix({ prix_adulte: v })} disabled={!canWrite} />
+          <PrixField label="Prix enfant" value={pe} onChange={setPe} onSave={(v) => savePrix({ prix_enfant: v })} disabled={!canWrite} />
+          <PrixField label="Prix bébé" value={pb} onChange={setPb} onSave={(v) => savePrix({ prix_bebe: v })} disabled={!canWrite} />
+        </div>
       </div>
 
       {/* Simulateur d'effectif */}
@@ -245,6 +263,9 @@ function CostLinesEditor({
   const [restaurants, setRestaurants] = useState<Partner[]>([])
   const [accommodations, setAccommodations] = useState<Partner[]>([])
   const [extras, setExtras] = useState<(Partner & { prix_achat: number | null; devise_achat: string | null })[]>([])
+  // Prix adulte du partenaire (dernier tarif connu), pour pré-remplissage.
+  const [restoPrix, setRestoPrix] = useState<Map<string, number>>(new Map())
+  const [hebergPrix, setHebergPrix] = useState<Map<string, number>>(new Map())
   const [error, setError] = useState<string | null>(null)
 
   const [jour, setJour] = useState(1)
@@ -261,10 +282,21 @@ function CostLinesEditor({
       supabase.from('restaurants').select('id, nom').order('nom'),
       supabase.from('accommodations').select('id, nom').order('nom'),
       supabase.from('extras').select('id, nom, prix_achat, devise_achat').order('nom'),
-    ]).then(([r, a, e]) => {
+      supabase.from('restaurant_prices').select('restaurant_id, prix_adulte, date_debut').order('date_debut', { ascending: false }),
+      supabase.from('accommodation_prices').select('accommodation_id, prix_adulte, date').order('date', { ascending: false }),
+    ]).then(([r, a, e, rp, ap]) => {
       setRestaurants((r.data as Partner[]) ?? [])
       setAccommodations((a.data as Partner[]) ?? [])
       setExtras((e.data as (Partner & { prix_achat: number | null; devise_achat: string | null })[]) ?? [])
+      // On garde le tarif le plus récent (la requête est triée décroissant).
+      const rm = new Map<string, number>()
+      for (const x of (rp.data as { restaurant_id: string; prix_adulte: number }[]) ?? [])
+        if (!rm.has(x.restaurant_id)) rm.set(x.restaurant_id, x.prix_adulte)
+      setRestoPrix(rm)
+      const am = new Map<string, number>()
+      for (const x of (ap.data as { accommodation_id: string; prix_adulte: number }[]) ?? [])
+        if (!am.has(x.accommodation_id)) am.set(x.accommodation_id, x.prix_adulte)
+      setHebergPrix(am)
     })
   }, [])
 
@@ -314,12 +346,18 @@ function CostLinesEditor({
             <select
               value={partnerId}
               onChange={(e) => {
-                setPartnerId(e.target.value)
-                const p = partenaires.find((x) => x.id === e.target.value)
-                if (p) {
-                  setNom(p.nom)
-                  const ex = extras.find((x) => x.id === e.target.value)
+                const id = e.target.value
+                setPartnerId(id)
+                const p = partenaires.find((x) => x.id === id)
+                if (!p) return
+                setNom(p.nom)
+                if (categorie === 'EXTRA') {
+                  const ex = extras.find((x) => x.id === id)
                   if (ex) { setPrix(String(ex.prix_achat ?? '')); setDevise(ex.devise_achat ?? 'TND') }
+                } else if (categorie === 'RESTAURANT') {
+                  setPrix(String(restoPrix.get(id) ?? '')); setDevise('TND'); setTypeDep('PAR_PERSONNE')
+                } else if (categorie === 'HEBERGEMENT') {
+                  setPrix(String(hebergPrix.get(id) ?? '')); setDevise('TND'); setTypeDep('PAR_PERSONNE')
                 }
               }}
               className={ipt}
@@ -365,6 +403,25 @@ function CostLinesEditor({
         </table>
       )}
     </div>
+  )
+}
+
+function PrixField({
+  label, value, onChange, onSave, disabled,
+}: { label: string; value: number; onChange: (n: number) => void; onSave: (n: number) => void; disabled?: boolean }) {
+  return (
+    <label className="text-sm">
+      <span className="mb-1 block text-slate-500">{label}</span>
+      <div className="flex items-center gap-1">
+        <input
+          type="number" min={0} step="0.01" value={value} disabled={disabled}
+          onChange={(e) => onChange(Number(e.target.value) || 0)}
+          onBlur={(e) => !disabled && onSave(Number(e.target.value) || 0)}
+          className="w-24 rounded border border-slate-300 px-2 py-1 disabled:bg-slate-50"
+        />
+        <span className="text-slate-400">€</span>
+      </div>
+    </label>
   )
 }
 
