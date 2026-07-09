@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useMemo, useState, type FormEvent } from 'react'
 import { supabase } from '../../lib/supabase'
 import { useErpRole, peutEcrire } from '../../lib/roles'
+import { decomposerTtc } from '../../lib/erp'
 
 // ============================================================
 //  CHARGES FIXES — frais généraux de l'agence
@@ -18,6 +19,7 @@ interface FixedCharge {
   vehicle_id: string | null
   actif: boolean
   note: string | null
+  taux_tva: number
 }
 interface VehicleRef { id: string; matricule: string }
 
@@ -59,6 +61,7 @@ export function ChargesFixes() {
   const [categorie, setCategorie] = useState('SALAIRE')
   const [montant, setMontant] = useState('')
   const [periodicite, setPeriodicite] = useState('MENSUEL')
+  const [tauxTva, setTauxTva] = useState('19')
   const [vehicleId, setVehicleId] = useState('')
   const [note, setNote] = useState('')
 
@@ -84,6 +87,7 @@ export function ChargesFixes() {
       categorie,
       montant: montant ? Number(montant) : 0,
       periodicite,
+      taux_tva: Number(tauxTva) || 0,
       vehicle_id: vehicleId || null,
       note: note.trim() || null,
     })
@@ -164,6 +168,14 @@ export function ChargesFixes() {
             </select>
           </label>
           <label className="text-sm">
+            <span className="mb-1 block text-slate-500">TVA (prix TTC)</span>
+            <select className={inputCls} value={tauxTva} onChange={(e) => setTauxTva(e.target.value)}>
+              <option value="19">19 %</option>
+              <option value="7">7 %</option>
+              <option value="0">0 % (exonéré)</option>
+            </select>
+          </label>
+          <label className="text-sm">
             <span className="mb-1 block text-slate-500">Véhicule (option)</span>
             <select className={inputCls} value={vehicleId} onChange={(e) => setVehicleId(e.target.value)}>
               <option value="">— aucun —</option>
@@ -219,6 +231,10 @@ export function ChargesFixes() {
                         ) : (
                           <>{r.montant} DT / {r.periodicite.toLowerCase()}</>
                         )}
+                      </td>
+                      <td className="px-3 py-1.5 text-right text-xs text-slate-400">
+                        HT {decomposerTtc(r.montant, r.taux_tva ?? 19).ht.toFixed(0)} · TVA{' '}
+                        {decomposerTtc(r.montant, r.taux_tva ?? 19).tva.toFixed(0)} ({r.taux_tva ?? 19}%)
                       </td>
                       <td className="px-3 py-1.5 text-right">{mensuel(r).toFixed(0)} DT/mois</td>
                       <td className="w-10 px-3 py-1.5 text-right">

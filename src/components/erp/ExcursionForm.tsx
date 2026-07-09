@@ -29,6 +29,7 @@ interface CostLineDraft {
   nom_depense: string
   prix_unitaire: number
   devise: string
+  taux_tva: number
   inclure_comptabilite: boolean
   /** id de l'extra sélectionné, '' = saisie manuelle. */
   extraId: string
@@ -56,6 +57,7 @@ function emptyLine(): CostLineDraft {
     nom_depense: '',
     prix_unitaire: 0,
     devise: 'TND',
+    taux_tva: 19,
     inclure_comptabilite: true,
     extraId: '',
     partnerId: '',
@@ -233,6 +235,7 @@ export function ExcursionForm({
           quantite: 1,
           prix_unitaire: l.prix_unitaire,
           devise: l.devise,
+          taux_tva: l.taux_tva,
           inclure_comptabilite: l.inclure_comptabilite,
           partner_type,
           partner_id,
@@ -379,6 +382,18 @@ export function ExcursionForm({
                   value={l.devise}
                   onChange={(v) => updateLine(i, { devise: v })}
                 />
+                <label className="text-sm">
+                  <span className="mb-1 block text-slate-600">TVA (TTC)</span>
+                  <select
+                    value={l.taux_tva}
+                    onChange={(e) => updateLine(i, { taux_tva: Number(e.target.value) })}
+                    className="w-full rounded border border-slate-300 px-2 py-1.5"
+                  >
+                    <option value={19}>19 %</option>
+                    <option value={7}>7 %</option>
+                    <option value={0}>0 %</option>
+                  </select>
+                </label>
                 <label className="flex items-end gap-2 text-sm">
                   <input
                     type="checkbox"
