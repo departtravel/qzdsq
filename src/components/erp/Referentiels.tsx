@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useState, type FormEvent, type ReactNode } from 'react'
 import { supabase } from '../../lib/supabase'
+import { confirmAdmin } from '../../lib/adminGuard'
 
 // ------------------------------------------------------------------
 // Module RÉFÉRENTIELS — CRUD léger des bases prestataires DTS.
@@ -93,7 +94,7 @@ async function supprimerLigne(
   setError: (m: string | null) => void,
   reload: () => void,
 ) {
-  if (!window.confirm('Supprimer définitivement cette entrée ?')) return
+  if (!(await confirmAdmin('la suppression définitive de cette entrée'))) return
   const { error } = await supabase.from(table).delete().eq('id', id)
   if (error) {
     setError(error.message)

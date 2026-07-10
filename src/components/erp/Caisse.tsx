@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useMemo, useState, type FormEvent } from 'react'
 import { supabase } from '../../lib/supabase'
+import { confirmAdmin } from '../../lib/adminGuard'
 import { useErpRole, peutEcrire } from '../../lib/roles'
 
 // ============================================================
@@ -67,7 +68,7 @@ export function Caisse() {
   }
 
   async function supprimer(id: string) {
-    if (!confirm('Supprimer cette opération de caisse ?')) return
+    if (!(await confirmAdmin('la suppression de cette opération de caisse'))) return
     const { error } = await supabase.from('cash_entries').delete().eq('id', id)
     if (error) setError(error.message)
     else load()

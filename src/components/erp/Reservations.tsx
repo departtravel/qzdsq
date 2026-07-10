@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useMemo, useState, type ReactNode } from 'react'
 import { supabase } from '../../lib/supabase'
+import { confirmAdmin } from '../../lib/adminGuard'
 import {
   calculerRentabilite,
   type CostLine,
@@ -262,7 +263,7 @@ export function Reservations() {
 
   const supprimer = useCallback(
     async (booking: Booking) => {
-      if (!confirm(`Supprimer définitivement la réservation de ${booking.client_nom ?? 'ce client'} ? Tout ce qui y est lié (extras, factures fournisseurs liées, planning) sera aussi mis à jour/supprimé.`)) return
+      if (!(await confirmAdmin(`la suppression de la réservation de ${booking.client_nom ?? 'ce client'} (extras, factures fournisseurs liées et planning seront mis à jour)`))) return
       setBusyId(booking.id)
       const { error } = await supabase.from('bookings').delete().eq('id', booking.id)
       if (error) setError(error.message)

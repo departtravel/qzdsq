@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react'
 import { useErpRole } from '../../lib/roles'
 import { supabase } from '../../lib/supabase'
 import { loadSettings, saveSetting, type AppSettings } from '../../lib/settings'
+import { getAdminPassword, setAdminPassword, confirmAdmin } from '../../lib/adminGuard'
 
 // ============================================================
 //  PARAMÈTRES — logo & coordonnées de l'agence (super admin)
@@ -15,25 +16,28 @@ export function Parametres() {
   const [settings, setSettings] = useState<AppSettings | null>(null)
   const [msg, setMsg] = useState<string | null>(null)
   const [error, setError] = useState<string | null>(null)
-  // Remise à zéro (« vider le cash »)
-  const [resetPwd, setResetPwd] = useState('')
+  // Mot de passe maître (admin_secrets)
+  const [adminPwd, setAdminPwd] = useState('')
   const [resetting, setResetting] = useState(false)
+
+  useEffect(() => {
+    if (superAdmin) getAdminPassword().then((v) => setAdminPwd(v ?? ''))
+  }, [superAdmin])
+
+  async function enregistrerMotDePasse() {
+    const err = await setAdminPassword(adminPwd)
+    if (err) setError(err)
+    else { setMsg('Mot de passe administrateur enregistré.'); setTimeout(() => setMsg(null), 1500) }
+  }
 
   async function viderLeCash() {
     setError(null); setMsg(null)
-    if (!resetPwd) { setError('Entre ton mot de passe pour confirmer.'); return }
-    if (!confirm('⚠️ Cette action efface TOUTES les réservations, sorties, factures et la compta (le catalogue et les charges fixes sont conservés). Continuer ?')) return
+    const ok = await confirmAdmin('la remise à zéro (efface réservations, sorties, factures et compta)')
+    if (!ok) return
     setResetting(true)
-    // Vérifie le mot de passe en ré-authentifiant l'utilisateur courant.
-    const { data: u } = await supabase.auth.getUser()
-    const email = u.user?.email
-    if (!email) { setError('Session introuvable.'); setResetting(false); return }
-    const { error: authErr } = await supabase.auth.signInWithPassword({ email, password: resetPwd })
-    if (authErr) { setError('Mot de passe incorrect.'); setResetting(false); return }
     const { error: rpcErr } = await supabase.rpc('reset_cash')
     if (rpcErr) setError(rpcErr.message)
     else setMsg('Cash remis à zéro : réservations, sorties, factures et compta effacées.')
-    setResetPwd('')
     setResetting(false)
   }
 
@@ -143,24 +147,42 @@ export function Parametres() {
         <p className="text-xs text-slate-400">Les changements sont enregistrés automatiquement.</p>
       </div>
 
+      {/* Mot de passe maître — actions sensibles (super admin uniquement) */}
+      <div className="mt-6 rounded-lg border border-slate-200 bg-white p-5 shadow">
+        <h3 className="mb-1 font-semibold text-slate-800">🔑 Mot de passe administrateur</h3>
+        <p className="mb-3 text-sm text-slate-500">
+          Demandé avant toute action sensible du super administrateur (suppression, annulation,
+          remise à zéro…). Visible et modifiable uniquement par les super administrateurs.
+        </p>
+        <div className="flex flex-wrap items-end gap-3">
+          <label className="text-sm">
+            <span className="mb-1 block text-slate-600">Mot de passe</span>
+            <input
+              type="text"
+              value={adminPwd}
+              onChange={(e) => setAdminPwd(e.target.value)}
+              placeholder="(aucun — actions confirmées simplement)"
+              className="w-64 rounded border border-slate-300 px-2 py-1"
+            />
+          </label>
+          <button
+            onClick={enregistrerMotDePasse}
+            className="rounded bg-slate-800 px-4 py-2 text-sm font-medium text-white hover:bg-slate-900"
+          >
+            Enregistrer
+          </button>
+        </div>
+      </div>
+
       {/* Zone dangereuse : vider le cash */}
       <div className="mt-6 rounded-lg border-2 border-red-200 bg-red-50 p-5">
         <h3 className="mb-1 font-semibold text-red-800">🧹 Vider le cash (remise à zéro)</h3>
         <p className="mb-3 text-sm text-red-700">
           Efface <strong>toutes les réservations, sorties, factures et la comptabilité</strong> pour
           repartir de zéro. Le catalogue, les référentiels et les charges fixes sont <strong>conservés</strong>.
-          Action irréversible — confirme avec ton mot de passe.
+          Action irréversible — confirmée par le mot de passe administrateur.
         </p>
         <div className="flex flex-wrap items-end gap-3">
-          <label className="text-sm">
-            <span className="mb-1 block text-slate-600">Mot de passe</span>
-            <input
-              type="password"
-              value={resetPwd}
-              onChange={(e) => setResetPwd(e.target.value)}
-              className="w-56 rounded border border-red-300 px-2 py-1"
-            />
-          </label>
           <button
             disabled={resetting}
             onClick={viderLeCash}

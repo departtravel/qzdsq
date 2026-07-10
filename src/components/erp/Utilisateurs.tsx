@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useState } from 'react'
 import { supabase, makeSignupClient } from '../../lib/supabase'
 import { useErpRole, ROLE_LABEL, type ErpRole } from '../../lib/roles'
+import { confirmAdmin } from '../../lib/adminGuard'
 
 // ============================================================
 //  UTILISATEURS & RÔLES — réservé au SUPER ADMIN (Direction)
@@ -11,6 +12,7 @@ import { useErpRole, ROLE_LABEL, type ErpRole } from '../../lib/roles'
 interface Profile {
   id: string
   email: string | null
+  full_name: string | null
   role: string            // 'admin' (super admin) | 'viewer'
   erp_role: ErpRole
 }
@@ -29,6 +31,7 @@ export function Utilisateurs() {
   const [msg, setMsg] = useState<string | null>(null)
   const [savedId, setSavedId] = useState<string | null>(null)
   // Formulaire d'ajout d'utilisateur
+  const [newName, setNewName] = useState('')
   const [newEmail, setNewEmail] = useState('')
   const [newPassword, setNewPassword] = useState('')
   const [newRole, setNewRole] = useState<ErpRole>('RESERVATION')
@@ -39,7 +42,7 @@ export function Utilisateurs() {
     setError(null)
     const { data, error } = await supabase
       .from('profiles')
-      .select('id, email, role, erp_role')
+      .select('id, email, full_name, role, erp_role')
       .order('email')
     if (error) setError(error.message)
     setProfiles((data as Profile[]) ?? [])
@@ -98,6 +101,7 @@ export function Utilisateurs() {
         {
           id: uid,
           email: newEmail.trim(),
+          full_name: newName.trim() || null,
           role: newRole === 'ADMIN' ? 'admin' : 'viewer',
           erp_role: newRole,
         },
@@ -108,6 +112,7 @@ export function Utilisateurs() {
       `Compte créé pour ${newEmail}. ` +
         `Si la confirmation par e-mail est activée dans Supabase, l'utilisateur doit confirmer avant de se connecter.`,
     )
+    setNewName('')
     setNewEmail('')
     setNewPassword('')
     setNewRole('RESERVATION')
@@ -116,7 +121,7 @@ export function Utilisateurs() {
   }
 
   async function retirerAcces(p: Profile) {
-    if (!confirm(`Retirer l'accès de ${p.email} ? (rôle ramené à Lecture seule)`)) return
+    if (!(await confirmAdmin(`le retrait de l'accès de ${p.email} (rôle ramené à Lecture seule)`))) return
     await maj(p, { role: 'viewer', erp_role: 'LECTURE' })
     setMsg(
       `Accès retiré pour ${p.email}. Pour supprimer définitivement le compte, va dans ` +
@@ -156,6 +161,16 @@ export function Utilisateurs() {
       <div className="mb-4 rounded-lg bg-white p-4 shadow">
         <h3 className="mb-3 font-semibold">➕ Ajouter un utilisateur</h3>
         <div className="flex flex-wrap items-end gap-3">
+          <label className="text-sm">
+            <span className="mb-1 block text-slate-500">Nom</span>
+            <input
+              type="text"
+              value={newName}
+              onChange={(e) => setNewName(e.target.value)}
+              placeholder="Prénom Nom"
+              className="w-44 rounded border border-slate-300 px-2 py-1"
+            />
+          </label>
           <label className="text-sm">
             <span className="mb-1 block text-slate-500">Email</span>
             <input
@@ -204,6 +219,7 @@ export function Utilisateurs() {
         <table className="w-full text-sm">
           <thead className="border-b bg-slate-50 text-left text-slate-500">
             <tr>
+              <th className="px-3 py-2">Nom</th>
               <th className="px-3 py-2">Email</th>
               <th className="px-3 py-2">Rôle ERP</th>
               <th className="px-3 py-2">Super admin</th>
@@ -213,6 +229,18 @@ export function Utilisateurs() {
           <tbody>
             {profiles.map((p) => (
               <tr key={p.id} className="border-b last:border-0">
+                <td className="px-3 py-2">
+                  <input
+                    type="text"
+                    defaultValue={p.full_name ?? ''}
+                    onBlur={(e) => {
+                      const v = e.target.value.trim()
+                      if (v !== (p.full_name ?? '')) maj(p, { full_name: v || null })
+                    }}
+                    placeholder="Prénom Nom"
+                    className="w-40 rounded border border-slate-300 px-2 py-1"
+                  />
+                </td>
                 <td className="px-3 py-2">{p.email ?? <span className="text-slate-400">—</span>}</td>
                 <td className="px-3 py-2">
                   <select
