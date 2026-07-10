@@ -65,7 +65,7 @@ returns void language plpgsql security definer set search_path = public as $$
 declare
   d record; exc record;
   ad int; en int; pax int; jours int;
-  gtar numeric; sid uuid; cl record; g record; tr record; nomsortie text;
+  gtar numeric; sid uuid; cl record; g record; tr record; bx record; nomsortie text;
 begin
   select * into d from public.departures where id = p_departure;
   if not found then return; end if;
@@ -141,6 +141,29 @@ begin
       'AUTO:'||p_departure||':CL:'||cl.id, nomsortie||' — '||cl.nom_depense||' ('||ad||'A/'||en||'E)', 'EN_ATTENTE'
     where not exists (select 1 from public.supplier_transactions t where t.reference = 'AUTO:'||p_departure||':CL:'||cl.id);
   end loop;
+
+  -- EXTRAS choisis sur les réservations (booking_extras) : une fiche
+  -- fournisseur par extra, montant = prix d'achat × quantité, cumulé sur
+  -- toutes les réservations confirmées du départ.
+  for bx in
+    select e.id as extra_id,
+           coalesce(e.nom, 'Extra') as nom,
+           sum(be.quantite * coalesce(e.prix_achat, 0)) as montant
+      from public.booking_extras be
+      join public.bookings b on b.id = be.booking_id
+      join public.extras   e on e.id = be.extra_id
+     where b.departure_id = p_departure
+       and b.statut in ('CONFIRMEE','EN_OPERATION','TERMINEE')
+       and coalesce(e.inclure_comptabilite, true) = true
+     group by e.id, e.nom
+    having sum(be.quantite * coalesce(e.prix_achat, 0)) > 0
+  loop
+    sid := public.ensure_supplier('EXTRA', bx.extra_id, bx.nom);
+    insert into public.supplier_transactions (supplier_id, date, type_operation, montant, reference, description, statut)
+    select sid, d.date, 'FACTURE', bx.montant,
+      'AUTO:'||p_departure||':BX:'||bx.extra_id, nomsortie||' — '||bx.nom, 'EN_ATTENTE'
+    where not exists (select 1 from public.supplier_transactions t where t.reference = 'AUTO:'||p_departure||':BX:'||bx.extra_id);
+  end loop;
 end $$;
 
 -- Recalcul quand les guides/transports du départ changent
@@ -156,3 +179,17 @@ create trigger dep_guides_recompute after insert or update or delete on public.d
 drop trigger if exists dep_transports_recompute on public.departure_transports;
 create trigger dep_transports_recompute after insert or update or delete on public.departure_transports
   for each row execute function public.tg_deplink_recompute();
+
+-- Recalcul quand les extras d'une réservation changent (ajout/retrait/quantité)
+create or replace function public.tg_bookingextra_recompute()
+returns trigger language plpgsql security definer set search_path = public as $$
+declare dep uuid;
+begin
+  select departure_id into dep from public.bookings
+   where id = coalesce(new.booking_id, old.booking_id);
+  if dep is not null then perform public.recompute_departure_costs(dep); end if;
+  return null;
+end $$;
+drop trigger if exists booking_extras_recompute on public.booking_extras;
+create trigger booking_extras_recompute after insert or update or delete on public.booking_extras
+  for each row execute function public.tg_bookingextra_recompute();
