@@ -70,6 +70,13 @@ interface ExtraOption {
   devise_achat: string | null
 }
 
+// Extra choisi pour une réservation, avec sa quantité (booking_extras.quantite).
+interface ChosenExtra {
+  id: string
+  nom: string
+  quantite: number
+}
+
 const STATUTS: BookingStatut[] = [
   'NOUVELLE',
   'CONFIRMEE',
@@ -116,7 +123,7 @@ export function Reservations() {
   const [excursions, setExcursions] = useState<ExcursionOption[]>([])
   const [otas, setOtas] = useState<OtaOption[]>([])
   const [extras, setExtras] = useState<ExtraOption[]>([])
-  const [extrasByBooking, setExtrasByBooking] = useState<Map<string, ExtraOption[]>>(new Map())
+  const [extrasByBooking, setExtrasByBooking] = useState<Map<string, ChosenExtra[]>>(new Map())
   const [pricingById, setPricingById] = useState<Map<string, ExcursionPricing>>(new Map())
   const [costLinesByExc, setCostLinesByExc] = useState<Map<string, CostLine[]>>(new Map())
   const [loading, setLoading] = useState(true)
@@ -186,17 +193,17 @@ export function Reservations() {
 
     // Charge les extras choisis pour chaque réservation.
     const bookingIds = ((b.data as Booking[]) ?? []).map((bk) => bk.id)
-    const beMap = new Map<string, ExtraOption[]>()
+    const beMap = new Map<string, ChosenExtra[]>()
     if (bookingIds.length > 0) {
       const { data: be } = await supabase
         .from('booking_extras')
-        .select('booking_id, extra_id')
+        .select('booking_id, extra_id, quantite')
         .in('booking_id', bookingIds)
-      for (const link of (be as { booking_id: string; extra_id: string }[]) ?? []) {
+      for (const link of (be as { booking_id: string; extra_id: string; quantite: number | null }[]) ?? []) {
         const extra = extraById.get(link.extra_id)
         if (!extra) continue
         const arr = beMap.get(link.booking_id) ?? []
-        arr.push(extra)
+        arr.push({ id: extra.id, nom: extra.nom, quantite: link.quantite ?? 1 })
         beMap.set(link.booking_id, arr)
       }
     }

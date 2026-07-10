@@ -245,7 +245,7 @@ function ExcursionDetail({ excursion, onBack }: { excursion: Excursion; onBack: 
         )}
       </div>
 
-      {canWrite && <CostLinesEditor excursionId={excursion.id} lignes={lignes} onChanged={reload} />}
+      {canWrite && <CostLinesEditor excursionId={excursion.id} nombreJours={excursion.nombre_jours || 1} lignes={lignes} onChanged={reload} />}
     </div>
   )
 }
@@ -258,8 +258,8 @@ interface Partner { id: string; nom: string }
 // Éditeur des lignes de coût d'une excursion existante (repas, hébergement,
 // guide, transport, extras…). Renseigne partner_type/partner_id pour la compta.
 function CostLinesEditor({
-  excursionId, lignes, onChanged,
-}: { excursionId: string; lignes: CostLine[]; onChanged: () => void | Promise<void> }) {
+  excursionId, nombreJours, lignes, onChanged,
+}: { excursionId: string; nombreJours: number; lignes: CostLine[]; onChanged: () => void | Promise<void> }) {
   const [restaurants, setRestaurants] = useState<Partner[]>([])
   const [accommodations, setAccommodations] = useState<Partner[]>([])
   const [extras, setExtras] = useState<(Partner & { prix_achat: number | null; devise_achat: string | null })[]>([])
@@ -337,7 +337,13 @@ function CostLinesEditor({
       {error && <div className="mb-2 rounded border border-red-200 bg-red-50 px-3 py-2 text-sm text-red-700">{error}</div>}
 
       <div className="mb-3 grid grid-cols-2 gap-2 sm:grid-cols-4 lg:grid-cols-8">
-        <Lbl t="Jour"><input type="number" min={1} value={jour} onChange={(e) => setJour(Number(e.target.value) || 1)} className={ipt} /></Lbl>
+        <Lbl t="Jour">
+          <select value={jour} onChange={(e) => setJour(Number(e.target.value))} className={ipt}>
+            {Array.from({ length: Math.max(1, nombreJours) }, (_, i) => i + 1).map((j) => (
+              <option key={j} value={j}>Jour {j}</option>
+            ))}
+          </select>
+        </Lbl>
         <Lbl t="Catégorie">
           <select value={categorie} onChange={(e) => { setCategorie(e.target.value); setPartnerId('') }} className={ipt}>
             {CATS.map((c) => <option key={c} value={c}>{c}</option>)}
