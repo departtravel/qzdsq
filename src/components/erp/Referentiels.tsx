@@ -18,6 +18,10 @@ interface Guide {
   langues: string[] | null
   type_guide: string
   salaire_mensuel: number | null
+  telephone: string | null
+  email: string | null
+  adresse: string | null
+  matricule_fiscal: string | null
 }
 interface Chauffeur {
   id: string
@@ -26,17 +30,28 @@ interface Chauffeur {
   telephone: string | null
   type_chauffeur: string
   tarif_jour: number | null
+  email: string | null
+  adresse: string | null
+  matricule_fiscal: string | null
 }
 interface Restaurant {
   id: string
   nom: string
   ville: string | null
+  telephone: string | null
+  email: string | null
+  adresse: string | null
+  matricule_fiscal: string | null
 }
 interface Accommodation {
   id: string
   nom: string
   type: string
   ville: string | null
+  telephone: string | null
+  email: string | null
+  adresse: string | null
+  matricule_fiscal: string | null
 }
 interface Extra {
   id: string
@@ -47,6 +62,15 @@ interface Extra {
   prix_vente: number | null
   inclure_comptabilite: boolean
   capacite: number | null
+  prestataire_type: string | null
+  prestataire_id: string | null
+}
+
+// Un prestataire rattachable à un extra (miroir de ensure_supplier).
+interface PrestataireRef {
+  type: 'HEBERGEMENT' | 'RESTAURANT' | 'TRANSPORT' | 'GUIDE' | 'CHAUFFEUR'
+  id: string
+  label: string
 }
 interface Transport {
   id: string
@@ -54,6 +78,9 @@ interface Transport {
   type_transport: string
   telephone: string | null
   tarif_sortie: number | null
+  email: string | null
+  adresse: string | null
+  matricule_fiscal: string | null
 }
 interface Vehicle {
   id: string
@@ -86,6 +113,31 @@ const TABS: { key: TabKey; label: string }[] = [
 async function creerFournisseur(nom: string, type: string, telephone?: string | null) {
   await supabase.from('suppliers').insert({ nom, type, telephone: telephone ?? null })
 }
+
+// Charge tous les prestataires rattachables à un extra (hébergements,
+// restaurants, transports, guides, chauffeurs).
+async function chargerPrestataires(): Promise<PrestataireRef[]> {
+  const [acc, resto, tr, gu, ch] = await Promise.all([
+    supabase.from('accommodations').select('id,nom').order('nom'),
+    supabase.from('restaurants').select('id,nom').order('nom'),
+    supabase.from('transports').select('id,nom').order('nom'),
+    supabase.from('guides').select('id,nom,prenom').order('nom'),
+    supabase.from('chauffeurs').select('id,nom,prenom').order('nom'),
+  ])
+  const out: PrestataireRef[] = []
+  for (const a of (acc.data as { id: string; nom: string }[]) ?? [])
+    out.push({ type: 'HEBERGEMENT', id: a.id, label: `Hébergement · ${a.nom}` })
+  for (const r of (resto.data as { id: string; nom: string }[]) ?? [])
+    out.push({ type: 'RESTAURANT', id: r.id, label: `Restaurant · ${r.nom}` })
+  for (const t of (tr.data as { id: string; nom: string }[]) ?? [])
+    out.push({ type: 'TRANSPORT', id: t.id, label: `Transport · ${t.nom}` })
+  for (const g of (gu.data as { id: string; nom: string; prenom: string | null }[]) ?? [])
+    out.push({ type: 'GUIDE', id: g.id, label: `Guide · ${g.nom} ${g.prenom ?? ''}`.trim() })
+  for (const c of (ch.data as { id: string; nom: string; prenom: string | null }[]) ?? [])
+    out.push({ type: 'CHAUFFEUR', id: c.id, label: `Chauffeur · ${c.nom} ${c.prenom ?? ''}`.trim() })
+  return out
+}
+const prestKey = (type: string, id: string) => `${type}:${id}`
 
 // Supprime une ligne (avec confirmation) puis recharge la liste.
 async function supprimerLigne(
@@ -242,6 +294,10 @@ interface GuideDraft {
   langues: string
   type_guide: string
   salaire_mensuel: string
+  telephone: string
+  email: string
+  adresse: string
+  matricule_fiscal: string
 }
 
 function GuidesPanel() {
@@ -254,6 +310,10 @@ function GuidesPanel() {
   const [langues, setLangues] = useState('')
   const [typeGuide, setTypeGuide] = useState('EXTRA')
   const [salaire, setSalaire] = useState('')
+  const [telephone, setTelephone] = useState('')
+  const [email, setEmail] = useState('')
+  const [adresse, setAdresse] = useState('')
+  const [matricule, setMatricule] = useState('')
 
   const [editId, setEditId] = useState<string | null>(null)
   const [draft, setDraft] = useState<GuideDraft>({
@@ -262,13 +322,17 @@ function GuidesPanel() {
     langues: '',
     type_guide: 'EXTRA',
     salaire_mensuel: '',
+    telephone: '',
+    email: '',
+    adresse: '',
+    matricule_fiscal: '',
   })
 
   const load = useCallback(async () => {
     setLoading(true)
     const { data, error } = await supabase
       .from('guides')
-      .select('id,nom,prenom,langues,type_guide,salaire_mensuel')
+      .select('id,nom,prenom,langues,type_guide,salaire_mensuel,telephone,email,adresse,matricule_fiscal')
       .order('nom')
     if (error) setError(error.message)
     setRows((data as Guide[]) ?? [])
@@ -297,6 +361,10 @@ function GuidesPanel() {
         langues: languesArr.length ? languesArr : null,
         type_guide: typeGuide,
         salaire_mensuel: salaire ? Number(salaire) : null,
+        telephone: telephone.trim() || null,
+        email: email.trim() || null,
+        adresse: adresse.trim() || null,
+        matricule_fiscal: matricule.trim() || null,
       })
       .select('id')
       .single()
@@ -310,6 +378,10 @@ function GuidesPanel() {
     setPrenom('')
     setLangues('')
     setSalaire('')
+    setTelephone('')
+    setEmail('')
+    setAdresse('')
+    setMatricule('')
     load()
   }
 
@@ -322,6 +394,10 @@ function GuidesPanel() {
       langues: (g.langues ?? []).join(', '),
       type_guide: g.type_guide,
       salaire_mensuel: g.salaire_mensuel != null ? String(g.salaire_mensuel) : '',
+      telephone: g.telephone ?? '',
+      email: g.email ?? '',
+      adresse: g.adresse ?? '',
+      matricule_fiscal: g.matricule_fiscal ?? '',
     })
   }
 
@@ -344,6 +420,10 @@ function GuidesPanel() {
         langues: languesArr.length ? languesArr : null,
         type_guide: draft.type_guide,
         salaire_mensuel: draft.salaire_mensuel ? Number(draft.salaire_mensuel) : null,
+        telephone: draft.telephone.trim() || null,
+        email: draft.email.trim() || null,
+        adresse: draft.adresse.trim() || null,
+        matricule_fiscal: draft.matricule_fiscal.trim() || null,
       })
       .eq('id', editId)
     if (error) {
@@ -389,6 +469,20 @@ function GuidesPanel() {
               onChange={(e) => setSalaire(e.target.value)}
             />
           </Field>
+          <div className="grid grid-cols-2 gap-2">
+            <Field label="Téléphone">
+              <input className={inputCls} value={telephone} onChange={(e) => setTelephone(e.target.value)} />
+            </Field>
+            <Field label="E-mail">
+              <input className={inputCls} value={email} onChange={(e) => setEmail(e.target.value)} />
+            </Field>
+          </div>
+          <Field label="Adresse">
+            <input className={inputCls} value={adresse} onChange={(e) => setAdresse(e.target.value)} />
+          </Field>
+          <Field label="Matricule fiscal">
+            <input className={inputCls} value={matricule} onChange={(e) => setMatricule(e.target.value)} />
+          </Field>
           <SubmitBtn>Ajouter le guide</SubmitBtn>
         </form>
       </Card>
@@ -408,6 +502,7 @@ function GuidesPanel() {
                   <th className="px-2 py-1">Langues</th>
                   <th className="px-2 py-1">Type</th>
                   <th className="px-2 py-1 text-right">Salaire</th>
+                  <th className="px-2 py-1">Coordonnées / M.F.</th>
                   <th className="px-2 py-1 text-right">Actions</th>
                 </tr>
               </thead>
@@ -459,6 +554,18 @@ function GuidesPanel() {
                         />
                       </td>
                       <td className="px-2 py-1">
+                        <div className="grid gap-1">
+                          <input className={editInputCls} placeholder="Téléphone" value={draft.telephone}
+                            onChange={(e) => setDraft({ ...draft, telephone: e.target.value })} />
+                          <input className={editInputCls} placeholder="E-mail" value={draft.email}
+                            onChange={(e) => setDraft({ ...draft, email: e.target.value })} />
+                          <input className={editInputCls} placeholder="Adresse" value={draft.adresse}
+                            onChange={(e) => setDraft({ ...draft, adresse: e.target.value })} />
+                          <input className={editInputCls} placeholder="Matricule fiscal" value={draft.matricule_fiscal}
+                            onChange={(e) => setDraft({ ...draft, matricule_fiscal: e.target.value })} />
+                        </div>
+                      </td>
+                      <td className="px-2 py-1">
                         <EditActions onSave={saveEdit} onCancel={() => setEditId(null)} />
                       </td>
                     </tr>
@@ -475,6 +582,13 @@ function GuidesPanel() {
                       </td>
                       <td className="px-2 py-1 text-right">
                         {g.salaire_mensuel != null ? `${g.salaire_mensuel} TND` : '—'}
+                      </td>
+                      <td className="px-2 py-1 text-xs text-slate-500">
+                        {g.telephone && <div>{g.telephone}</div>}
+                        {g.email && <div>{g.email}</div>}
+                        {g.adresse && <div>{g.adresse}</div>}
+                        {g.matricule_fiscal && <div>M.F. {g.matricule_fiscal}</div>}
+                        {!g.telephone && !g.email && !g.adresse && !g.matricule_fiscal && '—'}
                       </td>
                       <td className="px-2 py-1">
                         <RowActions
@@ -503,6 +617,9 @@ interface ChauffeurDraft {
   telephone: string
   type_chauffeur: string
   tarif_jour: string
+  email: string
+  adresse: string
+  matricule_fiscal: string
 }
 
 function ChauffeursPanel() {
@@ -515,6 +632,9 @@ function ChauffeursPanel() {
   const [telephone, setTelephone] = useState('')
   const [type, setType] = useState('EXTRA')
   const [tarifJour, setTarifJour] = useState('')
+  const [email, setEmail] = useState('')
+  const [adresse, setAdresse] = useState('')
+  const [matricule, setMatricule] = useState('')
 
   const [editId, setEditId] = useState<string | null>(null)
   const [draft, setDraft] = useState<ChauffeurDraft>({
@@ -523,13 +643,16 @@ function ChauffeursPanel() {
     telephone: '',
     type_chauffeur: 'EXTRA',
     tarif_jour: '',
+    email: '',
+    adresse: '',
+    matricule_fiscal: '',
   })
 
   const load = useCallback(async () => {
     setLoading(true)
     const { data, error } = await supabase
       .from('chauffeurs')
-      .select('id,nom,prenom,telephone,type_chauffeur,tarif_jour')
+      .select('id,nom,prenom,telephone,type_chauffeur,tarif_jour,email,adresse,matricule_fiscal')
       .order('nom')
     if (error) setError(error.message)
     setRows((data as Chauffeur[]) ?? [])
@@ -552,6 +675,9 @@ function ChauffeursPanel() {
       telephone: telephone.trim() || null,
       type_chauffeur: type,
       tarif_jour: tarifJour ? Number(tarifJour) : null,
+      email: email.trim() || null,
+      adresse: adresse.trim() || null,
+      matricule_fiscal: matricule.trim() || null,
     })
     if (error) {
       setError(error.message)
@@ -562,6 +688,9 @@ function ChauffeursPanel() {
     setPrenom('')
     setTelephone('')
     setTarifJour('')
+    setEmail('')
+    setAdresse('')
+    setMatricule('')
     load()
   }
 
@@ -574,6 +703,9 @@ function ChauffeursPanel() {
       telephone: c.telephone ?? '',
       type_chauffeur: c.type_chauffeur,
       tarif_jour: c.tarif_jour != null ? String(c.tarif_jour) : '',
+      email: c.email ?? '',
+      adresse: c.adresse ?? '',
+      matricule_fiscal: c.matricule_fiscal ?? '',
     })
   }
 
@@ -592,6 +724,9 @@ function ChauffeursPanel() {
         telephone: draft.telephone.trim() || null,
         type_chauffeur: draft.type_chauffeur,
         tarif_jour: draft.tarif_jour ? Number(draft.tarif_jour) : null,
+        email: draft.email.trim() || null,
+        adresse: draft.adresse.trim() || null,
+        matricule_fiscal: draft.matricule_fiscal.trim() || null,
       })
       .eq('id', editId)
     if (error) {
@@ -632,6 +767,15 @@ function ChauffeursPanel() {
               onChange={(e) => setTarifJour(e.target.value)}
             />
           </Field>
+          <Field label="E-mail">
+            <input className={inputCls} value={email} onChange={(e) => setEmail(e.target.value)} />
+          </Field>
+          <Field label="Adresse">
+            <input className={inputCls} value={adresse} onChange={(e) => setAdresse(e.target.value)} />
+          </Field>
+          <Field label="Matricule fiscal">
+            <input className={inputCls} value={matricule} onChange={(e) => setMatricule(e.target.value)} />
+          </Field>
           <SubmitBtn>Ajouter le chauffeur</SubmitBtn>
         </form>
       </Card>
@@ -651,6 +795,7 @@ function ChauffeursPanel() {
                   <th className="px-2 py-1">Téléphone</th>
                   <th className="px-2 py-1">Type</th>
                   <th className="px-2 py-1 text-right">Tarif/jour</th>
+                  <th className="px-2 py-1">Coordonnées / M.F.</th>
                   <th className="px-2 py-1 text-right">Actions</th>
                 </tr>
               </thead>
@@ -701,6 +846,16 @@ function ChauffeursPanel() {
                         />
                       </td>
                       <td className="px-2 py-1">
+                        <div className="grid gap-1">
+                          <input className={editInputCls} placeholder="E-mail" value={draft.email}
+                            onChange={(e) => setDraft({ ...draft, email: e.target.value })} />
+                          <input className={editInputCls} placeholder="Adresse" value={draft.adresse}
+                            onChange={(e) => setDraft({ ...draft, adresse: e.target.value })} />
+                          <input className={editInputCls} placeholder="Matricule fiscal" value={draft.matricule_fiscal}
+                            onChange={(e) => setDraft({ ...draft, matricule_fiscal: e.target.value })} />
+                        </div>
+                      </td>
+                      <td className="px-2 py-1">
                         <EditActions onSave={saveEdit} onCancel={() => setEditId(null)} />
                       </td>
                     </tr>
@@ -717,6 +872,12 @@ function ChauffeursPanel() {
                       </td>
                       <td className="px-2 py-1 text-right">
                         {c.tarif_jour != null ? `${c.tarif_jour} DT` : '—'}
+                      </td>
+                      <td className="px-2 py-1 text-xs text-slate-500">
+                        {c.email && <div>{c.email}</div>}
+                        {c.adresse && <div>{c.adresse}</div>}
+                        {c.matricule_fiscal && <div>M.F. {c.matricule_fiscal}</div>}
+                        {!c.email && !c.adresse && !c.matricule_fiscal && '—'}
                       </td>
                       <td className="px-2 py-1">
                         <RowActions
@@ -742,6 +903,10 @@ function ChauffeursPanel() {
 interface RestaurantDraft {
   nom: string
   ville: string
+  telephone: string
+  email: string
+  adresse: string
+  matricule_fiscal: string
 }
 
 function RestaurantsPanel() {
@@ -751,18 +916,24 @@ function RestaurantsPanel() {
 
   const [nom, setNom] = useState('')
   const [ville, setVille] = useState('')
+  const [telephone, setTelephone] = useState('')
+  const [email, setEmail] = useState('')
+  const [adresse, setAdresse] = useState('')
+  const [matricule, setMatricule] = useState('')
   const [prixAdulte, setPrixAdulte] = useState('')
   const [prixEnfant, setPrixEnfant] = useState('')
   const [prixBebe, setPrixBebe] = useState('')
 
   const [editId, setEditId] = useState<string | null>(null)
-  const [draft, setDraft] = useState<RestaurantDraft>({ nom: '', ville: '' })
+  const [draft, setDraft] = useState<RestaurantDraft>({
+    nom: '', ville: '', telephone: '', email: '', adresse: '', matricule_fiscal: '',
+  })
 
   const load = useCallback(async () => {
     setLoading(true)
     const { data, error } = await supabase
       .from('restaurants')
-      .select('id,nom,ville')
+      .select('id,nom,ville,telephone,email,adresse,matricule_fiscal')
       .order('nom')
     if (error) setError(error.message)
     setRows((data as Restaurant[]) ?? [])
@@ -781,7 +952,11 @@ function RestaurantsPanel() {
     }
     const { data, error } = await supabase
       .from('restaurants')
-      .insert({ nom: nom.trim(), ville: ville.trim() || null })
+      .insert({
+        nom: nom.trim(), ville: ville.trim() || null,
+        telephone: telephone.trim() || null, email: email.trim() || null,
+        adresse: adresse.trim() || null, matricule_fiscal: matricule.trim() || null,
+      })
       .select('id')
       .single()
     if (error) {
@@ -797,6 +972,10 @@ function RestaurantsPanel() {
     await creerFournisseur(nom.trim(), 'RESTAURANT')
     setNom('')
     setVille('')
+    setTelephone('')
+    setEmail('')
+    setAdresse('')
+    setMatricule('')
     setPrixAdulte('')
     setPrixEnfant('')
     setPrixBebe('')
@@ -806,7 +985,11 @@ function RestaurantsPanel() {
   function startEdit(r: Restaurant) {
     setError(null)
     setEditId(r.id)
-    setDraft({ nom: r.nom, ville: r.ville ?? '' })
+    setDraft({
+      nom: r.nom, ville: r.ville ?? '',
+      telephone: r.telephone ?? '', email: r.email ?? '',
+      adresse: r.adresse ?? '', matricule_fiscal: r.matricule_fiscal ?? '',
+    })
   }
 
   async function saveEdit() {
@@ -818,7 +1001,11 @@ function RestaurantsPanel() {
     }
     const { error } = await supabase
       .from('restaurants')
-      .update({ nom: draft.nom.trim(), ville: draft.ville.trim() || null })
+      .update({
+        nom: draft.nom.trim(), ville: draft.ville.trim() || null,
+        telephone: draft.telephone.trim() || null, email: draft.email.trim() || null,
+        adresse: draft.adresse.trim() || null, matricule_fiscal: draft.matricule_fiscal.trim() || null,
+      })
       .eq('id', editId)
     if (error) {
       setError(error.message)
@@ -839,6 +1026,20 @@ function RestaurantsPanel() {
           </Field>
           <Field label="Ville">
             <input className={inputCls} value={ville} onChange={(e) => setVille(e.target.value)} />
+          </Field>
+          <div className="grid grid-cols-2 gap-2">
+            <Field label="Téléphone">
+              <input className={inputCls} value={telephone} onChange={(e) => setTelephone(e.target.value)} />
+            </Field>
+            <Field label="E-mail">
+              <input className={inputCls} value={email} onChange={(e) => setEmail(e.target.value)} />
+            </Field>
+          </div>
+          <Field label="Adresse">
+            <input className={inputCls} value={adresse} onChange={(e) => setAdresse(e.target.value)} />
+          </Field>
+          <Field label="Matricule fiscal">
+            <input className={inputCls} value={matricule} onChange={(e) => setMatricule(e.target.value)} />
           </Field>
           <div className="grid grid-cols-3 gap-2">
             <Field label="Prix adulte">
@@ -886,6 +1087,7 @@ function RestaurantsPanel() {
                 <tr>
                   <th className="px-2 py-1">Nom</th>
                   <th className="px-2 py-1">Ville</th>
+                  <th className="px-2 py-1">Coordonnées / M.F.</th>
                   <th className="px-2 py-1 text-right">Actions</th>
                 </tr>
               </thead>
@@ -908,6 +1110,18 @@ function RestaurantsPanel() {
                         />
                       </td>
                       <td className="px-2 py-1">
+                        <div className="grid gap-1">
+                          <input className={editInputCls} placeholder="Téléphone" value={draft.telephone}
+                            onChange={(e) => setDraft({ ...draft, telephone: e.target.value })} />
+                          <input className={editInputCls} placeholder="E-mail" value={draft.email}
+                            onChange={(e) => setDraft({ ...draft, email: e.target.value })} />
+                          <input className={editInputCls} placeholder="Adresse" value={draft.adresse}
+                            onChange={(e) => setDraft({ ...draft, adresse: e.target.value })} />
+                          <input className={editInputCls} placeholder="Matricule fiscal" value={draft.matricule_fiscal}
+                            onChange={(e) => setDraft({ ...draft, matricule_fiscal: e.target.value })} />
+                        </div>
+                      </td>
+                      <td className="px-2 py-1">
                         <EditActions onSave={saveEdit} onCancel={() => setEditId(null)} />
                       </td>
                     </tr>
@@ -915,6 +1129,13 @@ function RestaurantsPanel() {
                     <tr key={r.id} className="border-b last:border-0">
                       <td className="px-2 py-1">{r.nom}</td>
                       <td className="px-2 py-1 text-slate-500">{r.ville ?? '—'}</td>
+                      <td className="px-2 py-1 text-xs text-slate-500">
+                        {r.telephone && <div>{r.telephone}</div>}
+                        {r.email && <div>{r.email}</div>}
+                        {r.adresse && <div>{r.adresse}</div>}
+                        {r.matricule_fiscal && <div>M.F. {r.matricule_fiscal}</div>}
+                        {!r.telephone && !r.email && !r.adresse && !r.matricule_fiscal && '—'}
+                      </td>
                       <td className="px-2 py-1">
                         <RowActions
                           onEdit={() => startEdit(r)}
@@ -940,6 +1161,10 @@ interface AccommodationDraft {
   nom: string
   type: string
   ville: string
+  telephone: string
+  email: string
+  adresse: string
+  matricule_fiscal: string
 }
 
 function AccommodationsPanel() {
@@ -950,18 +1175,24 @@ function AccommodationsPanel() {
   const [nom, setNom] = useState('')
   const [type, setType] = useState('HOTEL')
   const [ville, setVille] = useState('')
+  const [telephone, setTelephone] = useState('')
+  const [email, setEmail] = useState('')
+  const [adresse, setAdresse] = useState('')
+  const [matricule, setMatricule] = useState('')
   const [prixAdulte, setPrixAdulte] = useState('')
   const [prixEnfant, setPrixEnfant] = useState('')
   const [prixBebe, setPrixBebe] = useState('')
 
   const [editId, setEditId] = useState<string | null>(null)
-  const [draft, setDraft] = useState<AccommodationDraft>({ nom: '', type: 'HOTEL', ville: '' })
+  const [draft, setDraft] = useState<AccommodationDraft>({
+    nom: '', type: 'HOTEL', ville: '', telephone: '', email: '', adresse: '', matricule_fiscal: '',
+  })
 
   const load = useCallback(async () => {
     setLoading(true)
     const { data, error } = await supabase
       .from('accommodations')
-      .select('id,nom,type,ville')
+      .select('id,nom,type,ville,telephone,email,adresse,matricule_fiscal')
       .order('nom')
     if (error) setError(error.message)
     setRows((data as Accommodation[]) ?? [])
@@ -980,7 +1211,11 @@ function AccommodationsPanel() {
     }
     const { data, error } = await supabase
       .from('accommodations')
-      .insert({ nom: nom.trim(), type, ville: ville.trim() || null })
+      .insert({
+        nom: nom.trim(), type, ville: ville.trim() || null,
+        telephone: telephone.trim() || null, email: email.trim() || null,
+        adresse: adresse.trim() || null, matricule_fiscal: matricule.trim() || null,
+      })
       .select('id')
       .single()
     if (error) {
@@ -996,6 +1231,10 @@ function AccommodationsPanel() {
     await creerFournisseur(nom.trim(), 'HOTEL')
     setNom('')
     setVille('')
+    setTelephone('')
+    setEmail('')
+    setAdresse('')
+    setMatricule('')
     setPrixAdulte('')
     setPrixEnfant('')
     setPrixBebe('')
@@ -1005,7 +1244,11 @@ function AccommodationsPanel() {
   function startEdit(a: Accommodation) {
     setError(null)
     setEditId(a.id)
-    setDraft({ nom: a.nom, type: a.type, ville: a.ville ?? '' })
+    setDraft({
+      nom: a.nom, type: a.type, ville: a.ville ?? '',
+      telephone: a.telephone ?? '', email: a.email ?? '',
+      adresse: a.adresse ?? '', matricule_fiscal: a.matricule_fiscal ?? '',
+    })
   }
 
   async function saveEdit() {
@@ -1017,7 +1260,11 @@ function AccommodationsPanel() {
     }
     const { error } = await supabase
       .from('accommodations')
-      .update({ nom: draft.nom.trim(), type: draft.type, ville: draft.ville.trim() || null })
+      .update({
+        nom: draft.nom.trim(), type: draft.type, ville: draft.ville.trim() || null,
+        telephone: draft.telephone.trim() || null, email: draft.email.trim() || null,
+        adresse: draft.adresse.trim() || null, matricule_fiscal: draft.matricule_fiscal.trim() || null,
+      })
       .eq('id', editId)
     if (error) {
       setError(error.message)
@@ -1045,6 +1292,20 @@ function AccommodationsPanel() {
           </Field>
           <Field label="Ville">
             <input className={inputCls} value={ville} onChange={(e) => setVille(e.target.value)} />
+          </Field>
+          <div className="grid grid-cols-2 gap-2">
+            <Field label="Téléphone">
+              <input className={inputCls} value={telephone} onChange={(e) => setTelephone(e.target.value)} />
+            </Field>
+            <Field label="E-mail">
+              <input className={inputCls} value={email} onChange={(e) => setEmail(e.target.value)} />
+            </Field>
+          </div>
+          <Field label="Adresse">
+            <input className={inputCls} value={adresse} onChange={(e) => setAdresse(e.target.value)} />
+          </Field>
+          <Field label="Matricule fiscal">
+            <input className={inputCls} value={matricule} onChange={(e) => setMatricule(e.target.value)} />
           </Field>
           <div className="grid grid-cols-3 gap-2">
             <Field label="Prix adulte">
@@ -1093,6 +1354,7 @@ function AccommodationsPanel() {
                   <th className="px-2 py-1">Nom</th>
                   <th className="px-2 py-1">Type</th>
                   <th className="px-2 py-1">Ville</th>
+                  <th className="px-2 py-1">Coordonnées / M.F.</th>
                   <th className="px-2 py-1 text-right">Actions</th>
                 </tr>
               </thead>
@@ -1126,6 +1388,18 @@ function AccommodationsPanel() {
                         />
                       </td>
                       <td className="px-2 py-1">
+                        <div className="grid gap-1">
+                          <input className={editInputCls} placeholder="Téléphone" value={draft.telephone}
+                            onChange={(e) => setDraft({ ...draft, telephone: e.target.value })} />
+                          <input className={editInputCls} placeholder="E-mail" value={draft.email}
+                            onChange={(e) => setDraft({ ...draft, email: e.target.value })} />
+                          <input className={editInputCls} placeholder="Adresse" value={draft.adresse}
+                            onChange={(e) => setDraft({ ...draft, adresse: e.target.value })} />
+                          <input className={editInputCls} placeholder="Matricule fiscal" value={draft.matricule_fiscal}
+                            onChange={(e) => setDraft({ ...draft, matricule_fiscal: e.target.value })} />
+                        </div>
+                      </td>
+                      <td className="px-2 py-1">
                         <EditActions onSave={saveEdit} onCancel={() => setEditId(null)} />
                       </td>
                     </tr>
@@ -1138,6 +1412,13 @@ function AccommodationsPanel() {
                         </span>
                       </td>
                       <td className="px-2 py-1 text-slate-500">{a.ville ?? '—'}</td>
+                      <td className="px-2 py-1 text-xs text-slate-500">
+                        {a.telephone && <div>{a.telephone}</div>}
+                        {a.email && <div>{a.email}</div>}
+                        {a.adresse && <div>{a.adresse}</div>}
+                        {a.matricule_fiscal && <div>M.F. {a.matricule_fiscal}</div>}
+                        {!a.telephone && !a.email && !a.adresse && !a.matricule_fiscal && '—'}
+                      </td>
                       <td className="px-2 py-1">
                         <RowActions
                           onEdit={() => startEdit(a)}
@@ -1166,6 +1447,7 @@ interface ExtraDraft {
   prix_achat: string
   prix_vente: string
   inclure_comptabilite: boolean
+  prestataire: string // "TYPE:id" ou ''
 }
 
 function ExtrasPanel() {
@@ -1180,6 +1462,8 @@ function ExtrasPanel() {
   const [prixVente, setPrixVente] = useState('')
   const [inclureCompta, setInclureCompta] = useState(true)
   const [capacite, setCapacite] = useState('')
+  const [prestataire, setPrestataire] = useState('') // "TYPE:id" ou ''
+  const [prestataires, setPrestataires] = useState<PrestataireRef[]>([])
 
   const [editId, setEditId] = useState<string | null>(null)
   const [draft, setDraft] = useState<ExtraDraft>({
@@ -1189,21 +1473,31 @@ function ExtrasPanel() {
     prix_achat: '',
     prix_vente: '',
     inclure_comptabilite: true,
+    prestataire: '',
   })
 
   const load = useCallback(async () => {
     setLoading(true)
-    const { data, error } = await supabase
-      .from('extras')
-      .select('id,nom,categorie,type_tarification,prix_achat,prix_vente,inclure_comptabilite,capacite')
-      .order('nom')
+    const [{ data, error }, prests] = await Promise.all([
+      supabase
+        .from('extras')
+        .select('id,nom,categorie,type_tarification,prix_achat,prix_vente,inclure_comptabilite,capacite,prestataire_type,prestataire_id')
+        .order('nom'),
+      chargerPrestataires(),
+    ])
     if (error) setError(error.message)
     setRows((data as Extra[]) ?? [])
+    setPrestataires(prests)
     setLoading(false)
   }, [])
   useEffect(() => {
     load()
   }, [load])
+
+  const prestLabel = (type: string | null, id: string | null) => {
+    if (!type || !id) return '—'
+    return prestataires.find((p) => p.type === type && p.id === id)?.label ?? `${type}`
+  }
 
   async function add(e: FormEvent) {
     e.preventDefault()
@@ -1212,6 +1506,7 @@ function ExtrasPanel() {
       setError('Le nom est obligatoire.')
       return
     }
+    const [ptype, pid] = prestataire ? prestataire.split(':') : [null, null]
     const { error } = await supabase.from('extras').insert({
       nom: nom.trim(),
       categorie: categorie.trim() || null,
@@ -1220,6 +1515,8 @@ function ExtrasPanel() {
       prix_vente: prixVente ? Number(prixVente) : 0,
       inclure_comptabilite: inclureCompta,
       capacite: capacite ? Number(capacite) : null,
+      prestataire_type: ptype,
+      prestataire_id: pid,
     })
     if (error) {
       setError(error.message)
@@ -1230,6 +1527,7 @@ function ExtrasPanel() {
     setPrixAchat('')
     setPrixVente('')
     setCapacite('')
+    setPrestataire('')
     load()
   }
 
@@ -1243,6 +1541,7 @@ function ExtrasPanel() {
       prix_achat: x.prix_achat != null ? String(x.prix_achat) : '',
       prix_vente: x.prix_vente != null ? String(x.prix_vente) : '',
       inclure_comptabilite: x.inclure_comptabilite,
+      prestataire: x.prestataire_type && x.prestataire_id ? prestKey(x.prestataire_type, x.prestataire_id) : '',
     })
   }
 
@@ -1253,6 +1552,7 @@ function ExtrasPanel() {
       setError('Le nom est obligatoire.')
       return
     }
+    const [ptype, pid] = draft.prestataire ? draft.prestataire.split(':') : [null, null]
     const { error } = await supabase
       .from('extras')
       .update({
@@ -1262,6 +1562,8 @@ function ExtrasPanel() {
         prix_achat: draft.prix_achat ? Number(draft.prix_achat) : 0,
         prix_vente: draft.prix_vente ? Number(draft.prix_vente) : 0,
         inclure_comptabilite: draft.inclure_comptabilite,
+        prestataire_type: ptype,
+        prestataire_id: pid,
       })
       .eq('id', editId)
     if (error) {
@@ -1321,6 +1623,21 @@ function ExtrasPanel() {
               onChange={(e) => setCapacite(e.target.value)}
             />
           </Field>
+          <Field label="Prestataire associé (la fiche compta tombe chez lui)">
+            <select className={inputCls} value={prestataire} onChange={(e) => setPrestataire(e.target.value)}>
+              <option value="">— extra autonome (fiche à son nom) —</option>
+              {prestataires.map((p) => (
+                <option key={prestKey(p.type, p.id)} value={prestKey(p.type, p.id)}>
+                  {p.label}
+                </option>
+              ))}
+            </select>
+          </Field>
+          <p className="text-xs text-slate-400">
+            Ex : « supplément single / tente de luxe » rattachés à l’hébergement ;
+            « quad / dromadaire / 4×4 » rattachés à leur prestataire. La dépense apparaît
+            alors dans la fiche comptabilité de ce prestataire, à la même date et excursion.
+          </p>
           <label className="flex items-center gap-2 text-sm text-slate-600">
             <input
               type="checkbox"
@@ -1349,6 +1666,7 @@ function ExtrasPanel() {
                   <th className="px-2 py-1">Tarif</th>
                   <th className="px-2 py-1 text-right">Achat</th>
                   <th className="px-2 py-1 text-right">Vente</th>
+                  <th className="px-2 py-1">Prestataire</th>
                   <th className="px-2 py-1 text-center">Compta</th>
                   <th className="px-2 py-1 text-right">Actions</th>
                 </tr>
@@ -1401,6 +1719,20 @@ function ExtrasPanel() {
                           onChange={(e) => setDraft({ ...draft, prix_vente: e.target.value })}
                         />
                       </td>
+                      <td className="px-2 py-1">
+                        <select
+                          className={editInputCls}
+                          value={draft.prestataire}
+                          onChange={(e) => setDraft({ ...draft, prestataire: e.target.value })}
+                        >
+                          <option value="">— autonome —</option>
+                          {prestataires.map((p) => (
+                            <option key={prestKey(p.type, p.id)} value={prestKey(p.type, p.id)}>
+                              {p.label}
+                            </option>
+                          ))}
+                        </select>
+                      </td>
                       <td className="px-2 py-1 text-center">
                         <input
                           type="checkbox"
@@ -1421,6 +1753,7 @@ function ExtrasPanel() {
                       <td className="px-2 py-1 text-xs text-slate-500">{x.type_tarification}</td>
                       <td className="px-2 py-1 text-right">{x.prix_achat ?? 0}</td>
                       <td className="px-2 py-1 text-right">{x.prix_vente ?? 0}</td>
+                      <td className="px-2 py-1 text-xs text-slate-500">{prestLabel(x.prestataire_type, x.prestataire_id)}</td>
                       <td className="px-2 py-1 text-center">{x.inclure_comptabilite ? '✓' : '—'}</td>
                       <td className="px-2 py-1">
                         <RowActions
@@ -1448,6 +1781,9 @@ interface TransportDraft {
   type_transport: string
   telephone: string
   tarif_sortie: string
+  email: string
+  adresse: string
+  matricule_fiscal: string
 }
 
 function TransportsPanel() {
@@ -1459,6 +1795,9 @@ function TransportsPanel() {
   const [type, setType] = useState('PRESTATAIRE')
   const [telephone, setTelephone] = useState('')
   const [tarifSortie, setTarifSortie] = useState('')
+  const [email, setEmail] = useState('')
+  const [adresse, setAdresse] = useState('')
+  const [matricule, setMatricule] = useState('')
 
   const [editId, setEditId] = useState<string | null>(null)
   const [draft, setDraft] = useState<TransportDraft>({
@@ -1466,13 +1805,16 @@ function TransportsPanel() {
     type_transport: 'PRESTATAIRE',
     telephone: '',
     tarif_sortie: '',
+    email: '',
+    adresse: '',
+    matricule_fiscal: '',
   })
 
   const load = useCallback(async () => {
     setLoading(true)
     const { data, error } = await supabase
       .from('transports')
-      .select('id,nom,type_transport,telephone,tarif_sortie')
+      .select('id,nom,type_transport,telephone,tarif_sortie,email,adresse,matricule_fiscal')
       .order('nom')
     if (error) setError(error.message)
     setRows((data as Transport[]) ?? [])
@@ -1494,6 +1836,9 @@ function TransportsPanel() {
       type_transport: type,
       telephone: telephone.trim() || null,
       tarif_sortie: tarifSortie ? Number(tarifSortie) : null,
+      email: email.trim() || null,
+      adresse: adresse.trim() || null,
+      matricule_fiscal: matricule.trim() || null,
     })
     if (error) {
       setError(error.message)
@@ -1503,6 +1848,9 @@ function TransportsPanel() {
     setNom('')
     setTelephone('')
     setTarifSortie('')
+    setEmail('')
+    setAdresse('')
+    setMatricule('')
     load()
   }
 
@@ -1514,6 +1862,9 @@ function TransportsPanel() {
       type_transport: t.type_transport,
       telephone: t.telephone ?? '',
       tarif_sortie: t.tarif_sortie != null ? String(t.tarif_sortie) : '',
+      email: t.email ?? '',
+      adresse: t.adresse ?? '',
+      matricule_fiscal: t.matricule_fiscal ?? '',
     })
   }
 
@@ -1531,6 +1882,9 @@ function TransportsPanel() {
         type_transport: draft.type_transport,
         telephone: draft.telephone.trim() || null,
         tarif_sortie: draft.tarif_sortie ? Number(draft.tarif_sortie) : null,
+        email: draft.email.trim() || null,
+        adresse: draft.adresse.trim() || null,
+        matricule_fiscal: draft.matricule_fiscal.trim() || null,
       })
       .eq('id', editId)
     if (error) {
@@ -1570,6 +1924,15 @@ function TransportsPanel() {
               onChange={(e) => setTarifSortie(e.target.value)}
             />
           </Field>
+          <Field label="E-mail">
+            <input className={inputCls} value={email} onChange={(e) => setEmail(e.target.value)} />
+          </Field>
+          <Field label="Adresse">
+            <input className={inputCls} value={adresse} onChange={(e) => setAdresse(e.target.value)} />
+          </Field>
+          <Field label="Matricule fiscal">
+            <input className={inputCls} value={matricule} onChange={(e) => setMatricule(e.target.value)} />
+          </Field>
           <SubmitBtn>Ajouter le transporteur</SubmitBtn>
         </form>
       </Card>
@@ -1589,6 +1952,7 @@ function TransportsPanel() {
                   <th className="px-2 py-1">Type</th>
                   <th className="px-2 py-1">Téléphone</th>
                   <th className="px-2 py-1 text-right">Tarif/sortie</th>
+                  <th className="px-2 py-1">Adresse / M.F.</th>
                   <th className="px-2 py-1 text-right">Actions</th>
                 </tr>
               </thead>
@@ -1632,6 +1996,16 @@ function TransportsPanel() {
                         />
                       </td>
                       <td className="px-2 py-1">
+                        <div className="grid gap-1">
+                          <input className={editInputCls} placeholder="E-mail" value={draft.email}
+                            onChange={(e) => setDraft({ ...draft, email: e.target.value })} />
+                          <input className={editInputCls} placeholder="Adresse" value={draft.adresse}
+                            onChange={(e) => setDraft({ ...draft, adresse: e.target.value })} />
+                          <input className={editInputCls} placeholder="Matricule fiscal" value={draft.matricule_fiscal}
+                            onChange={(e) => setDraft({ ...draft, matricule_fiscal: e.target.value })} />
+                        </div>
+                      </td>
+                      <td className="px-2 py-1">
                         <EditActions onSave={saveEdit} onCancel={() => setEditId(null)} />
                       </td>
                     </tr>
@@ -1642,6 +2016,12 @@ function TransportsPanel() {
                       <td className="px-2 py-1 text-slate-500">{t.telephone ?? '—'}</td>
                       <td className="px-2 py-1 text-right">
                         {t.tarif_sortie != null ? `${t.tarif_sortie} DT` : '—'}
+                      </td>
+                      <td className="px-2 py-1 text-xs text-slate-500">
+                        {t.email && <div>{t.email}</div>}
+                        {t.adresse && <div>{t.adresse}</div>}
+                        {t.matricule_fiscal && <div>M.F. {t.matricule_fiscal}</div>}
+                        {!t.email && !t.adresse && !t.matricule_fiscal && '—'}
                       </td>
                       <td className="px-2 py-1">
                         <RowActions

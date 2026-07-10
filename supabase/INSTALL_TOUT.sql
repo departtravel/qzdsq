@@ -1564,6 +1564,8 @@ begin
   for bx in
     select e.id as extra_id,
            coalesce(e.nom, 'Extra') as nom,
+           e.prestataire_type as ptype,
+           e.prestataire_id   as pid,
            sum(be.quantite * coalesce(e.prix_achat, 0)) as montant
       from public.booking_extras be
       join public.bookings b on b.id = be.booking_id
@@ -1571,13 +1573,19 @@ begin
      where b.departure_id = p_departure
        and b.statut in ('CONFIRMEE','EN_OPERATION','TERMINEE')
        and coalesce(e.inclure_comptabilite, true) = true
-     group by e.id, e.nom
+     group by e.id, e.nom, e.prestataire_type, e.prestataire_id
     having sum(be.quantite * coalesce(e.prix_achat, 0)) > 0
   loop
-    sid := public.ensure_supplier('EXTRA', bx.extra_id, bx.nom);
+    -- Rattaché à un prestataire ? la fiche tombe chez CE prestataire
+    -- (même fournisseur que ses autres coûts) ; sinon fournisseur propre à l'extra.
+    if bx.pid is not null and bx.ptype is not null then
+      sid := public.ensure_supplier(bx.ptype, bx.pid, public.prestataire_nom(bx.ptype, bx.pid));
+    else
+      sid := public.ensure_supplier('EXTRA', bx.extra_id, bx.nom);
+    end if;
     insert into public.supplier_transactions (supplier_id, date, type_operation, montant, reference, description, statut)
     select sid, d.date, 'FACTURE', bx.montant,
-      'AUTO:'||p_departure||':BX:'||bx.extra_id, nomsortie||' — '||bx.nom, 'EN_ATTENTE'
+      'AUTO:'||p_departure||':BX:'||bx.extra_id, nomsortie||' — '||bx.nom||' ('||ad||'A/'||en||'E)', 'EN_ATTENTE'
     where not exists (select 1 from public.supplier_transactions t where t.reference = 'AUTO:'||p_departure||':BX:'||bx.extra_id);
   end loop;
 end $$;
@@ -1710,6 +1718,63 @@ create policy admin_secrets_read on public.admin_secrets
 drop policy if exists admin_secrets_write on public.admin_secrets;
 create policy admin_secrets_write on public.admin_secrets
   for all using (public.is_admin()) with check (public.is_admin());
+
+-- >>>>>>>>>>>>>>>>>>>>>>>>>>>> prestataires_extras.sql <<<<<<<<<<<<<<<<<<<<<<<<<<<<
+
+-- ============================================================
+--  DTS OPERATION ERP — Fiches prestataires enrichies + extras liés
+--  - Coordonnées & matricule fiscal sur tous les référentiels
+--  - Un extra/supplément peut être RATTACHÉ à un prestataire :
+--    la fiche comptabilité tombe alors chez CE prestataire
+--    (ex : supplément single/tente de luxe -> hébergement ;
+--     quad/dromadaire/4x4 -> le prestataire activité X),
+--    à la même date et sur la même excursion.
+--  À exécuter après INSTALL_TOUT.sql. Idempotent.
+-- ============================================================
+
+-- ---- Coordonnées & fiscalité sur chaque référentiel -----------
+alter table public.guides         add column if not exists matricule_fiscal text;
+alter table public.guides         add column if not exists adresse text;
+alter table public.guides         add column if not exists email text;
+
+alter table public.chauffeurs     add column if not exists matricule_fiscal text;
+alter table public.chauffeurs     add column if not exists adresse text;
+alter table public.chauffeurs     add column if not exists email text;
+
+alter table public.restaurants    add column if not exists matricule_fiscal text;
+alter table public.restaurants    add column if not exists adresse text;
+alter table public.restaurants    add column if not exists email text;
+
+alter table public.accommodations add column if not exists matricule_fiscal text;
+alter table public.accommodations add column if not exists adresse text;
+alter table public.accommodations add column if not exists email text;
+alter table public.accommodations add column if not exists telephone text;
+
+alter table public.transports     add column if not exists matricule_fiscal text;
+alter table public.transports     add column if not exists adresse text;
+
+alter table public.suppliers      add column if not exists matricule_fiscal text;
+alter table public.suppliers      add column if not exists adresse text;
+alter table public.suppliers      add column if not exists email text;
+
+-- ---- Rattachement d'un extra à un prestataire -----------------
+-- prestataire_id existe déjà ; on ajoute le TYPE pour savoir dans
+-- quel référentiel il pointe (miroir de ensure_supplier).
+alter table public.extras add column if not exists prestataire_type text;
+  -- HEBERGEMENT | RESTAURANT | TRANSPORT | GUIDE | CHAUFFEUR | (null = extra autonome)
+
+-- ---- Nom d'un prestataire (pour créer/retrouver le fournisseur) -
+create or replace function public.prestataire_nom(p_type text, p_id uuid)
+returns text language sql stable security definer set search_path = public as $$
+  select case p_type
+    when 'HEBERGEMENT' then (select nom from public.accommodations where id = p_id)
+    when 'RESTAURANT'  then (select nom from public.restaurants   where id = p_id)
+    when 'TRANSPORT'   then (select nom from public.transports    where id = p_id)
+    when 'GUIDE'       then (select trim(coalesce(nom,'')||' '||coalesce(prenom,'')) from public.guides where id = p_id)
+    when 'CHAUFFEUR'   then (select trim(coalesce(nom,'')||' '||coalesce(prenom,'')) from public.chauffeurs where id = p_id)
+    else null end
+$$;
+
 
 -- >>>>>>>>>>>>>>>>>>>>>>>>>>>> seed.sql <<<<<<<<<<<<<<<<<<<<<<<<<<<<
 
