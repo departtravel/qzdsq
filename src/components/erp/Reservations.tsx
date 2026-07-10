@@ -384,7 +384,7 @@ export function Reservations() {
                               key={ex.id}
                               className="rounded-full bg-purple-100 px-2 py-0.5 text-xs font-medium text-purple-700"
                             >
-                              {ex.nom}
+                              {ex.quantite} × {ex.nom}
                             </span>
                           ))}
                         </div>
@@ -589,14 +589,22 @@ function BookingForm({
   onError: (msg: string) => void
 }) {
   const [form, setForm] = useState<FormState>(EMPTY_FORM)
-  const [selectedExtras, setSelectedExtras] = useState<Set<string>>(new Set())
+  // extra_id -> quantité choisie (présence dans la Map = extra coché).
+  const [selectedExtras, setSelectedExtras] = useState<Map<string, number>>(new Map())
   const [saving, setSaving] = useState(false)
 
   const toggleExtra = (id: string) =>
     setSelectedExtras((prev) => {
-      const next = new Set(prev)
+      const next = new Map(prev)
       if (next.has(id)) next.delete(id)
-      else next.add(id)
+      else next.set(id, 1)
+      return next
+    })
+
+  const setExtraQuantite = (id: string, quantite: number) =>
+    setSelectedExtras((prev) => {
+      const next = new Map(prev)
+      next.set(id, Math.max(1, quantite))
       return next
     })
 
@@ -638,12 +646,13 @@ function BookingForm({
       onError(error.message)
       return
     }
-    // Insère les extras choisis pour cette réservation.
+    // Insère les extras choisis pour cette réservation (avec leur quantité).
     const bookingId = (inserted as { id: string } | null)?.id
     if (bookingId && selectedExtras.size > 0) {
-      const rows = Array.from(selectedExtras).map((extra_id) => ({
+      const rows = Array.from(selectedExtras).map(([extra_id, quantite]) => ({
         booking_id: bookingId,
         extra_id,
+        quantite,
       }))
       const { error: exErr } = await supabase.from('booking_extras').insert(rows)
       if (exErr) {
@@ -654,7 +663,7 @@ function BookingForm({
     }
     setSaving(false)
     setForm(EMPTY_FORM)
-    setSelectedExtras(new Set())
+    setSelectedExtras(new Map())
     onCreated()
   }
 
@@ -800,24 +809,41 @@ function BookingForm({
             <span className="text-xs italic text-slate-400">Aucun extra disponible.</span>
           ) : (
             <div className="flex flex-wrap gap-2">
-              {extrasCatalog.map((ex) => (
-                <label
-                  key={ex.id}
-                  className="flex cursor-pointer items-center gap-1.5 rounded border border-slate-200 px-2 py-1 text-sm hover:bg-slate-50"
-                >
-                  <input
-                    type="checkbox"
-                    checked={selectedExtras.has(ex.id)}
-                    onChange={() => toggleExtra(ex.id)}
-                  />
-                  <span>{ex.nom}</span>
-                  {ex.prix_achat != null && (
-                    <span className="text-xs text-slate-400">
-                      {ex.prix_achat} {ex.devise_achat ?? ''}
-                    </span>
-                  )}
-                </label>
-              ))}
+              {extrasCatalog.map((ex) => {
+                const checked = selectedExtras.has(ex.id)
+                return (
+                  <div
+                    key={ex.id}
+                    className="flex items-center gap-1.5 rounded border border-slate-200 px-2 py-1 text-sm hover:bg-slate-50"
+                  >
+                    <label className="flex cursor-pointer items-center gap-1.5">
+                      <input
+                        type="checkbox"
+                        checked={checked}
+                        onChange={() => toggleExtra(ex.id)}
+                      />
+                      <span>{ex.nom}</span>
+                      {ex.prix_achat != null && (
+                        <span className="text-xs text-slate-400">
+                          {ex.prix_achat} {ex.devise_achat ?? ''}
+                        </span>
+                      )}
+                    </label>
+                    {checked && (
+                      <input
+                        type="number"
+                        min={1}
+                        value={selectedExtras.get(ex.id) ?? 1}
+                        onChange={(e) =>
+                          setExtraQuantite(ex.id, Number(e.target.value) || 1)
+                        }
+                        className="w-14 rounded border border-slate-300 px-1 py-0.5 text-sm"
+                        title="Quantité"
+                      />
+                    )}
+                  </div>
+                )
+              })}
             </div>
           )}
         </Field>

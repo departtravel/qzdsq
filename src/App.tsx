@@ -20,6 +20,8 @@ import { Utilisateurs } from './components/erp/Utilisateurs'
 import { Parametres } from './components/erp/Parametres'
 import { RelevePartenaire } from './components/erp/RelevePartenaire'
 import { ChargesFixes } from './components/erp/ChargesFixes'
+import { Caisse } from './components/erp/Caisse'
+import { useErpRole, onglestsVisibles } from './lib/roles'
 
 type View = { name: 'dashboard' } | { name: 'detail'; id: string } | { name: 'new' }
 type Section =
@@ -38,6 +40,7 @@ type Section =
   | 'parametres'
   | 'relevepartenaire'
   | 'chargesfixes'
+  | 'caisse'
 
 const ERP_SECTIONS: { key: Section; emoji: string; label: string }[] = [
   { key: 'excursions', emoji: '🧭', label: 'Excursions' },
@@ -46,6 +49,7 @@ const ERP_SECTIONS: { key: Section; emoji: string; label: string }[] = [
   { key: 'ordremission', emoji: '📋', label: 'Ordre de mission' },
   { key: 'fichereservation', emoji: '🗒️', label: 'Réservations à effectuer' },
   { key: 'comptabilite', emoji: '💰', label: 'Comptabilité' },
+  { key: 'caisse', emoji: '🧰', label: 'Caisse' },
   { key: 'relevepartenaire', emoji: '🧾', label: 'Relevé prestataire' },
   { key: 'chargesfixes', emoji: '🏢', label: 'Charges fixes' },
   { key: 'dashboard', emoji: '📊', label: 'Direction' },
@@ -71,6 +75,7 @@ const ERP_COMPONENTS: Record<Exclude<Section, 'flotte'>, JSX.Element> = {
   parametres: <Parametres />,
   relevepartenaire: <RelevePartenaire />,
   chargesfixes: <ChargesFixes />,
+  caisse: <Caisse />,
 }
 
 export default function App() {
@@ -97,12 +102,26 @@ function FleetApp({ userId, email }: { userId: string; email: string }) {
   const [vehicles, setVehicles] = useState<Vehicle[]>([])
   const [logsByVehicle, setLogsByVehicle] = useState<Record<string, FuelLog[]>>({})
   const [role, setRole] = useState<Role>('viewer')
+  const { role: erpRole } = useErpRole()
   const [section, setSection] = useState<Section>('flotte')
   const [view, setView] = useState<View>({ name: 'dashboard' })
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
 
   const isAdmin = role === 'admin'
+  // Onglets visibles selon le rôle (interface simplifiée pour les collègues).
+  const visibles = onglestsVisibles(erpRole)
+  const voit = (key: string) => visibles === 'ALL' || visibles.includes(key)
+  const sectionsAffichees = ERP_SECTIONS.filter((s) => voit(s.key))
+
+  // Place l'utilisateur sur un onglet qu'il a le droit de voir.
+  useEffect(() => {
+    if (!voit(section)) {
+      const premier = voit('flotte') ? 'flotte' : sectionsAffichees[0]?.key
+      if (premier) setSection(premier as Section)
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [erpRole])
 
   useEffect(() => {
     supabase
@@ -170,13 +189,15 @@ function FleetApp({ userId, email }: { userId: string; email: string }) {
           </div>
           {/* Barre de navigation : passe sur plusieurs lignes pour ne rien cacher */}
           <nav className="mt-2 flex flex-wrap gap-1 text-sm">
-            <button
-              onClick={() => { setSection('flotte'); setView({ name: 'dashboard' }) }}
-              className={`rounded px-3 py-1.5 ${section === 'flotte' ? 'bg-blue-100 font-medium text-blue-700' : 'text-slate-600 hover:bg-slate-100'}`}
-            >
-              🚚 Flotte
-            </button>
-            {ERP_SECTIONS.map((s) => (
+            {voit('flotte') && (
+              <button
+                onClick={() => { setSection('flotte'); setView({ name: 'dashboard' }) }}
+                className={`rounded px-3 py-1.5 ${section === 'flotte' ? 'bg-blue-100 font-medium text-blue-700' : 'text-slate-600 hover:bg-slate-100'}`}
+              >
+                🚚 Flotte
+              </button>
+            )}
+            {sectionsAffichees.map((s) => (
               <button
                 key={s.key}
                 onClick={() => setSection(s.key)}

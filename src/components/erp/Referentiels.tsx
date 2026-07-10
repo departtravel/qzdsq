@@ -86,6 +86,22 @@ async function creerFournisseur(nom: string, type: string, telephone?: string | 
   await supabase.from('suppliers').insert({ nom, type, telephone: telephone ?? null })
 }
 
+// Supprime une ligne (avec confirmation) puis recharge la liste.
+async function supprimerLigne(
+  table: string,
+  id: string,
+  setError: (m: string | null) => void,
+  reload: () => void,
+) {
+  if (!window.confirm('Supprimer définitivement cette entrée ?')) return
+  const { error } = await supabase.from(table).delete().eq('id', id)
+  if (error) {
+    setError(error.message)
+    return
+  }
+  reload()
+}
+
 export function Referentiels() {
   const [tab, setTab] = useState<TabKey>('guides')
 
@@ -144,6 +160,10 @@ function Field({
 const inputCls =
   'w-full rounded border border-slate-300 px-2 py-1 text-sm focus:border-blue-500 focus:outline-none'
 
+// Version compacte pour l'édition en ligne dans les tableaux.
+const editInputCls =
+  'w-full rounded border border-slate-300 px-1.5 py-0.5 text-xs focus:border-blue-500 focus:outline-none'
+
 function SubmitBtn({ children }: { children: ReactNode }) {
   return (
     <button
@@ -168,9 +188,61 @@ function Empty({ label }: { label: string }) {
   return <p className="px-3 py-4 text-sm text-slate-500">Aucun {label} pour l’instant.</p>
 }
 
+// Boutons Modifier / Supprimer affichés sur chaque ligne.
+function RowActions({ onEdit, onDelete }: { onEdit: () => void; onDelete: () => void }) {
+  return (
+    <div className="flex justify-end gap-1 whitespace-nowrap">
+      <button
+        type="button"
+        onClick={onEdit}
+        className="rounded px-2 py-0.5 text-xs font-medium text-blue-600 hover:bg-blue-50"
+      >
+        Modifier
+      </button>
+      <button
+        type="button"
+        onClick={onDelete}
+        className="rounded px-2 py-0.5 text-xs font-medium text-red-600 hover:bg-red-50"
+      >
+        Supprimer
+      </button>
+    </div>
+  )
+}
+
+// Boutons Enregistrer / Annuler affichés en mode édition.
+function EditActions({ onSave, onCancel }: { onSave: () => void; onCancel: () => void }) {
+  return (
+    <div className="flex justify-end gap-1 whitespace-nowrap">
+      <button
+        type="button"
+        onClick={onSave}
+        className="rounded bg-green-600 px-2 py-0.5 text-xs font-medium text-white hover:bg-green-700"
+      >
+        Enregistrer
+      </button>
+      <button
+        type="button"
+        onClick={onCancel}
+        className="rounded bg-slate-200 px-2 py-0.5 text-xs font-medium text-slate-600 hover:bg-slate-300"
+      >
+        Annuler
+      </button>
+    </div>
+  )
+}
+
 // ==================================================================
 // GUIDES
 // ==================================================================
+interface GuideDraft {
+  nom: string
+  prenom: string
+  langues: string
+  type_guide: string
+  salaire_mensuel: string
+}
+
 function GuidesPanel() {
   const [rows, setRows] = useState<Guide[]>([])
   const [loading, setLoading] = useState(true)
@@ -181,6 +253,15 @@ function GuidesPanel() {
   const [langues, setLangues] = useState('')
   const [typeGuide, setTypeGuide] = useState('EXTRA')
   const [salaire, setSalaire] = useState('')
+
+  const [editId, setEditId] = useState<string | null>(null)
+  const [draft, setDraft] = useState<GuideDraft>({
+    nom: '',
+    prenom: '',
+    langues: '',
+    type_guide: 'EXTRA',
+    salaire_mensuel: '',
+  })
 
   const load = useCallback(async () => {
     setLoading(true)
@@ -228,6 +309,47 @@ function GuidesPanel() {
     setPrenom('')
     setLangues('')
     setSalaire('')
+    load()
+  }
+
+  function startEdit(g: Guide) {
+    setError(null)
+    setEditId(g.id)
+    setDraft({
+      nom: g.nom,
+      prenom: g.prenom ?? '',
+      langues: (g.langues ?? []).join(', '),
+      type_guide: g.type_guide,
+      salaire_mensuel: g.salaire_mensuel != null ? String(g.salaire_mensuel) : '',
+    })
+  }
+
+  async function saveEdit() {
+    if (!editId) return
+    setError(null)
+    if (!draft.nom.trim()) {
+      setError('Le nom est obligatoire.')
+      return
+    }
+    const languesArr = draft.langues
+      .split(',')
+      .map((s) => s.trim())
+      .filter(Boolean)
+    const { error } = await supabase
+      .from('guides')
+      .update({
+        nom: draft.nom.trim(),
+        prenom: draft.prenom.trim() || null,
+        langues: languesArr.length ? languesArr : null,
+        type_guide: draft.type_guide,
+        salaire_mensuel: draft.salaire_mensuel ? Number(draft.salaire_mensuel) : null,
+      })
+      .eq('id', editId)
+    if (error) {
+      setError(error.message)
+      return
+    }
+    setEditId(null)
     load()
   }
 
@@ -285,25 +407,83 @@ function GuidesPanel() {
                   <th className="px-2 py-1">Langues</th>
                   <th className="px-2 py-1">Type</th>
                   <th className="px-2 py-1 text-right">Salaire</th>
+                  <th className="px-2 py-1 text-right">Actions</th>
                 </tr>
               </thead>
               <tbody>
-                {rows.map((g) => (
-                  <tr key={g.id} className="border-b last:border-0">
-                    <td className="px-2 py-1">
-                      {g.nom} {g.prenom ?? ''}
-                    </td>
-                    <td className="px-2 py-1 text-slate-500">{(g.langues ?? []).join(', ')}</td>
-                    <td className="px-2 py-1">
-                      <span className="rounded bg-slate-100 px-1.5 py-0.5 text-xs text-slate-600">
-                        {g.type_guide}
-                      </span>
-                    </td>
-                    <td className="px-2 py-1 text-right">
-                      {g.salaire_mensuel != null ? `${g.salaire_mensuel} TND` : '—'}
-                    </td>
-                  </tr>
-                ))}
+                {rows.map((g) =>
+                  editId === g.id ? (
+                    <tr key={g.id} className="border-b last:border-0 bg-blue-50/40">
+                      <td className="px-2 py-1">
+                        <div className="flex gap-1">
+                          <input
+                            className={editInputCls}
+                            value={draft.nom}
+                            onChange={(e) => setDraft({ ...draft, nom: e.target.value })}
+                            placeholder="Nom"
+                          />
+                          <input
+                            className={editInputCls}
+                            value={draft.prenom}
+                            onChange={(e) => setDraft({ ...draft, prenom: e.target.value })}
+                            placeholder="Prénom"
+                          />
+                        </div>
+                      </td>
+                      <td className="px-2 py-1">
+                        <input
+                          className={editInputCls}
+                          value={draft.langues}
+                          onChange={(e) => setDraft({ ...draft, langues: e.target.value })}
+                          placeholder="fr, en"
+                        />
+                      </td>
+                      <td className="px-2 py-1">
+                        <select
+                          className={editInputCls}
+                          value={draft.type_guide}
+                          onChange={(e) => setDraft({ ...draft, type_guide: e.target.value })}
+                        >
+                          <option value="EXTRA">EXTRA</option>
+                          <option value="SALARIE">SALARIE</option>
+                        </select>
+                      </td>
+                      <td className="px-2 py-1">
+                        <input
+                          type="number"
+                          min={0}
+                          className={editInputCls}
+                          value={draft.salaire_mensuel}
+                          onChange={(e) => setDraft({ ...draft, salaire_mensuel: e.target.value })}
+                        />
+                      </td>
+                      <td className="px-2 py-1">
+                        <EditActions onSave={saveEdit} onCancel={() => setEditId(null)} />
+                      </td>
+                    </tr>
+                  ) : (
+                    <tr key={g.id} className="border-b last:border-0">
+                      <td className="px-2 py-1">
+                        {g.nom} {g.prenom ?? ''}
+                      </td>
+                      <td className="px-2 py-1 text-slate-500">{(g.langues ?? []).join(', ')}</td>
+                      <td className="px-2 py-1">
+                        <span className="rounded bg-slate-100 px-1.5 py-0.5 text-xs text-slate-600">
+                          {g.type_guide}
+                        </span>
+                      </td>
+                      <td className="px-2 py-1 text-right">
+                        {g.salaire_mensuel != null ? `${g.salaire_mensuel} TND` : '—'}
+                      </td>
+                      <td className="px-2 py-1">
+                        <RowActions
+                          onEdit={() => startEdit(g)}
+                          onDelete={() => supprimerLigne('guides', g.id, setError, load)}
+                        />
+                      </td>
+                    </tr>
+                  ),
+                )}
               </tbody>
             </table>
           </div>
@@ -316,6 +496,14 @@ function GuidesPanel() {
 // ==================================================================
 // CHAUFFEURS
 // ==================================================================
+interface ChauffeurDraft {
+  nom: string
+  prenom: string
+  telephone: string
+  type_chauffeur: string
+  tarif_jour: string
+}
+
 function ChauffeursPanel() {
   const [rows, setRows] = useState<Chauffeur[]>([])
   const [loading, setLoading] = useState(true)
@@ -326,6 +514,15 @@ function ChauffeursPanel() {
   const [telephone, setTelephone] = useState('')
   const [type, setType] = useState('EXTRA')
   const [tarifJour, setTarifJour] = useState('')
+
+  const [editId, setEditId] = useState<string | null>(null)
+  const [draft, setDraft] = useState<ChauffeurDraft>({
+    nom: '',
+    prenom: '',
+    telephone: '',
+    type_chauffeur: 'EXTRA',
+    tarif_jour: '',
+  })
 
   const load = useCallback(async () => {
     setLoading(true)
@@ -364,6 +561,43 @@ function ChauffeursPanel() {
     setPrenom('')
     setTelephone('')
     setTarifJour('')
+    load()
+  }
+
+  function startEdit(c: Chauffeur) {
+    setError(null)
+    setEditId(c.id)
+    setDraft({
+      nom: c.nom,
+      prenom: c.prenom ?? '',
+      telephone: c.telephone ?? '',
+      type_chauffeur: c.type_chauffeur,
+      tarif_jour: c.tarif_jour != null ? String(c.tarif_jour) : '',
+    })
+  }
+
+  async function saveEdit() {
+    if (!editId) return
+    setError(null)
+    if (!draft.nom.trim()) {
+      setError('Le nom est obligatoire.')
+      return
+    }
+    const { error } = await supabase
+      .from('chauffeurs')
+      .update({
+        nom: draft.nom.trim(),
+        prenom: draft.prenom.trim() || null,
+        telephone: draft.telephone.trim() || null,
+        type_chauffeur: draft.type_chauffeur,
+        tarif_jour: draft.tarif_jour ? Number(draft.tarif_jour) : null,
+      })
+      .eq('id', editId)
+    if (error) {
+      setError(error.message)
+      return
+    }
+    setEditId(null)
     load()
   }
 
@@ -416,25 +650,82 @@ function ChauffeursPanel() {
                   <th className="px-2 py-1">Téléphone</th>
                   <th className="px-2 py-1">Type</th>
                   <th className="px-2 py-1 text-right">Tarif/jour</th>
+                  <th className="px-2 py-1 text-right">Actions</th>
                 </tr>
               </thead>
               <tbody>
-                {rows.map((c) => (
-                  <tr key={c.id} className="border-b last:border-0">
-                    <td className="px-2 py-1">
-                      {c.nom} {c.prenom ?? ''}
-                    </td>
-                    <td className="px-2 py-1 text-slate-500">{c.telephone ?? '—'}</td>
-                    <td className="px-2 py-1">
-                      <span className="rounded bg-slate-100 px-1.5 py-0.5 text-xs text-slate-600">
-                        {c.type_chauffeur}
-                      </span>
-                    </td>
-                    <td className="px-2 py-1 text-right">
-                      {c.tarif_jour != null ? `${c.tarif_jour} DT` : '—'}
-                    </td>
-                  </tr>
-                ))}
+                {rows.map((c) =>
+                  editId === c.id ? (
+                    <tr key={c.id} className="border-b last:border-0 bg-blue-50/40">
+                      <td className="px-2 py-1">
+                        <div className="flex gap-1">
+                          <input
+                            className={editInputCls}
+                            value={draft.nom}
+                            onChange={(e) => setDraft({ ...draft, nom: e.target.value })}
+                            placeholder="Nom"
+                          />
+                          <input
+                            className={editInputCls}
+                            value={draft.prenom}
+                            onChange={(e) => setDraft({ ...draft, prenom: e.target.value })}
+                            placeholder="Prénom"
+                          />
+                        </div>
+                      </td>
+                      <td className="px-2 py-1">
+                        <input
+                          className={editInputCls}
+                          value={draft.telephone}
+                          onChange={(e) => setDraft({ ...draft, telephone: e.target.value })}
+                        />
+                      </td>
+                      <td className="px-2 py-1">
+                        <select
+                          className={editInputCls}
+                          value={draft.type_chauffeur}
+                          onChange={(e) => setDraft({ ...draft, type_chauffeur: e.target.value })}
+                        >
+                          <option value="EXTRA">EXTRA</option>
+                          <option value="SALARIE">SALARIE</option>
+                        </select>
+                      </td>
+                      <td className="px-2 py-1">
+                        <input
+                          type="number"
+                          min={0}
+                          className={editInputCls}
+                          value={draft.tarif_jour}
+                          onChange={(e) => setDraft({ ...draft, tarif_jour: e.target.value })}
+                        />
+                      </td>
+                      <td className="px-2 py-1">
+                        <EditActions onSave={saveEdit} onCancel={() => setEditId(null)} />
+                      </td>
+                    </tr>
+                  ) : (
+                    <tr key={c.id} className="border-b last:border-0">
+                      <td className="px-2 py-1">
+                        {c.nom} {c.prenom ?? ''}
+                      </td>
+                      <td className="px-2 py-1 text-slate-500">{c.telephone ?? '—'}</td>
+                      <td className="px-2 py-1">
+                        <span className="rounded bg-slate-100 px-1.5 py-0.5 text-xs text-slate-600">
+                          {c.type_chauffeur}
+                        </span>
+                      </td>
+                      <td className="px-2 py-1 text-right">
+                        {c.tarif_jour != null ? `${c.tarif_jour} DT` : '—'}
+                      </td>
+                      <td className="px-2 py-1">
+                        <RowActions
+                          onEdit={() => startEdit(c)}
+                          onDelete={() => supprimerLigne('chauffeurs', c.id, setError, load)}
+                        />
+                      </td>
+                    </tr>
+                  ),
+                )}
               </tbody>
             </table>
           </div>
@@ -447,6 +738,11 @@ function ChauffeursPanel() {
 // ==================================================================
 // RESTAURANTS (+ restaurant_prices)
 // ==================================================================
+interface RestaurantDraft {
+  nom: string
+  ville: string
+}
+
 function RestaurantsPanel() {
   const [rows, setRows] = useState<Restaurant[]>([])
   const [loading, setLoading] = useState(true)
@@ -457,6 +753,9 @@ function RestaurantsPanel() {
   const [prixAdulte, setPrixAdulte] = useState('')
   const [prixEnfant, setPrixEnfant] = useState('')
   const [prixBebe, setPrixBebe] = useState('')
+
+  const [editId, setEditId] = useState<string | null>(null)
+  const [draft, setDraft] = useState<RestaurantDraft>({ nom: '', ville: '' })
 
   const load = useCallback(async () => {
     setLoading(true)
@@ -500,6 +799,31 @@ function RestaurantsPanel() {
     setPrixAdulte('')
     setPrixEnfant('')
     setPrixBebe('')
+    load()
+  }
+
+  function startEdit(r: Restaurant) {
+    setError(null)
+    setEditId(r.id)
+    setDraft({ nom: r.nom, ville: r.ville ?? '' })
+  }
+
+  async function saveEdit() {
+    if (!editId) return
+    setError(null)
+    if (!draft.nom.trim()) {
+      setError('Le nom est obligatoire.')
+      return
+    }
+    const { error } = await supabase
+      .from('restaurants')
+      .update({ nom: draft.nom.trim(), ville: draft.ville.trim() || null })
+      .eq('id', editId)
+    if (error) {
+      setError(error.message)
+      return
+    }
+    setEditId(null)
     load()
   }
 
@@ -561,15 +885,44 @@ function RestaurantsPanel() {
                 <tr>
                   <th className="px-2 py-1">Nom</th>
                   <th className="px-2 py-1">Ville</th>
+                  <th className="px-2 py-1 text-right">Actions</th>
                 </tr>
               </thead>
               <tbody>
-                {rows.map((r) => (
-                  <tr key={r.id} className="border-b last:border-0">
-                    <td className="px-2 py-1">{r.nom}</td>
-                    <td className="px-2 py-1 text-slate-500">{r.ville ?? '—'}</td>
-                  </tr>
-                ))}
+                {rows.map((r) =>
+                  editId === r.id ? (
+                    <tr key={r.id} className="border-b last:border-0 bg-blue-50/40">
+                      <td className="px-2 py-1">
+                        <input
+                          className={editInputCls}
+                          value={draft.nom}
+                          onChange={(e) => setDraft({ ...draft, nom: e.target.value })}
+                        />
+                      </td>
+                      <td className="px-2 py-1">
+                        <input
+                          className={editInputCls}
+                          value={draft.ville}
+                          onChange={(e) => setDraft({ ...draft, ville: e.target.value })}
+                        />
+                      </td>
+                      <td className="px-2 py-1">
+                        <EditActions onSave={saveEdit} onCancel={() => setEditId(null)} />
+                      </td>
+                    </tr>
+                  ) : (
+                    <tr key={r.id} className="border-b last:border-0">
+                      <td className="px-2 py-1">{r.nom}</td>
+                      <td className="px-2 py-1 text-slate-500">{r.ville ?? '—'}</td>
+                      <td className="px-2 py-1">
+                        <RowActions
+                          onEdit={() => startEdit(r)}
+                          onDelete={() => supprimerLigne('restaurants', r.id, setError, load)}
+                        />
+                      </td>
+                    </tr>
+                  ),
+                )}
               </tbody>
             </table>
           </div>
@@ -582,6 +935,12 @@ function RestaurantsPanel() {
 // ==================================================================
 // HÉBERGEMENTS (+ accommodation_prices)
 // ==================================================================
+interface AccommodationDraft {
+  nom: string
+  type: string
+  ville: string
+}
+
 function AccommodationsPanel() {
   const [rows, setRows] = useState<Accommodation[]>([])
   const [loading, setLoading] = useState(true)
@@ -593,6 +952,9 @@ function AccommodationsPanel() {
   const [prixAdulte, setPrixAdulte] = useState('')
   const [prixEnfant, setPrixEnfant] = useState('')
   const [prixBebe, setPrixBebe] = useState('')
+
+  const [editId, setEditId] = useState<string | null>(null)
+  const [draft, setDraft] = useState<AccommodationDraft>({ nom: '', type: 'HOTEL', ville: '' })
 
   const load = useCallback(async () => {
     setLoading(true)
@@ -636,6 +998,31 @@ function AccommodationsPanel() {
     setPrixAdulte('')
     setPrixEnfant('')
     setPrixBebe('')
+    load()
+  }
+
+  function startEdit(a: Accommodation) {
+    setError(null)
+    setEditId(a.id)
+    setDraft({ nom: a.nom, type: a.type, ville: a.ville ?? '' })
+  }
+
+  async function saveEdit() {
+    if (!editId) return
+    setError(null)
+    if (!draft.nom.trim()) {
+      setError('Le nom est obligatoire.')
+      return
+    }
+    const { error } = await supabase
+      .from('accommodations')
+      .update({ nom: draft.nom.trim(), type: draft.type, ville: draft.ville.trim() || null })
+      .eq('id', editId)
+    if (error) {
+      setError(error.message)
+      return
+    }
+    setEditId(null)
     load()
   }
 
@@ -705,20 +1092,60 @@ function AccommodationsPanel() {
                   <th className="px-2 py-1">Nom</th>
                   <th className="px-2 py-1">Type</th>
                   <th className="px-2 py-1">Ville</th>
+                  <th className="px-2 py-1 text-right">Actions</th>
                 </tr>
               </thead>
               <tbody>
-                {rows.map((a) => (
-                  <tr key={a.id} className="border-b last:border-0">
-                    <td className="px-2 py-1">{a.nom}</td>
-                    <td className="px-2 py-1">
-                      <span className="rounded bg-slate-100 px-1.5 py-0.5 text-xs text-slate-600">
-                        {a.type}
-                      </span>
-                    </td>
-                    <td className="px-2 py-1 text-slate-500">{a.ville ?? '—'}</td>
-                  </tr>
-                ))}
+                {rows.map((a) =>
+                  editId === a.id ? (
+                    <tr key={a.id} className="border-b last:border-0 bg-blue-50/40">
+                      <td className="px-2 py-1">
+                        <input
+                          className={editInputCls}
+                          value={draft.nom}
+                          onChange={(e) => setDraft({ ...draft, nom: e.target.value })}
+                        />
+                      </td>
+                      <td className="px-2 py-1">
+                        <select
+                          className={editInputCls}
+                          value={draft.type}
+                          onChange={(e) => setDraft({ ...draft, type: e.target.value })}
+                        >
+                          <option value="HOTEL">HOTEL</option>
+                          <option value="CAMP">CAMP</option>
+                          <option value="TENTE">TENTE</option>
+                        </select>
+                      </td>
+                      <td className="px-2 py-1">
+                        <input
+                          className={editInputCls}
+                          value={draft.ville}
+                          onChange={(e) => setDraft({ ...draft, ville: e.target.value })}
+                        />
+                      </td>
+                      <td className="px-2 py-1">
+                        <EditActions onSave={saveEdit} onCancel={() => setEditId(null)} />
+                      </td>
+                    </tr>
+                  ) : (
+                    <tr key={a.id} className="border-b last:border-0">
+                      <td className="px-2 py-1">{a.nom}</td>
+                      <td className="px-2 py-1">
+                        <span className="rounded bg-slate-100 px-1.5 py-0.5 text-xs text-slate-600">
+                          {a.type}
+                        </span>
+                      </td>
+                      <td className="px-2 py-1 text-slate-500">{a.ville ?? '—'}</td>
+                      <td className="px-2 py-1">
+                        <RowActions
+                          onEdit={() => startEdit(a)}
+                          onDelete={() => supprimerLigne('accommodations', a.id, setError, load)}
+                        />
+                      </td>
+                    </tr>
+                  ),
+                )}
               </tbody>
             </table>
           </div>
@@ -731,6 +1158,15 @@ function AccommodationsPanel() {
 // ==================================================================
 // EXTRAS
 // ==================================================================
+interface ExtraDraft {
+  nom: string
+  categorie: string
+  type_tarification: string
+  prix_achat: string
+  prix_vente: string
+  inclure_comptabilite: boolean
+}
+
 function ExtrasPanel() {
   const [rows, setRows] = useState<Extra[]>([])
   const [loading, setLoading] = useState(true)
@@ -743,6 +1179,16 @@ function ExtrasPanel() {
   const [prixVente, setPrixVente] = useState('')
   const [inclureCompta, setInclureCompta] = useState(true)
   const [capacite, setCapacite] = useState('')
+
+  const [editId, setEditId] = useState<string | null>(null)
+  const [draft, setDraft] = useState<ExtraDraft>({
+    nom: '',
+    categorie: '',
+    type_tarification: 'PAR_PERSONNE',
+    prix_achat: '',
+    prix_vente: '',
+    inclure_comptabilite: true,
+  })
 
   const load = useCallback(async () => {
     setLoading(true)
@@ -783,6 +1229,45 @@ function ExtrasPanel() {
     setPrixAchat('')
     setPrixVente('')
     setCapacite('')
+    load()
+  }
+
+  function startEdit(x: Extra) {
+    setError(null)
+    setEditId(x.id)
+    setDraft({
+      nom: x.nom,
+      categorie: x.categorie ?? '',
+      type_tarification: x.type_tarification,
+      prix_achat: x.prix_achat != null ? String(x.prix_achat) : '',
+      prix_vente: x.prix_vente != null ? String(x.prix_vente) : '',
+      inclure_comptabilite: x.inclure_comptabilite,
+    })
+  }
+
+  async function saveEdit() {
+    if (!editId) return
+    setError(null)
+    if (!draft.nom.trim()) {
+      setError('Le nom est obligatoire.')
+      return
+    }
+    const { error } = await supabase
+      .from('extras')
+      .update({
+        nom: draft.nom.trim(),
+        categorie: draft.categorie.trim() || null,
+        type_tarification: draft.type_tarification,
+        prix_achat: draft.prix_achat ? Number(draft.prix_achat) : 0,
+        prix_vente: draft.prix_vente ? Number(draft.prix_vente) : 0,
+        inclure_comptabilite: draft.inclure_comptabilite,
+      })
+      .eq('id', editId)
+    if (error) {
+      setError(error.message)
+      return
+    }
+    setEditId(null)
     load()
   }
 
@@ -864,19 +1349,87 @@ function ExtrasPanel() {
                   <th className="px-2 py-1 text-right">Achat</th>
                   <th className="px-2 py-1 text-right">Vente</th>
                   <th className="px-2 py-1 text-center">Compta</th>
+                  <th className="px-2 py-1 text-right">Actions</th>
                 </tr>
               </thead>
               <tbody>
-                {rows.map((x) => (
-                  <tr key={x.id} className="border-b last:border-0">
-                    <td className="px-2 py-1">{x.nom}</td>
-                    <td className="px-2 py-1 text-slate-500">{x.categorie ?? '—'}</td>
-                    <td className="px-2 py-1 text-xs text-slate-500">{x.type_tarification}</td>
-                    <td className="px-2 py-1 text-right">{x.prix_achat ?? 0}</td>
-                    <td className="px-2 py-1 text-right">{x.prix_vente ?? 0}</td>
-                    <td className="px-2 py-1 text-center">{x.inclure_comptabilite ? '✓' : '—'}</td>
-                  </tr>
-                ))}
+                {rows.map((x) =>
+                  editId === x.id ? (
+                    <tr key={x.id} className="border-b last:border-0 bg-blue-50/40">
+                      <td className="px-2 py-1">
+                        <input
+                          className={editInputCls}
+                          value={draft.nom}
+                          onChange={(e) => setDraft({ ...draft, nom: e.target.value })}
+                        />
+                      </td>
+                      <td className="px-2 py-1">
+                        <input
+                          className={editInputCls}
+                          value={draft.categorie}
+                          onChange={(e) => setDraft({ ...draft, categorie: e.target.value })}
+                        />
+                      </td>
+                      <td className="px-2 py-1">
+                        <select
+                          className={editInputCls}
+                          value={draft.type_tarification}
+                          onChange={(e) => setDraft({ ...draft, type_tarification: e.target.value })}
+                        >
+                          <option value="PAR_PERSONNE">PAR_PERSONNE</option>
+                          <option value="PAR_VEHICULE">PAR_VEHICULE</option>
+                          <option value="PAR_GROUPE">PAR_GROUPE</option>
+                          <option value="MANUEL">MANUEL</option>
+                        </select>
+                      </td>
+                      <td className="px-2 py-1">
+                        <input
+                          type="number"
+                          min={0}
+                          className={editInputCls}
+                          value={draft.prix_achat}
+                          onChange={(e) => setDraft({ ...draft, prix_achat: e.target.value })}
+                        />
+                      </td>
+                      <td className="px-2 py-1">
+                        <input
+                          type="number"
+                          min={0}
+                          className={editInputCls}
+                          value={draft.prix_vente}
+                          onChange={(e) => setDraft({ ...draft, prix_vente: e.target.value })}
+                        />
+                      </td>
+                      <td className="px-2 py-1 text-center">
+                        <input
+                          type="checkbox"
+                          checked={draft.inclure_comptabilite}
+                          onChange={(e) =>
+                            setDraft({ ...draft, inclure_comptabilite: e.target.checked })
+                          }
+                        />
+                      </td>
+                      <td className="px-2 py-1">
+                        <EditActions onSave={saveEdit} onCancel={() => setEditId(null)} />
+                      </td>
+                    </tr>
+                  ) : (
+                    <tr key={x.id} className="border-b last:border-0">
+                      <td className="px-2 py-1">{x.nom}</td>
+                      <td className="px-2 py-1 text-slate-500">{x.categorie ?? '—'}</td>
+                      <td className="px-2 py-1 text-xs text-slate-500">{x.type_tarification}</td>
+                      <td className="px-2 py-1 text-right">{x.prix_achat ?? 0}</td>
+                      <td className="px-2 py-1 text-right">{x.prix_vente ?? 0}</td>
+                      <td className="px-2 py-1 text-center">{x.inclure_comptabilite ? '✓' : '—'}</td>
+                      <td className="px-2 py-1">
+                        <RowActions
+                          onEdit={() => startEdit(x)}
+                          onDelete={() => supprimerLigne('extras', x.id, setError, load)}
+                        />
+                      </td>
+                    </tr>
+                  ),
+                )}
               </tbody>
             </table>
           </div>
@@ -889,6 +1442,13 @@ function ExtrasPanel() {
 // ==================================================================
 // TRANSPORTS
 // ==================================================================
+interface TransportDraft {
+  nom: string
+  type_transport: string
+  telephone: string
+  tarif_sortie: string
+}
+
 function TransportsPanel() {
   const [rows, setRows] = useState<Transport[]>([])
   const [loading, setLoading] = useState(true)
@@ -898,6 +1458,14 @@ function TransportsPanel() {
   const [type, setType] = useState('PRESTATAIRE')
   const [telephone, setTelephone] = useState('')
   const [tarifSortie, setTarifSortie] = useState('')
+
+  const [editId, setEditId] = useState<string | null>(null)
+  const [draft, setDraft] = useState<TransportDraft>({
+    nom: '',
+    type_transport: 'PRESTATAIRE',
+    telephone: '',
+    tarif_sortie: '',
+  })
 
   const load = useCallback(async () => {
     setLoading(true)
@@ -934,6 +1502,41 @@ function TransportsPanel() {
     setNom('')
     setTelephone('')
     setTarifSortie('')
+    load()
+  }
+
+  function startEdit(t: Transport) {
+    setError(null)
+    setEditId(t.id)
+    setDraft({
+      nom: t.nom,
+      type_transport: t.type_transport,
+      telephone: t.telephone ?? '',
+      tarif_sortie: t.tarif_sortie != null ? String(t.tarif_sortie) : '',
+    })
+  }
+
+  async function saveEdit() {
+    if (!editId) return
+    setError(null)
+    if (!draft.nom.trim()) {
+      setError('Le nom est obligatoire.')
+      return
+    }
+    const { error } = await supabase
+      .from('transports')
+      .update({
+        nom: draft.nom.trim(),
+        type_transport: draft.type_transport,
+        telephone: draft.telephone.trim() || null,
+        tarif_sortie: draft.tarif_sortie ? Number(draft.tarif_sortie) : null,
+      })
+      .eq('id', editId)
+    if (error) {
+      setError(error.message)
+      return
+    }
+    setEditId(null)
     load()
   }
 
@@ -985,19 +1588,69 @@ function TransportsPanel() {
                   <th className="px-2 py-1">Type</th>
                   <th className="px-2 py-1">Téléphone</th>
                   <th className="px-2 py-1 text-right">Tarif/sortie</th>
+                  <th className="px-2 py-1 text-right">Actions</th>
                 </tr>
               </thead>
               <tbody>
-                {rows.map((t) => (
-                  <tr key={t.id} className="border-b last:border-0">
-                    <td className="px-2 py-1">{t.nom}</td>
-                    <td className="px-2 py-1 text-xs text-slate-500">{t.type_transport}</td>
-                    <td className="px-2 py-1 text-slate-500">{t.telephone ?? '—'}</td>
-                    <td className="px-2 py-1 text-right">
-                      {t.tarif_sortie != null ? `${t.tarif_sortie} DT` : '—'}
-                    </td>
-                  </tr>
-                ))}
+                {rows.map((t) =>
+                  editId === t.id ? (
+                    <tr key={t.id} className="border-b last:border-0 bg-blue-50/40">
+                      <td className="px-2 py-1">
+                        <input
+                          className={editInputCls}
+                          value={draft.nom}
+                          onChange={(e) => setDraft({ ...draft, nom: e.target.value })}
+                        />
+                      </td>
+                      <td className="px-2 py-1">
+                        <select
+                          className={editInputCls}
+                          value={draft.type_transport}
+                          onChange={(e) => setDraft({ ...draft, type_transport: e.target.value })}
+                        >
+                          <option value="FLOTTE_INTERNE">FLOTTE_INTERNE</option>
+                          <option value="LOCATION_LONGUE_DUREE">LOCATION_LONGUE_DUREE</option>
+                          <option value="LOCATION_EXCURSION">LOCATION_EXCURSION</option>
+                          <option value="PRESTATAIRE">PRESTATAIRE</option>
+                        </select>
+                      </td>
+                      <td className="px-2 py-1">
+                        <input
+                          className={editInputCls}
+                          value={draft.telephone}
+                          onChange={(e) => setDraft({ ...draft, telephone: e.target.value })}
+                        />
+                      </td>
+                      <td className="px-2 py-1">
+                        <input
+                          type="number"
+                          min={0}
+                          className={editInputCls}
+                          value={draft.tarif_sortie}
+                          onChange={(e) => setDraft({ ...draft, tarif_sortie: e.target.value })}
+                        />
+                      </td>
+                      <td className="px-2 py-1">
+                        <EditActions onSave={saveEdit} onCancel={() => setEditId(null)} />
+                      </td>
+                    </tr>
+                  ) : (
+                    <tr key={t.id} className="border-b last:border-0">
+                      <td className="px-2 py-1">{t.nom}</td>
+                      <td className="px-2 py-1 text-xs text-slate-500">{t.type_transport}</td>
+                      <td className="px-2 py-1 text-slate-500">{t.telephone ?? '—'}</td>
+                      <td className="px-2 py-1 text-right">
+                        {t.tarif_sortie != null ? `${t.tarif_sortie} DT` : '—'}
+                      </td>
+                      <td className="px-2 py-1">
+                        <RowActions
+                          onEdit={() => startEdit(t)}
+                          onDelete={() => supprimerLigne('transports', t.id, setError, load)}
+                        />
+                      </td>
+                    </tr>
+                  ),
+                )}
               </tbody>
             </table>
           </div>
@@ -1010,6 +1663,12 @@ function TransportsPanel() {
 // ==================================================================
 // VÉHICULES ERP
 // ==================================================================
+interface VehicleDraft {
+  immatriculation: string
+  type: string
+  capacite: string
+}
+
 function VehiclesPanel() {
   const [rows, setRows] = useState<Vehicle[]>([])
   const [transports, setTransports] = useState<Transport[]>([])
@@ -1020,6 +1679,9 @@ function VehiclesPanel() {
   const [type, setType] = useState('van')
   const [capacite, setCapacite] = useState('')
   const [transportId, setTransportId] = useState('')
+
+  const [editId, setEditId] = useState<string | null>(null)
+  const [draft, setDraft] = useState<VehicleDraft>({ immatriculation: '', type: 'van', capacite: '' })
 
   const load = useCallback(async () => {
     setLoading(true)
@@ -1056,6 +1718,39 @@ function VehiclesPanel() {
     setImmat('')
     setCapacite('')
     setTransportId('')
+    load()
+  }
+
+  function startEdit(v: Vehicle) {
+    setError(null)
+    setEditId(v.id)
+    setDraft({
+      immatriculation: v.immatriculation ?? '',
+      type: v.type ?? 'van',
+      capacite: v.capacite != null ? String(v.capacite) : '',
+    })
+  }
+
+  async function saveEdit() {
+    if (!editId) return
+    setError(null)
+    if (!draft.immatriculation.trim()) {
+      setError('L’immatriculation est obligatoire.')
+      return
+    }
+    const { error } = await supabase
+      .from('erp_vehicles')
+      .update({
+        immatriculation: draft.immatriculation.trim(),
+        type: draft.type,
+        capacite: draft.capacite ? Number(draft.capacite) : null,
+      })
+      .eq('id', editId)
+    if (error) {
+      setError(error.message)
+      return
+    }
+    setEditId(null)
     load()
   }
 
@@ -1118,17 +1813,62 @@ function VehiclesPanel() {
                   <th className="px-2 py-1">Type</th>
                   <th className="px-2 py-1 text-right">Capacité</th>
                   <th className="px-2 py-1">Transporteur</th>
+                  <th className="px-2 py-1 text-right">Actions</th>
                 </tr>
               </thead>
               <tbody>
-                {rows.map((v) => (
-                  <tr key={v.id} className="border-b last:border-0">
-                    <td className="px-2 py-1 font-mono text-xs">{v.immatriculation ?? '—'}</td>
-                    <td className="px-2 py-1">{v.type ?? '—'}</td>
-                    <td className="px-2 py-1 text-right">{v.capacite ?? '—'}</td>
-                    <td className="px-2 py-1 text-slate-500">{transportNom(v.transport_id)}</td>
-                  </tr>
-                ))}
+                {rows.map((v) =>
+                  editId === v.id ? (
+                    <tr key={v.id} className="border-b last:border-0 bg-blue-50/40">
+                      <td className="px-2 py-1">
+                        <input
+                          className={editInputCls}
+                          value={draft.immatriculation}
+                          onChange={(e) => setDraft({ ...draft, immatriculation: e.target.value })}
+                        />
+                      </td>
+                      <td className="px-2 py-1">
+                        <select
+                          className={editInputCls}
+                          value={draft.type}
+                          onChange={(e) => setDraft({ ...draft, type: e.target.value })}
+                        >
+                          <option value="berline">berline</option>
+                          <option value="van">van</option>
+                          <option value="minibus">minibus</option>
+                          <option value="coaster">coaster</option>
+                          <option value="bus">bus</option>
+                        </select>
+                      </td>
+                      <td className="px-2 py-1">
+                        <input
+                          type="number"
+                          min={0}
+                          className={editInputCls}
+                          value={draft.capacite}
+                          onChange={(e) => setDraft({ ...draft, capacite: e.target.value })}
+                        />
+                      </td>
+                      <td className="px-2 py-1 text-slate-500">{transportNom(v.transport_id)}</td>
+                      <td className="px-2 py-1">
+                        <EditActions onSave={saveEdit} onCancel={() => setEditId(null)} />
+                      </td>
+                    </tr>
+                  ) : (
+                    <tr key={v.id} className="border-b last:border-0">
+                      <td className="px-2 py-1 font-mono text-xs">{v.immatriculation ?? '—'}</td>
+                      <td className="px-2 py-1">{v.type ?? '—'}</td>
+                      <td className="px-2 py-1 text-right">{v.capacite ?? '—'}</td>
+                      <td className="px-2 py-1 text-slate-500">{transportNom(v.transport_id)}</td>
+                      <td className="px-2 py-1">
+                        <RowActions
+                          onEdit={() => startEdit(v)}
+                          onDelete={() => supprimerLigne('erp_vehicles', v.id, setError, load)}
+                        />
+                      </td>
+                    </tr>
+                  ),
+                )}
               </tbody>
             </table>
           </div>

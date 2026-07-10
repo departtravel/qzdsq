@@ -106,13 +106,14 @@ export function OrdreMission({ initialExcursionId, initialDate }: OrdreMissionPr
     setBookings(list)
 
     // Extras structurés : booking_extras filtrés sur ces réservations, noms résolus via extras.
+    // Chaque extra est formaté "quantité × nom" (ex. "2 × Dromadaire").
     const bookingIds = list.map((x) => x.id)
     if (bookingIds.length > 0) {
       const be = await supabase
         .from('booking_extras')
-        .select('booking_id, extra_id')
+        .select('booking_id, extra_id, quantite')
         .in('booking_id', bookingIds)
-      const rows = (be.data as { booking_id: string; extra_id: string }[]) ?? []
+      const rows = (be.data as { booking_id: string; extra_id: string; quantite: number | null }[]) ?? []
       const extraIds = Array.from(new Set(rows.map((r) => r.extra_id)))
       let noms: Record<string, string> = {}
       if (extraIds.length > 0) {
@@ -123,7 +124,7 @@ export function OrdreMission({ initialExcursionId, initialDate }: OrdreMissionPr
       for (const r of rows) {
         const nom = noms[r.extra_id]
         if (!nom) continue
-        ;(map[r.booking_id] ??= []).push(nom)
+        ;(map[r.booking_id] ??= []).push(`${r.quantite ?? 1} × ${nom}`)
       }
       setExtrasByBooking(map)
     } else {

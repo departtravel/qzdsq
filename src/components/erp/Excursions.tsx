@@ -307,6 +307,30 @@ function CostLinesEditor({
   async function ajouter() {
     setError(null)
     if (!nom.trim()) { setError('Nom de la dépense requis.'); return }
+
+    // Prestataire : on relie la dépense à une fiche compta.
+    // - déjà choisi dans le menu -> on l'utilise.
+    // - nom tapé qui existe déjà (même nom) -> on réutilise sa fiche.
+    // - nom nouveau -> on crée le prestataire (et sa fiche compta est créée
+    //   automatiquement par la base), puis on le relie.
+    let pid: string | null = partnerType ? (partnerId || null) : null
+    if (partnerType && !pid) {
+      const liste = categorie === 'RESTAURANT' ? restaurants : categorie === 'HEBERGEMENT' ? accommodations : extras
+      const existant = liste.find((p) => p.nom.trim().toLowerCase() === nom.trim().toLowerCase())
+      if (existant) {
+        pid = existant.id
+      } else {
+        const table = categorie === 'RESTAURANT' ? 'restaurants' : categorie === 'HEBERGEMENT' ? 'accommodations' : 'extras'
+        const payload: Record<string, unknown> =
+          categorie === 'EXTRA'
+            ? { nom: nom.trim(), categorie: 'AUTRE', type_tarification: typeDep, prix_achat: prix ? Number(prix) : 0, devise_achat: devise }
+            : { nom: nom.trim() }
+        const { data: created, error: e1 } = await supabase.from(table).insert(payload).select('id').single()
+        if (e1) { setError('Création du prestataire : ' + e1.message); return }
+        pid = (created as { id: string }).id
+      }
+    }
+
     const { error } = await supabase.from('excursion_cost_lines').insert({
       excursion_id: excursionId,
       jour,
@@ -319,7 +343,7 @@ function CostLinesEditor({
       taux_tva: Number(tva) || 0,
       inclure_comptabilite: true,
       partner_type: partnerType,
-      partner_id: partnerType ? (partnerId || null) : null,
+      partner_id: pid,
     })
     if (error) { setError(error.message); return }
     setNom(''); setPrix(''); setPrixEnf(''); setPartnerId('')

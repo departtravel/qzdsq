@@ -50,6 +50,30 @@ export const peutEcrire = {
   catalogue: (r: ErpRole) => r === 'ADMIN',
 }
 
+/**
+ * Onglets visibles selon le rôle (pour simplifier l'interface : chaque
+ * collègue ne voit que ce qui le concerne). 'ALL' = tous les onglets.
+ */
+export function onglestsVisibles(role: ErpRole): 'ALL' | string[] {
+  switch (role) {
+    case 'ADMIN':
+      return 'ALL'
+    case 'RESERVATION': // Hiba
+      return ['reservations', 'importota', 'planning']
+    case 'CONFIRMATION': // Farah
+      return ['reservations', 'planning']
+    case 'OPERATIONS': // Hersi
+      return ['planning', 'ordremission', 'fichereservation', 'reservations']
+    case 'LOGISTIQUE': // Karima
+      return ['planning', 'fichereservation', 'referentiels', 'relevepartenaire', 'ordremission', 'flotte']
+    case 'COMPTABLE':
+      return ['comptabilite', 'relevepartenaire', 'chargesfixes', 'caisse', 'dashboard']
+    case 'LECTURE': // Amine / Aymen
+    default:
+      return ['dashboard', 'ia', 'excursions']
+  }
+}
+
 /** Charge le rôle ERP de l'utilisateur connecté. Défaut : LECTURE. */
 export function useErpRole(): { role: ErpRole; ready: boolean } {
   const [role, setRole] = useState<ErpRole>('LECTURE')
