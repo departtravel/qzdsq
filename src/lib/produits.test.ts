@@ -7,6 +7,9 @@ import {
   pricingVariante,
   reductionActive,
   meilleureReduction,
+  prixAPartirDe,
+  promoAffichee,
+  badgesProduit,
   type BookingConfig,
   type ProductDiscount,
   type ProductExtra,
@@ -121,6 +124,41 @@ describe('meilleureReduction', () => {
       'v1', 100, '2026-07-11',
     )
     expect(r?.remise).toBe(100) // montant fixe plafonné au prix
+  })
+})
+
+describe('prixAPartirDe', () => {
+  it('prend le plus bas prix adulte groupe (produit + options)', () => {
+    expect(prixAPartirDe(pricing, [{ prix_adulte: 30, actif: true } as never])).toBe(30)
+    expect(prixAPartirDe(pricing, [{ prix_adulte: 30, actif: false } as never])).toBe(40)
+  })
+})
+
+describe('promoAffichee', () => {
+  it('retourne prix barré + prix promo + %', () => {
+    const p = promoAffichee([disc({ valeur: 25 })], 'v1', 100, '2026-07-11')
+    expect(p).toEqual({ prixBarre: 100, prixPromo: 75, pct: 25, nom: 'Promo' })
+  })
+  it('null sans promo active', () => {
+    expect(promoAffichee([disc({ actif: false })], 'v1', 100, '2026-07-11')).toBeNull()
+  })
+})
+
+describe('badgesProduit', () => {
+  it('ajoute EN_PROMO quand une réduction est active', () => {
+    const b = badgesProduit({ discounts: [disc({})], dateISO: '2026-07-11' })
+    expect(b.some((x) => x.type === 'EN_PROMO')).toBe(true)
+  })
+  it('détecte early bird par le nom', () => {
+    const b = badgesProduit({ discounts: [disc({ nom: 'Early birds -10%' })], dateISO: '2026-07-11' })
+    expect(b.some((x) => x.type === 'EARLY_BIRD')).toBe(true)
+  })
+  it('signale bientôt complet selon les places restantes', () => {
+    const b = badgesProduit({
+      dateISO: '2026-07-11',
+      departures: [{ statut: 'OUVERT', date_depart: '2026-07-20', capacite: 10, places_reservees: 8 } as never],
+    })
+    expect(b.some((x) => x.type === 'BIENTOT_COMPLET')).toBe(true)
   })
 })
 

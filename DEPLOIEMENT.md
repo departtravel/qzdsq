@@ -18,8 +18,17 @@ L'application a **deux morceaux** :
    3. `supabase/rbac.sql`
    4. `supabase/missions.sql`
    5. `supabase/produits.sql`  ← catalogue produit (options, extras, tarifs groupe/privé, réductions, villes, départs, 8 langues)
-   6. `supabase/seed.sql`
-   7. `supabase/seed_dts.sql`
+   6. `supabase/public_read.sql` ← lecture publique du catalogue pour la vitrine client
+   7. `supabase/seed.sql`
+   8. `supabase/seed_dts.sql`
+
+> **Deux espaces dans l'app :**
+> - `/` → **vitrine publique** (Depart Travel Services) : accueil, entrée par ville, pages produit avec configurateur (ville → option → groupe/privé → date → extras → prix live + promo).
+> - `/admin` → **ERP interne** (DTS Operation), derrière login.
+>
+> **Hébergement (SPA)** : configurer un *fallback* de toutes les routes vers `index.html`
+> (Netlify `/* /index.html 200`, Vercel rewrite `/(.*) → /index.html`) pour que les liens
+> profonds (`/excursion/…`, `/admin`) fonctionnent au rafraîchissement.
 3. **Authentication → Users** : crée les comptes (Hiba, Farah, Hersi, Karima, Amine, Aymen…).
 4. Promeus au moins un compte en super administrateur :
    ```sql

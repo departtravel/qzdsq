@@ -73,7 +73,7 @@ const ERP_COMPONENTS: Record<Exclude<Section, 'flotte'>, JSX.Element> = {
   relevepartenaire: <RelevePartenaire />,
 }
 
-export default function App() {
+export default function AdminApp() {
   const [session, setSession] = useState<Session | null>(null)
   const [authReady, setAuthReady] = useState(false)
 

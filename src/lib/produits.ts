@@ -105,6 +105,21 @@ export interface PriceBreakdown {
 
 const round2 = (n: number) => Math.round(n * 100) / 100
 
+/** Extrait un ProductPricing depuis une fiche produit (champs optionnels → 0). */
+export function pricingProduit(e: {
+  prix_adulte?: number; prix_enfant?: number; prix_bebe?: number
+  prix_prive_adulte?: number; prix_prive_enfant?: number; prix_prive_bebe?: number
+}): ProductPricing {
+  return {
+    prix_adulte: e.prix_adulte ?? 0,
+    prix_enfant: e.prix_enfant ?? 0,
+    prix_bebe: e.prix_bebe ?? 0,
+    prix_prive_adulte: e.prix_prive_adulte ?? 0,
+    prix_prive_enfant: e.prix_prive_enfant ?? 0,
+    prix_prive_bebe: e.prix_prive_bebe ?? 0,
+  }
+}
+
 /** Prix de base selon le mode (groupe/privé) et l'effectif. */
 export function prixBase(p: ProductPricing, cfg: BookingConfig): number {
   const prive = cfg.mode === 'PRIVE'
@@ -239,6 +254,88 @@ export function meilleureReduction(
 export function placesRestantes(d: ProductDeparture): number | null {
   if (d.capacite == null) return null
   return Math.max(0, d.capacite - d.places_reservees)
+}
+
+// ============================================================
+//  Affichage VITRINE (côté client)
+// ============================================================
+
+/** Prix « à partir de » : le plus bas prix adulte groupe (produit + options). */
+export function prixAPartirDe(base: ProductPricing, variants: Partial<ProductVariant>[] = []): number {
+  const candidats = [base.prix_adulte]
+  for (const v of variants) {
+    if (v.actif === false) continue
+    candidats.push(pricingVariante(base, v).prix_adulte)
+  }
+  return Math.min(...candidats.filter((n) => n > 0)) || base.prix_adulte
+}
+
+export interface PromoAffichee {
+  prixBarre: number
+  prixPromo: number
+  pct: number
+  nom: string
+}
+
+/** Promo à afficher sur une carte produit pour un prix/date donnés. */
+export function promoAffichee(
+  discounts: ProductDiscount[],
+  variantId: string | null,
+  prix: number,
+  dateISO: string,
+): PromoAffichee | null {
+  const best = meilleureReduction(discounts, variantId, prix, dateISO)
+  if (!best || best.remise <= 0) return null
+  const prixPromo = round2(prix - best.remise)
+  return {
+    prixBarre: prix,
+    prixPromo,
+    pct: Math.round((best.remise / prix) * 100),
+    nom: best.discount.nom,
+  }
+}
+
+export type BadgeType = 'BEST_SELLER' | 'EN_PROMO' | 'BIENTOT_COMPLET' | 'EARLY_BIRD' | 'NOUVEAU'
+
+export interface Badge { type: BadgeType; label: string }
+
+export interface BadgeContext {
+  bestSeller?: boolean
+  nouveau?: boolean
+  discounts?: ProductDiscount[]
+  departures?: ProductDeparture[]
+  dateISO: string
+  /** Seuil « bientôt complet » : places restantes ≤ ce nombre. Déf. 5. */
+  seuilComplet?: number
+}
+
+/** Badges commerciaux calculés automatiquement pour une carte produit. */
+export function badgesProduit(ctx: BadgeContext): Badge[] {
+  const badges: Badge[] = []
+  if (ctx.bestSeller) badges.push({ type: 'BEST_SELLER', label: '🏆 Best-seller' })
+  if (ctx.nouveau) badges.push({ type: 'NOUVEAU', label: '✨ Nouveau' })
+
+  const actifs = (ctx.discounts ?? []).filter((d) => reductionActive(d, ctx.dateISO))
+  if (actifs.length) {
+    // Early bird : réduction dont la fenêtre démarre dans le futur proche
+    // OU nommée « early » ; sinon promo classique.
+    const early = actifs.some((d) => /early|birds?|anticip/i.test(d.nom))
+    badges.push(early
+      ? { type: 'EARLY_BIRD', label: '🐦 Early bird' }
+      : { type: 'EN_PROMO', label: '🏷️ En promo' })
+  }
+
+  const seuil = ctx.seuilComplet ?? 5
+  const prochains = (ctx.departures ?? [])
+    .filter((d) => d.statut === 'OUVERT' && d.date_depart >= ctx.dateISO)
+    .sort((a, b) => a.date_depart.localeCompare(b.date_depart))
+  const next = prochains[0]
+  if (next) {
+    const reste = placesRestantes(next)
+    if (reste != null && reste > 0 && reste <= seuil)
+      badges.push({ type: 'BIENTOT_COMPLET', label: `🔥 Plus que ${reste} places` })
+  }
+  return badges
 }
 
 /** Une fiche de traduction vide pour une locale. */
