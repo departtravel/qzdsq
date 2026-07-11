@@ -192,6 +192,19 @@ export async function createQuote(d: QuoteDraft): Promise<{ id: string } | { err
   return { id: data.id as string }
 }
 
+// ----- Compteur de visites (pour le taux de conversion) ------
+/** Enregistre une visite, au plus une fois par session navigateur. */
+export async function trackVisit(): Promise<void> {
+  try {
+    let sid = sessionStorage.getItem('dts_sid')
+    if (!sid) {
+      sid = Math.random().toString(36).slice(2) + Date.now().toString(36)
+      sessionStorage.setItem('dts_sid', sid)
+      await supabase.from('site_visits').insert({ path: location.pathname, session_id: sid })
+    }
+  } catch { /* silencieux : ne jamais bloquer la vitrine */ }
+}
+
 /** Traduction d'un produit dans la locale voulue, avec repli sur la source. */
 export function tradProduit(b: { excursion: Excursion; translations: ProductTranslation[] }, loc: Locale) {
   const t = b.translations.find((x) => x.locale === loc)

@@ -1,5 +1,7 @@
+import { useEffect } from 'react'
 import { Link, Route, Routes } from 'react-router-dom'
 import { StoreProvider, useStore } from './StoreContext'
+import { trackVisit } from './data'
 import { HomePage } from './HomePage'
 import { ProductPage } from './ProductPage'
 import { EventsPage } from './EventsPage'
@@ -9,6 +11,7 @@ import { LOCALES, LOCALE_LABELS } from '../lib/produits'
 
 // Vitrine publique Depart Travel Services.
 export function Storefront() {
+  useEffect(() => { trackVisit() }, [])
   return (
     <StoreProvider>
       <div className="flex min-h-screen flex-col bg-slate-50">

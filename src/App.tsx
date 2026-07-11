@@ -10,6 +10,7 @@ import { Excursions } from './components/erp/Excursions'
 import { Produits } from './components/erp/Produits'
 import { Messagerie } from './components/erp/Messagerie'
 import { DemandesDevis } from './components/erp/DemandesDevis'
+import { DashboardStats } from './components/erp/DashboardStats'
 import { Reservations } from './components/erp/Reservations'
 import { Planning } from './components/erp/Planning'
 import { Comptabilite } from './components/erp/Comptabilite'
@@ -42,6 +43,7 @@ type Section =
   | 'relevepartenaire'
   | 'messagerie'
   | 'devis'
+  | 'statsweb'
 
 const ERP_SECTIONS: { key: Section; emoji: string; label: string }[] = [
   { key: 'produits', emoji: '🎫', label: 'Produits' },
@@ -54,6 +56,7 @@ const ERP_SECTIONS: { key: Section; emoji: string; label: string }[] = [
   { key: 'fichereservation', emoji: '🗒️', label: 'Réservations à effectuer' },
   { key: 'comptabilite', emoji: '💰', label: 'Comptabilité' },
   { key: 'relevepartenaire', emoji: '🧾', label: 'Relevé prestataire' },
+  { key: 'statsweb', emoji: '📈', label: 'Stats vente' },
   { key: 'dashboard', emoji: '📊', label: 'Direction' },
   { key: 'importota', emoji: '📥', label: 'Import OTA' },
   { key: 'ia', emoji: '🧠', label: 'IA Analytique' },
@@ -68,6 +71,7 @@ const ERP_COMPONENTS: Record<Exclude<Section, 'flotte'>, JSX.Element> = {
   reservations: <Reservations />,
   messagerie: <Messagerie />,
   devis: <DemandesDevis />,
+  statsweb: <DashboardStats />,
   planning: <Planning />,
   ordremission: <OrdreMission />,
   fichereservation: <FicheReservation />,
