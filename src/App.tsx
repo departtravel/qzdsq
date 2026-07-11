@@ -7,6 +7,7 @@ import { VehicleDetail } from './components/VehicleDetail'
 import { VehicleForm } from './components/VehicleForm'
 import { Login } from './components/Login'
 import { Excursions } from './components/erp/Excursions'
+import { Produits } from './components/erp/Produits'
 import { Reservations } from './components/erp/Reservations'
 import { Planning } from './components/erp/Planning'
 import { Comptabilite } from './components/erp/Comptabilite'
@@ -23,6 +24,7 @@ import { RelevePartenaire } from './components/erp/RelevePartenaire'
 type View = { name: 'dashboard' } | { name: 'detail'; id: string } | { name: 'new' }
 type Section =
   | 'flotte'
+  | 'produits'
   | 'excursions'
   | 'reservations'
   | 'planning'
@@ -38,7 +40,8 @@ type Section =
   | 'relevepartenaire'
 
 const ERP_SECTIONS: { key: Section; emoji: string; label: string }[] = [
-  { key: 'excursions', emoji: '🧭', label: 'Excursions' },
+  { key: 'produits', emoji: '🎫', label: 'Produits' },
+  { key: 'excursions', emoji: '🧭', label: 'Excursions (rentabilité)' },
   { key: 'reservations', emoji: '📅', label: 'Réservations' },
   { key: 'planning', emoji: '📆', label: 'Planning' },
   { key: 'ordremission', emoji: '📋', label: 'Ordre de mission' },
@@ -54,6 +57,7 @@ const ERP_SECTIONS: { key: Section; emoji: string; label: string }[] = [
 ]
 
 const ERP_COMPONENTS: Record<Exclude<Section, 'flotte'>, JSX.Element> = {
+  produits: <Produits />,
   excursions: <Excursions />,
   reservations: <Reservations />,
   planning: <Planning />,

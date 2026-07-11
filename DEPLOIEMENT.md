@@ -17,8 +17,9 @@ L'application a **deux morceaux** :
    2. `supabase/erp.sql`
    3. `supabase/rbac.sql`
    4. `supabase/missions.sql`
-   5. `supabase/seed.sql`
-   6. `supabase/seed_dts.sql`
+   5. `supabase/produits.sql`  ← catalogue produit (options, extras, tarifs groupe/privé, réductions, villes, départs, 8 langues)
+   6. `supabase/seed.sql`
+   7. `supabase/seed_dts.sql`
 3. **Authentication → Users** : crée les comptes (Hiba, Farah, Hersi, Karima, Amine, Aymen…).
 4. Promeus au moins un compte en super administrateur :
    ```sql

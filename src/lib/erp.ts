@@ -26,15 +26,28 @@ export interface Excursion {
   ota_channel_id: string | null
   compte_ota: string | null
   ville_depart: string | null
+  destination?: string | null
+  description?: string | null
+  categorie?: string | null
+  langues_disponibles?: string[] | null
   duree: string | null
   nombre_jours: number
   prix_adulte: number
   prix_enfant: number
   prix_bebe: number
+  // Tarification privative (cf. supabase/produits.sql)
+  prix_prive_adulte?: number
+  prix_prive_enfant?: number
+  prix_prive_bebe?: number
+  taux_conversion_prive?: number
+  prive_dispo?: boolean
+  groupe_dispo?: boolean
+  langue_source?: string
   devise: string
   commission_ota: number
   taux_conversion: number
   statut: string
+  created_at?: string
 }
 
 export type CostCategory =
