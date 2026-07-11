@@ -417,7 +417,12 @@ function CostLinesEditor({
     if (existant) return { type: kind, id: existant.id }
     const payload: Record<string, unknown> =
       kind === 'EXTRA'
-        ? { nom: d.nom.trim(), categorie: 'AUTRE', type_tarification: d.type_depense, prix_achat: d.prixA ? Number(d.prixA) : 0, devise_achat: d.devise }
+        ? {
+            nom: d.nom.trim(), categorie: 'AUTRE', type_tarification: d.type_depense,
+            prix_achat: d.prixA ? Number(d.prixA) : 0,
+            prix_achat_enfant: d.prixE ? Number(d.prixE) : null,
+            devise_achat: d.devise,
+          }
         : { nom: d.nom.trim() }
     const { data, error } = await supabase.from(KIND_TABLE[kind]).insert(payload).select('id').single()
     if (error) { setError('Création du prestataire : ' + error.message); return 'ERR' }
