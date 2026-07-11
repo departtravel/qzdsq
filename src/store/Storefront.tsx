@@ -6,6 +6,7 @@ import { HomePage } from './HomePage'
 import { ProductPage } from './ProductPage'
 import { EventsPage } from './EventsPage'
 import { CircuitPage } from './CircuitPage'
+import { CityPage } from './CityPage'
 import { PaymentOk, PaymentCancel } from './PaymentPages'
 import { ContactWidget } from './ContactWidget'
 import { LOCALES, LOCALE_LABELS } from '../lib/produits'
@@ -23,6 +24,7 @@ export function Storefront() {
             <Route path="/excursion/:id" element={<ProductPage />} />
             <Route path="/evenements" element={<EventsPage />} />
             <Route path="/circuit-sur-mesure" element={<CircuitPage />} />
+            <Route path="/excursions-depuis/:slug" element={<CityPage />} />
             <Route path="/paiement-ok" element={<PaymentOk />} />
             <Route path="/paiement-annule" element={<PaymentCancel />} />
             <Route path="*" element={<HomePage />} />
@@ -81,6 +83,17 @@ function Footer() {
         <div>
           <div className="text-sm font-semibold text-white">Nous contacter</div>
           <a href="https://wa.me/" className="mt-3 inline-flex rounded-full bg-emerald-500 px-4 py-2 text-sm font-semibold text-white">WhatsApp</a>
+        </div>
+      </div>
+      <div className="border-t border-white/10">
+        <div className="mx-auto max-w-7xl px-4 py-5">
+          <div className="text-xs font-semibold uppercase tracking-wide text-ink-100/50">Nos guides voyage</div>
+          <div className="mt-2 flex flex-wrap gap-x-5 gap-y-1 text-sm text-ink-100/70">
+            <a href="https://www.guide-voyage-tunisie.com" target="_blank" rel="noopener" className="hover:text-white">Guide voyage Tunisie</a>
+            <a href="https://www.tunisia-travel-guide.com" target="_blank" rel="noopener" className="hover:text-white">Tunisia Travel Guide</a>
+            <a href="https://www.ksarjouamaa.com" target="_blank" rel="noopener" className="hover:text-white">Ksar Jouamaa — patrimoine du Sud</a>
+            <a href="https://www.tunisia-trips.com" target="_blank" rel="noopener" className="hover:text-white">Tunisia Trips</a>
+          </div>
         </div>
       </div>
       <div className="border-t border-white/10">

@@ -43,7 +43,13 @@ export function organizationJsonLd() {
     url: location.origin,
     areaServed: 'TN',
     address: { '@type': 'PostalAddress', addressCountry: 'TN', addressLocality: 'Tunis' },
-    sameAs: [] as string[],
+    sameAs: [
+      'https://www.guide-voyage-tunisie.com',
+      'https://www.tunisia-travel-guide.com',
+      'https://www.ksarjouamaa.com',
+      'https://www.tunisia-trips.com',
+      // Ajoute ici tes réseaux : Facebook, Instagram, TripAdvisor…
+    ],
   }
 }
 

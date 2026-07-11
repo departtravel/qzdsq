@@ -1,8 +1,9 @@
 import { useEffect, useMemo, useState } from 'react'
 import { Link, useParams } from 'react-router-dom'
 import { useStore } from './StoreContext'
-import { fetchProduct, tradProduit, createBooking, createCheckout, type ProductBundle } from './data'
+import { fetchProduct, fetchCatalog, tradProduit, createBooking, createCheckout, type ProductBundle, type CatalogItem } from './data'
 import { setSeo } from './seo'
+import { ProductCard } from './HomePage'
 import {
   pricingVariante, pricingProduit, calculerPrixProduit, meilleureReduction, placesRestantes,
   type TypeSortie, type ProductVariant, type City,
@@ -33,6 +34,15 @@ export function ProductPage() {
   const [bebes, setBebes] = useState(0)
   const [extras, setExtras] = useState<Set<string>>(new Set())
   const [checkout, setCheckout] = useState(false)
+  const [related, setRelated] = useState<CatalogItem[]>([])
+
+  useEffect(() => {
+    fetchCatalog().then(({ items }) => {
+      const others = items.filter((i) => i.excursion.id !== id)
+      const sameCat = others.filter((i) => i.excursion.categorie === b?.excursion.categorie)
+      setRelated([...(sameCat.length ? sameCat : others)].slice(0, 4))
+    })
+  }, [id, b?.excursion.categorie])
 
   useEffect(() => {
     if (!id) return
@@ -150,6 +160,15 @@ export function ProductPage() {
           </div>
           <ReviewsSection excursionId={b.excursion.id} />
           <FaqSection excursionId={b.excursion.id} />
+
+          {related.length > 0 && (
+            <section className="mt-10">
+              <h2 className="mb-5 font-display text-xl font-extrabold text-ink-900">Souvent réservé avec</h2>
+              <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-4">
+                {related.map((i) => <ProductCard key={i.excursion.id} i={i} />)}
+              </div>
+            </section>
+          )}
         </div>
 
         {/* ---- Colonne configurateur (sticky) ---- */}

@@ -26,6 +26,12 @@ export interface ProductBundle extends CatalogItem {
 
 const activeOnly = (e: Excursion) => e.statut === 'ACTIVE'
 
+/** Slug URL propre : « Ksar Ghilane » → « ksar-ghilane ». */
+export function slugify(s: string): string {
+  return s.toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g, '')
+    .replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '')
+}
+
 /** Charge le catalogue complet (produits actifs) pour la home. */
 export async function fetchCatalog(): Promise<{ items: CatalogItem[]; cities: City[] }> {
   if (!isSupabaseConfigured) {

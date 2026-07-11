@@ -17,7 +17,12 @@ Deno.serve(async () => {
     Deno.env.get('SUPABASE_URL')!,
     Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!,
   )
-  const { data } = await supabase.from('excursions').select('id, statut').eq('statut', 'ACTIVE')
+  const [{ data }, { data: cities }] = await Promise.all([
+    supabase.from('excursions').select('id, statut').eq('statut', 'ACTIVE'),
+    supabase.from('cities').select('nom').eq('actif', true),
+  ])
+  const slugify = (s: string) => s.toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g, '')
+    .replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '')
 
   const urls: string[] = []
   const add = (loc: string, priority = '0.7') =>
@@ -26,6 +31,9 @@ Deno.serve(async () => {
   add(`${SITE}/`, '1.0')
   add(`${SITE}/circuit-sur-mesure`, '0.8')
   add(`${SITE}/evenements`, '0.8')
+  for (const c of (cities as { nom: string }[]) ?? []) {
+    add(`${SITE}/excursions-depuis/${slugify(c.nom)}`, '0.8')
+  }
   for (const e of (data as { id: string }[]) ?? []) {
     add(`${SITE}/excursion/${e.id}`, '0.9')
   }

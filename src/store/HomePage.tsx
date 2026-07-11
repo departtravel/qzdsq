@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useState } from 'react'
 import { Link } from 'react-router-dom'
 import { useStore } from './StoreContext'
-import { fetchCatalog, tradProduit, type CatalogItem } from './data'
+import { fetchCatalog, tradProduit, slugify, type CatalogItem } from './data'
 import { setSeo, setJsonLd, organizationJsonLd } from './seo'
 import { FaqSection } from './Faq'
 import { Cover } from './Cover'
@@ -131,11 +131,11 @@ export function HomePage() {
               <Section title="Où partez-vous ?" sub="Choisissez votre ville de départ">
                 <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-4">
                   {cities.slice(0, 8).map((c) => (
-                    <button key={c.id} onClick={() => setCityId(c.id)}
+                    <Link key={c.id} to={`/excursions-depuis/${slugify(c.nom)}`}
                       className="card card-hover group text-left">
                       <Cover seed={c.nom} className="h-28 w-full" />
-                      <div className="px-4 py-3 font-semibold text-ink-800 group-hover:text-brand-600">{c.nom}</div>
-                    </button>
+                      <div className="px-4 py-3 font-semibold text-ink-800 group-hover:text-brand-600">Excursions depuis {c.nom}</div>
+                    </Link>
                   ))}
                 </div>
               </Section>
