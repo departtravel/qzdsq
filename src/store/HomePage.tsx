@@ -120,11 +120,11 @@ export function HomePage() {
                   { t: 'EVG / EVJF', d: 'Un enterrement de vie inoubliable, organisé pour vous.' },
                   { t: 'Mariage', d: 'Célébrez en Tunisie, nous gérons toute la logistique.' },
                 ].map((e) => (
-                  <div key={e.t} className="rounded-xl border border-slate-200 bg-white p-5">
+                  <Link key={e.t} to="/evenements" className="rounded-xl border border-slate-200 bg-white p-5 transition hover:shadow-md">
                     <h3 className="font-semibold">{e.t}</h3>
                     <p className="mt-1 text-sm text-slate-500">{e.d}</p>
                     <span className="mt-3 inline-block text-sm font-medium text-amber-600">Sur devis →</span>
-                  </div>
+                  </Link>
                 ))}
               </div>
             </Section>

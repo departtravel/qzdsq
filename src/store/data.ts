@@ -163,6 +163,35 @@ export async function createConversation(d: ContactDraft): Promise<{ id: string 
   return { id: convId }
 }
 
+// ----- Demandes de devis (événements + circuits) -------------
+export type QuoteType = 'TEAM_BUILDING' | 'EVG' | 'EVJF' | 'MARIAGE' | 'CIRCUIT' | 'AUTRE'
+
+export interface QuoteDraft {
+  type: QuoteType
+  client_nom: string
+  client_email: string
+  client_telephone: string
+  nb_personnes: number | null
+  date_souhaitee: string | null
+  ville_depart: string | null
+  budget: number | null
+  devise?: string
+  message: string | null
+  details?: unknown
+  montant_estime?: number | null
+}
+
+/** Enregistre une demande de devis (statut NOUVELLE, source WEB). */
+export async function createQuote(d: QuoteDraft): Promise<{ id: string } | { error: string }> {
+  const { data, error } = await supabase
+    .from('quote_requests')
+    .insert({ ...d, statut: 'NOUVELLE', source: 'WEB' })
+    .select('id')
+    .single()
+  if (error) return { error: error.message }
+  return { id: data.id as string }
+}
+
 /** Traduction d'un produit dans la locale voulue, avec repli sur la source. */
 export function tradProduit(b: { excursion: Excursion; translations: ProductTranslation[] }, loc: Locale) {
   const t = b.translations.find((x) => x.locale === loc)

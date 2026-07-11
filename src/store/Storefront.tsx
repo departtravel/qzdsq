@@ -2,6 +2,7 @@ import { Link, Route, Routes } from 'react-router-dom'
 import { StoreProvider, useStore } from './StoreContext'
 import { HomePage } from './HomePage'
 import { ProductPage } from './ProductPage'
+import { EventsPage } from './EventsPage'
 import { ContactWidget } from './ContactWidget'
 import { LOCALES, LOCALE_LABELS } from '../lib/produits'
 
@@ -15,6 +16,7 @@ export function Storefront() {
           <Routes>
             <Route path="/" element={<HomePage />} />
             <Route path="/excursion/:id" element={<ProductPage />} />
+            <Route path="/evenements" element={<EventsPage />} />
             <Route path="*" element={<HomePage />} />
           </Routes>
         </main>
@@ -35,6 +37,7 @@ function Header() {
           <span className="hidden text-xs text-slate-400 sm:inline">Services</span>
         </Link>
         <div className="flex items-center gap-3 text-sm">
+          <Link to="/evenements" className="hidden font-medium text-slate-600 hover:text-purple-600 sm:inline">🎉 Événements</Link>
           <a href="https://wa.me/" target="_blank" rel="noreferrer"
             className="hidden rounded-full bg-green-500 px-3 py-1.5 font-medium text-white hover:bg-green-600 sm:inline">
             💬 WhatsApp
