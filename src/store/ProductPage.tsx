@@ -93,10 +93,10 @@ export function ProductPage() {
     return { breakdown, remise, promoNom: promo?.discount.nom, total: Math.max(0, breakdown.total - remise) }
   }, [b, pricing, mode, adultes, enfants, bebes, selectedExtras, supplementArrivee, variantId, dateDep])
 
-  if (loading) return <div className="mx-auto max-w-6xl px-4 py-10 text-slate-500">Chargement…</div>
+  if (loading) return <div className="mx-auto max-w-6xl px-4 py-10 text-ink-700/60">Chargement…</div>
   if (!b) return (
     <div className="mx-auto max-w-6xl px-4 py-10">
-      <p className="text-slate-500">Produit introuvable.</p>
+      <p className="text-ink-700/60">Produit introuvable.</p>
       <Link to="/" className="text-brand-600">← Retour</Link>
     </div>
   )
@@ -113,23 +113,30 @@ export function ProductPage() {
   }
 
   return (
-    <div className="mx-auto max-w-6xl px-4 py-6">
-      <Link to="/" className="text-sm text-brand-600">← Toutes les excursions</Link>
+    <div className="mx-auto max-w-7xl px-4 py-6">
+      <nav className="text-sm text-ink-700/60">
+        <Link to="/" className="hover:text-brand-600">Accueil</Link>
+        <span className="mx-1.5">/</span><span>{b.excursion.categorie || 'Excursion'}</span>
+      </nav>
+      <h1 className="mt-2 font-display text-3xl font-extrabold text-ink-900">{t.nom}</h1>
+      <div className="mt-2 flex flex-wrap items-center gap-x-4 gap-y-1 text-sm text-ink-700/70">
+        {b.excursion.note_moyenne != null && <Stars note={b.excursion.note_moyenne} avis={b.excursion.nb_avis} />}
+        {b.excursion.duree && <span className="inline-flex items-center gap-1">🕒 {b.excursion.duree}</span>}
+        {b.excursion.ville_depart && <span className="inline-flex items-center gap-1">📍 {b.excursion.ville_depart}</span>}
+      </div>
 
-      <div className="mt-3 grid gap-6 lg:grid-cols-3">
+      <div className="mt-5 grid gap-8 lg:grid-cols-3">
         {/* ---- Colonne contenu ---- */}
         <div className="lg:col-span-2">
-          <Cover imageUrl={b.excursion.image_url} seed={t.nom} categorie={b.excursion.categorie}
-            className="h-72 w-full" rounded="rounded-2xl" />
-          {b.excursion.note_moyenne != null && (
-            <div className="mt-3"><Stars note={b.excursion.note_moyenne} avis={b.excursion.nb_avis} /></div>
+          <Gallery excursion={b.excursion} seed={t.nom} />
+          {b.excursion.points_forts && b.excursion.points_forts.length > 0 && (
+            <div className="mt-5 flex flex-wrap gap-2">
+              {b.excursion.points_forts.map((p: string) => (
+                <span key={p} className="rounded-full bg-brand-50 px-3 py-1 text-sm font-medium text-brand-700">✓ {p}</span>
+              ))}
+            </div>
           )}
-          <div className="mt-4 flex items-center gap-2 text-sm text-slate-400">
-            <span>{b.excursion.categorie || 'Excursion'}</span>
-            {b.excursion.duree && <><span>·</span><span>{b.excursion.duree}</span></>}
-          </div>
-          <h1 className="mt-1 text-2xl font-bold text-slate-800">{t.nom}</h1>
-          {t.description && <p className="mt-3 whitespace-pre-line text-slate-600">{t.description}</p>}
+          {t.description && <p className="mt-5 whitespace-pre-line leading-relaxed text-ink-700/80">{t.description}</p>}
           {t.programme && <Bloc titre="Programme" texte={t.programme} />}
           <div className="mt-4 grid gap-4 sm:grid-cols-2">
             {t.inclus && <Bloc titre="✅ Inclus" texte={t.inclus} />}
@@ -140,7 +147,16 @@ export function ProductPage() {
 
         {/* ---- Colonne configurateur (sticky) ---- */}
         <aside className="lg:col-span-1">
-          <div className="sticky top-4 rounded-xl border border-slate-200 bg-white p-4 shadow-sm">
+          <div className="sticky top-20 card p-5">
+            <div className="mb-4 flex items-end justify-between border-b border-ink-100 pb-3">
+              <div>
+                <span className="text-xs text-ink-700/50">à partir de</span>
+                <div className="font-display text-2xl font-extrabold text-ink-900">
+                  {pricingProduit(b.excursion).prix_adulte} {b.excursion.devise}
+                </div>
+              </div>
+              <span className="rounded-full bg-emerald-50 px-2.5 py-1 text-xs font-semibold text-emerald-600">✓ Confirmation immédiate</span>
+            </div>
             {/* Ville de départ d'abord */}
             <Field label="📍 Départ de">
               <select value={villeDepart} onChange={(e) => setVilleDepart(e.target.value)} className={selCls}>
@@ -211,13 +227,13 @@ export function ProductPage() {
                   {b.extras.map((e) => {
                     const trOpt = b.optionTranslations[e.id]?.find((x) => x.locale === locale)
                     return (
-                      <label key={e.id} className="flex items-center justify-between gap-2 rounded border border-slate-200 px-2 py-1.5 text-sm">
+                      <label key={e.id} className="flex items-center justify-between gap-2 rounded border border-ink-100 px-2 py-1.5 text-sm">
                         <span className="flex items-center gap-2">
                           <input type="checkbox" checked={extras.has(e.id)} disabled={e.obligatoire}
                             onChange={() => toggleExtra(e.id, e.obligatoire)} />
-                          {trOpt?.nom || e.nom_option}{e.obligatoire && <em className="text-xs text-slate-400"> (inclus)</em>}
+                          {trOpt?.nom || e.nom_option}{e.obligatoire && <em className="text-xs text-ink-700/50"> (inclus)</em>}
                         </span>
-                        <span className="text-slate-500">+{e.prix_adulte} {b.excursion.devise}</span>
+                        <span className="text-ink-700/60">+{e.prix_adulte} {b.excursion.devise}</span>
                       </label>
                     )
                   })}
@@ -234,16 +250,16 @@ export function ProductPage() {
                     <span>-{devis.remise} {b.excursion.devise}</span>
                   </div>
                 )}
-                <div className="flex items-center justify-between text-base font-bold text-slate-800">
+                <div className="flex items-center justify-between text-base font-bold text-ink-900">
                   <span>Total</span>
                   <span>
                     {devis.remise > 0 && (
-                      <span className="mr-2 text-sm font-normal text-slate-400 line-through">{devis.breakdown.total}</span>
+                      <span className="mr-2 text-sm font-normal text-ink-700/50 line-through">{devis.breakdown.total}</span>
                     )}
                     {devis.total} {b.excursion.devise}
                   </span>
                 </div>
-                <p className="mt-1 text-xs text-slate-400">
+                <p className="mt-1 text-xs text-ink-700/50">
                   {mode === 'PRIVE' ? 'Sortie privative' : 'Sortie en groupe'} · {adultes + enfants + bebes} voyageur(s)
                 </p>
               </div>
@@ -253,7 +269,7 @@ export function ProductPage() {
               className="mt-4 w-full rounded-lg bg-brand-500 py-3 font-semibold text-white hover:bg-brand-600">
               Réserver
             </button>
-            <p className="mt-2 text-center text-xs text-slate-400">Confirmation immédiate · Annulation gratuite</p>
+            <p className="mt-2 text-center text-xs text-ink-700/50">Confirmation immédiate · Annulation gratuite</p>
           </div>
         </aside>
       </div>
@@ -340,7 +356,7 @@ function CheckoutModal({
           <div className="text-center">
             <div className="text-4xl">✅</div>
             <h3 className="mt-2 text-lg font-bold">Réservation enregistrée !</h3>
-            <p className="mt-2 text-sm text-slate-500">
+            <p className="mt-2 text-sm text-ink-700/60">
               Merci {nom}. Sécurisez votre place en payant en ligne, ou réglez plus tard (confirmation par email).
             </p>
             {msg && <p className="mt-2 text-sm text-red-600">{msg}</p>}
@@ -353,14 +369,14 @@ function CheckoutModal({
                 className="w-full rounded-lg border border-brand-300 py-2.5 font-semibold text-brand-700 hover:bg-brand-50 disabled:opacity-50">
                 Payer le total ({total} {devise})
               </button>
-              <button onClick={onClose} className="w-full py-2 text-sm text-slate-500">Payer plus tard</button>
+              <button onClick={onClose} className="w-full py-2 text-sm text-ink-700/60">Payer plus tard</button>
             </div>
-            <p className="mt-2 text-center text-xs text-slate-400">🔒 Paiement sécurisé par Stripe</p>
+            <p className="mt-2 text-center text-xs text-ink-700/50">🔒 Paiement sécurisé par Stripe</p>
           </div>
         ) : (
           <>
-            <h3 className="text-lg font-bold text-slate-800">Finaliser ma réservation</h3>
-            <p className="mt-1 text-sm text-slate-500">{nomProduit}</p>
+            <h3 className="text-lg font-bold text-ink-900">Finaliser ma réservation</h3>
+            <p className="mt-1 text-sm text-ink-700/60">{nomProduit}</p>
             <div className="mt-3 rounded-lg bg-brand-50 px-3 py-2 text-sm font-medium text-brand-700">
               Total : {total} {devise}
             </div>
@@ -372,13 +388,13 @@ function CheckoutModal({
             </div>
             {msg && <p className="mt-2 text-sm text-red-600">{msg}</p>}
             <div className="mt-4 flex gap-2">
-              <button onClick={onClose} className="flex-1 rounded-lg border border-slate-300 py-2 text-sm">Annuler</button>
+              <button onClick={onClose} className="flex-1 rounded-lg border border-ink-100 py-2 text-sm">Annuler</button>
               <button onClick={submit} disabled={state === 'sending'}
                 className="flex-[2] rounded-lg bg-brand-500 py-2 font-semibold text-white hover:bg-brand-600 disabled:opacity-50">
                 {state === 'sending' ? 'Envoi…' : 'Confirmer la demande'}
               </button>
             </div>
-            <p className="mt-2 text-center text-xs text-slate-400">Paiement en ligne à l’étape suivante · ou réglez plus tard</p>
+            <p className="mt-2 text-center text-xs text-ink-700/50">Paiement en ligne à l’étape suivante · ou réglez plus tard</p>
           </>
         )}
       </div>
@@ -386,15 +402,37 @@ function CheckoutModal({
   )
 }
 
-const ckCls = 'w-full rounded-lg border border-slate-300 px-3 py-2 text-sm'
+const ckCls = 'w-full rounded-lg border border-ink-100 px-3 py-2 text-sm focus:border-brand-400 focus:outline-none'
 
-const selCls = 'w-full rounded-lg border border-slate-300 px-3 py-2 text-sm'
+const selCls = 'w-full rounded-lg border border-ink-100 bg-white px-3 py-2 text-sm focus:border-brand-400 focus:outline-none'
 
 function Field({ label, children }: { label: string; children: React.ReactNode }) {
   return (
     <div className="mb-3">
-      <label className="mb-1 block text-xs font-medium text-slate-500">{label}</label>
+      <label className="mb-1 block text-xs font-medium text-ink-700/60">{label}</label>
       {children}
+    </div>
+  )
+}
+
+function Gallery({ excursion, seed }: { excursion: any; seed: string }) {
+  const photos: string[] = [excursion.image_url, ...(excursion.galerie ?? [])].filter(Boolean)
+  const [active, setActive] = useState(0)
+  const main = photos[active] ?? null
+  return (
+    <div>
+      <Cover imageUrl={main} seed={seed} categorie={excursion.categorie}
+        className="h-80 w-full" rounded="rounded-2xl" />
+      {photos.length > 1 && (
+        <div className="mt-3 flex gap-2 overflow-x-auto">
+          {photos.map((p, i) => (
+            <button key={i} onClick={() => setActive(i)}
+              className={`h-16 w-24 shrink-0 overflow-hidden rounded-lg ring-2 ${i === active ? 'ring-brand-500' : 'ring-transparent'}`}>
+              <img src={p} alt="" className="h-full w-full object-cover" />
+            </button>
+          ))}
+        </div>
+      )}
     </div>
   )
 }
@@ -402,8 +440,8 @@ function Field({ label, children }: { label: string; children: React.ReactNode }
 function Bloc({ titre, texte }: { titre: string; texte: string }) {
   return (
     <div className="mt-4">
-      <h3 className="mb-1 font-semibold text-slate-800">{titre}</h3>
-      <p className="whitespace-pre-line text-sm text-slate-600">{texte}</p>
+      <h3 className="mb-1 font-semibold text-ink-900">{titre}</h3>
+      <p className="whitespace-pre-line text-sm text-ink-700/80">{texte}</p>
     </div>
   )
 }
@@ -411,7 +449,7 @@ function Bloc({ titre, texte }: { titre: string; texte: string }) {
 function Toggle({ on, onClick, children }: { on: boolean; onClick: () => void; children: React.ReactNode }) {
   return (
     <button onClick={onClick}
-      className={`rounded-lg border px-3 py-2 text-sm ${on ? 'border-brand-500 bg-brand-50 font-medium text-brand-700' : 'border-slate-300 text-slate-600'}`}>
+      className={`rounded-lg border px-3 py-2 text-sm ${on ? 'border-brand-500 bg-brand-50 font-medium text-brand-700' : 'border-ink-100 text-ink-700/80'}`}>
       {children}
     </button>
   )
@@ -420,11 +458,11 @@ function Toggle({ on, onClick, children }: { on: boolean; onClick: () => void; c
 function Stepper({ label, value, set, min }: { label: string; value: number; set: (n: number) => void; min: number }) {
   return (
     <div className="flex items-center justify-between">
-      <span className="text-sm text-slate-600">{label}</span>
+      <span className="text-sm text-ink-700/80">{label}</span>
       <div className="flex items-center gap-2">
-        <button onClick={() => set(Math.max(min, value - 1))} className="h-7 w-7 rounded border border-slate-300 text-slate-600">−</button>
+        <button onClick={() => set(Math.max(min, value - 1))} className="h-7 w-7 rounded border border-ink-100 text-ink-700/80">−</button>
         <span className="w-6 text-center text-sm">{value}</span>
-        <button onClick={() => set(value + 1)} className="h-7 w-7 rounded border border-slate-300 text-slate-600">+</button>
+        <button onClick={() => set(value + 1)} className="h-7 w-7 rounded border border-ink-100 text-ink-700/80">+</button>
       </div>
     </div>
   )

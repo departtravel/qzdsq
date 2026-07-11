@@ -69,7 +69,19 @@ export async function fetchCatalog(): Promise<{ items: CatalogItem[]; cities: Ci
 
 /** Charge un produit complet pour la page détail. */
 export async function fetchProduct(id: string): Promise<ProductBundle | null> {
-  if (!isSupabaseConfigured) return null
+  if (!isSupabaseConfigured) {
+    const { DEMO_ITEMS } = await import('./demo')
+    const it = DEMO_ITEMS.find((i) => i.excursion.id === id) ?? DEMO_ITEMS[0]
+    return {
+      ...it,
+      translations: [],
+      extras: [
+        { id: `x1-${id}`, excursion_id: id, nom_option: 'Balade à dos de chameau', description: null, categorie: 'Activité', prix_adulte: 15, prix_enfant: 10, prix_bebe: 0, actif: true, obligatoire: false, ordre: 0 },
+        { id: `x2-${id}`, excursion_id: id, nom_option: 'Déjeuner traditionnel', description: null, categorie: 'Repas', prix_adulte: 12, prix_enfant: 8, prix_bebe: 0, actif: true, obligatoire: false, ordre: 1 },
+      ] as any,
+      optionTranslations: {},
+    }
+  }
   const [ex, tr, op, ot, vr, ds, dp, pc] = await Promise.all([
     supabase.from('excursions').select('*').eq('id', id).single(),
     supabase.from('product_translations').select('*').eq('excursion_id', id),
