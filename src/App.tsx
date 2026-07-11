@@ -8,6 +8,7 @@ import { VehicleForm } from './components/VehicleForm'
 import { Login } from './components/Login'
 import { Excursions } from './components/erp/Excursions'
 import { Produits } from './components/erp/Produits'
+import { Messagerie } from './components/erp/Messagerie'
 import { Reservations } from './components/erp/Reservations'
 import { Planning } from './components/erp/Planning'
 import { Comptabilite } from './components/erp/Comptabilite'
@@ -38,11 +39,13 @@ type Section =
   | 'utilisateurs'
   | 'parametres'
   | 'relevepartenaire'
+  | 'messagerie'
 
 const ERP_SECTIONS: { key: Section; emoji: string; label: string }[] = [
   { key: 'produits', emoji: '🎫', label: 'Produits' },
   { key: 'excursions', emoji: '🧭', label: 'Excursions (rentabilité)' },
   { key: 'reservations', emoji: '📅', label: 'Réservations' },
+  { key: 'messagerie', emoji: '💬', label: 'Messagerie' },
   { key: 'planning', emoji: '📆', label: 'Planning' },
   { key: 'ordremission', emoji: '📋', label: 'Ordre de mission' },
   { key: 'fichereservation', emoji: '🗒️', label: 'Réservations à effectuer' },
@@ -60,6 +63,7 @@ const ERP_COMPONENTS: Record<Exclude<Section, 'flotte'>, JSX.Element> = {
   produits: <Produits />,
   excursions: <Excursions />,
   reservations: <Reservations />,
+  messagerie: <Messagerie />,
   planning: <Planning />,
   ordremission: <OrdreMission />,
   fichereservation: <FicheReservation />,

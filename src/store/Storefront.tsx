@@ -2,6 +2,7 @@ import { Link, Route, Routes } from 'react-router-dom'
 import { StoreProvider, useStore } from './StoreContext'
 import { HomePage } from './HomePage'
 import { ProductPage } from './ProductPage'
+import { ContactWidget } from './ContactWidget'
 import { LOCALES, LOCALE_LABELS } from '../lib/produits'
 
 // Vitrine publique Depart Travel Services.
@@ -18,6 +19,7 @@ export function Storefront() {
           </Routes>
         </main>
         <Footer />
+        <ContactWidget />
       </div>
     </StoreProvider>
   )

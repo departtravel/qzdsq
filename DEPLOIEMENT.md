@@ -20,8 +20,9 @@ L'application a **deux morceaux** :
    5. `supabase/produits.sql`  ← catalogue produit (options, extras, tarifs groupe/privé, réductions, villes, départs, 8 langues)
    6. `supabase/public_read.sql` ← lecture publique du catalogue pour la vitrine client
    7. `supabase/reservation.sql` ← réservation en ligne (le client réserve depuis le site)
-   8. `supabase/seed.sql`
-   9. `supabase/seed_dts.sql`
+   8. `supabase/messagerie.sql` ← messagerie (le client nous contacte depuis le site)
+   9. `supabase/seed.sql`
+   10. `supabase/seed_dts.sql`
 
 > **Deux espaces dans l'app :**
 > - `/` → **vitrine publique** (Depart Travel Services) : accueil, entrée par ville, pages produit avec configurateur (ville → option → groupe/privé → date → extras → prix live + promo).

@@ -136,6 +136,33 @@ export async function createBooking(d: BookingDraft): Promise<{ id: string } | {
   return { id: bookingId }
 }
 
+// ----- Contact / messagerie ----------------------------------
+export interface ContactDraft {
+  client_nom: string
+  client_email: string
+  client_telephone: string
+  sujet: string
+  excursion_id: string | null
+  message: string
+}
+
+/** Ouvre une conversation et poste le premier message du client. */
+export async function createConversation(d: ContactDraft): Promise<{ id: string } | { error: string }> {
+  const { message, ...conv } = d
+  const { data, error } = await supabase
+    .from('conversations')
+    .insert({ ...conv, statut: 'OUVERTE' })
+    .select('id')
+    .single()
+  if (error) return { error: error.message }
+  const convId = data.id as string
+  const m = await supabase.from('messages').insert({
+    conversation_id: convId, expediteur: 'CLIENT', corps: message,
+  })
+  if (m.error) return { error: m.error.message }
+  return { id: convId }
+}
+
 /** Traduction d'un produit dans la locale voulue, avec repli sur la source. */
 export function tradProduit(b: { excursion: Excursion; translations: ProductTranslation[] }, loc: Locale) {
   const t = b.translations.find((x) => x.locale === loc)
