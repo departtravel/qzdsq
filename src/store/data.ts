@@ -98,6 +98,14 @@ export async function fetchProduct(id: string): Promise<ProductBundle | null> {
   }
 }
 
+/** Déclenche un email transactionnel (best-effort, jamais bloquant). */
+async function notify(type: 'booking' | 'quote' | 'contact' | 'reply', data: Record<string, unknown>): Promise<void> {
+  try {
+    if (!isSupabaseConfigured) return
+    await supabase.functions.invoke('send-email', { body: { type, data } })
+  } catch { /* silencieux : l'email ne doit jamais casser le parcours */ }
+}
+
 // ----- Création d'une réservation depuis la vitrine ----------
 export interface BookingDraft {
   excursion_id: string
@@ -121,12 +129,14 @@ export interface BookingDraft {
   nombre_bebes: number
   notes: string | null
   extras: { option_id: string; nom: string; prix: number }[]
+  /** Nom du produit (email uniquement, pas une colonne DB). */
+  produit?: string
 }
 
 /** Insère une réservation (statut NOUVELLE, source WEB) + ses extras. */
 export async function createBooking(d: BookingDraft): Promise<{ id: string } | { error: string }> {
   if (!isSupabaseConfigured) return { error: 'Supabase non configuré' }
-  const { extras, ...booking } = d
+  const { extras, produit: _produit, ...booking } = d
   const { data, error } = await supabase
     .from('bookings')
     .insert({ ...booking, statut: 'NOUVELLE', source: 'WEB' })
@@ -139,6 +149,13 @@ export async function createBooking(d: BookingDraft): Promise<{ id: string } | {
       extras.map((e) => ({ booking_id: bookingId, option_id: e.option_id, nom: e.nom, prix: e.prix })),
     )
   }
+  await notify('booking', {
+    client_nom: d.client_nom, client_email: d.client_email, client_telephone: d.client_telephone,
+    produit: d.produit ?? 'Excursion', date: d.date_excursion,
+    mode: d.type_sortie === 'PRIVE' ? 'Privatif' : 'Groupe',
+    voyageurs: d.nombre_adultes + d.nombre_enfants + d.nombre_bebes,
+    total: d.montant_total, devise: d.devise,
+  })
   return { id: bookingId }
 }
 
@@ -167,6 +184,7 @@ export async function createConversation(d: ContactDraft): Promise<{ id: string 
     conversation_id: convId, expediteur: 'CLIENT', corps: message,
   })
   if (m.error) return { error: m.error.message }
+  await notify('contact', { client_nom: d.client_nom, client_email: d.client_email, message })
   return { id: convId }
 }
 
@@ -197,6 +215,10 @@ export async function createQuote(d: QuoteDraft): Promise<{ id: string } | { err
     .select('id')
     .single()
   if (error) return { error: error.message }
+  await notify('quote', {
+    client_nom: d.client_nom, client_email: d.client_email, client_telephone: d.client_telephone,
+    quote_type: d.type, message: d.message,
+  })
   return { id: data.id as string }
 }
 

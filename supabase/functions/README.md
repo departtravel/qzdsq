@@ -58,3 +58,31 @@ select cron.schedule(
 ```
 
 Pour arrêter : `select cron.unschedule('notif-echeances-flotte');`
+
+---
+
+# Emails transactionnels de la vitrine (`send-email`)
+
+La fonction [`send-email`](send-email/index.ts) envoie les e-mails du site :
+confirmation de réservation, accusé de devis, accusé de message, et réponse
+de l'agence au client (depuis le back-office Messagerie).
+
+## Secrets
+
+```bash
+supabase secrets set RESEND_API_KEY=re_xxx
+supabase secrets set MAIL_FROM="Depart Travel <hello@ton-domaine.com>"
+supabase secrets set MAIL_AGENCY="agence.departtravel@gmail.com"
+```
+
+## Déploiement
+
+La fonction est appelée depuis la vitrine (visiteur anonyme), il faut donc
+désactiver la vérification du JWT :
+
+```bash
+supabase functions deploy send-email --no-verify-jwt
+```
+
+Sans `RESEND_API_KEY`, la fonction ne casse rien : elle journalise et n'envoie
+pas d'e-mail (le parcours client reste fonctionnel).

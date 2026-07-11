@@ -63,6 +63,15 @@ export function Messagerie() {
     if (error) { setError(error.message); return }
     await supabase.from('conversations')
       .update({ statut: 'EN_COURS', updated_at: new Date().toISOString() }).eq('id', selId)
+    // Email de la réponse au client (best-effort).
+    const conv = convs.find((c) => c.id === selId)
+    if (conv?.client_email) {
+      try {
+        await supabase.functions.invoke('send-email', {
+          body: { type: 'reply', data: { client_nom: conv.client_nom, client_email: conv.client_email, message: corps } },
+        })
+      } catch { /* silencieux */ }
+    }
     openConv(selId)
     loadConvs()
   }

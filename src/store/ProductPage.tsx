@@ -263,6 +263,7 @@ export function ProductPage() {
           total={devis.total}
           devise={b.excursion.devise}
           draft={{
+            produit: t.nom,
             excursion_id: b.excursion.id,
             date_excursion: dateDep || null,
             heure_depart: b.departures.find((d) => d.date_depart === dateDep)?.heure ?? null,
