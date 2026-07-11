@@ -93,6 +93,49 @@ export async function fetchProduct(id: string): Promise<ProductBundle | null> {
   }
 }
 
+// ----- Création d'une réservation depuis la vitrine ----------
+export interface BookingDraft {
+  excursion_id: string
+  date_excursion: string | null
+  heure_depart: string | null
+  type_sortie: 'GROUPE' | 'PRIVE'
+  variant_id: string | null
+  ville_depart_id: string | null
+  ville_arrivee_id: string | null
+  supplement_ville: number
+  reduction_montant: number
+  reduction_nom: string | null
+  montant_total: number
+  devise: string
+  langue: string
+  client_nom: string
+  client_email: string
+  client_telephone: string
+  nombre_adultes: number
+  nombre_enfants: number
+  nombre_bebes: number
+  notes: string | null
+  extras: { option_id: string; nom: string; prix: number }[]
+}
+
+/** Insère une réservation (statut NOUVELLE, source WEB) + ses extras. */
+export async function createBooking(d: BookingDraft): Promise<{ id: string } | { error: string }> {
+  const { extras, ...booking } = d
+  const { data, error } = await supabase
+    .from('bookings')
+    .insert({ ...booking, statut: 'NOUVELLE', source: 'WEB' })
+    .select('id')
+    .single()
+  if (error) return { error: error.message }
+  const bookingId = data.id as string
+  if (extras.length) {
+    await supabase.from('booking_extras').insert(
+      extras.map((e) => ({ booking_id: bookingId, option_id: e.option_id, nom: e.nom, prix: e.prix })),
+    )
+  }
+  return { id: bookingId }
+}
+
 /** Traduction d'un produit dans la locale voulue, avec repli sur la source. */
 export function tradProduit(b: { excursion: Excursion; translations: ProductTranslation[] }, loc: Locale) {
   const t = b.translations.find((x) => x.locale === loc)

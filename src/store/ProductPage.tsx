@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useState } from 'react'
 import { Link, useParams } from 'react-router-dom'
 import { useStore } from './StoreContext'
-import { fetchProduct, tradProduit, type ProductBundle } from './data'
+import { fetchProduct, tradProduit, createBooking, type ProductBundle } from './data'
 import { setSeo } from './seo'
 import {
   pricingVariante, pricingProduit, calculerPrixProduit, meilleureReduction, placesRestantes,
@@ -28,6 +28,7 @@ export function ProductPage() {
   const [enfants, setEnfants] = useState(0)
   const [bebes, setBebes] = useState(0)
   const [extras, setExtras] = useState<Set<string>>(new Set())
+  const [checkout, setCheckout] = useState(false)
 
   useEffect(() => {
     if (!id) return
@@ -237,16 +238,114 @@ export function ProductPage() {
               </div>
             )}
 
-            <button className="mt-4 w-full rounded-lg bg-amber-500 py-3 font-semibold text-white hover:bg-amber-600">
+            <button onClick={() => setCheckout(true)}
+              className="mt-4 w-full rounded-lg bg-amber-500 py-3 font-semibold text-white hover:bg-amber-600">
               Réserver
             </button>
             <p className="mt-2 text-center text-xs text-slate-400">Confirmation immédiate · Annulation gratuite</p>
           </div>
         </aside>
       </div>
+
+      {checkout && devis && (
+        <CheckoutModal
+          onClose={() => setCheckout(false)}
+          nomProduit={t.nom}
+          total={devis.total}
+          devise={b.excursion.devise}
+          draft={{
+            excursion_id: b.excursion.id,
+            date_excursion: dateDep || null,
+            heure_depart: b.departures.find((d) => d.date_depart === dateDep)?.heure ?? null,
+            type_sortie: mode,
+            variant_id: variantId,
+            ville_depart_id: villeDepart || null,
+            ville_arrivee_id: villeArrivee || null,
+            supplement_ville: supplementArrivee,
+            reduction_montant: devis.remise,
+            reduction_nom: devis.promoNom ?? null,
+            montant_total: devis.total,
+            devise: b.excursion.devise,
+            langue: locale,
+            nombre_adultes: adultes,
+            nombre_enfants: enfants,
+            nombre_bebes: bebes,
+            extras: selectedExtras.map((e) => ({ option_id: e.id, nom: e.nom_option, prix: e.prix_adulte })),
+          }}
+        />
+      )}
     </div>
   )
 }
+
+// ---------- Modal de finalisation de réservation ----------
+function CheckoutModal({
+  onClose, nomProduit, total, devise, draft,
+}: {
+  onClose: () => void
+  nomProduit: string
+  total: number
+  devise: string
+  draft: Omit<import('./data').BookingDraft, 'client_nom' | 'client_email' | 'client_telephone' | 'notes'>
+}) {
+  const [nom, setNom] = useState('')
+  const [email, setEmail] = useState('')
+  const [tel, setTel] = useState('')
+  const [notes, setNotes] = useState('')
+  const [state, setState] = useState<'form' | 'sending' | 'done' | 'error'>('form')
+  const [msg, setMsg] = useState('')
+
+  const submit = async () => {
+    if (!nom || !email) { setMsg('Nom et email sont requis.'); return }
+    setState('sending'); setMsg('')
+    const res = await createBooking({ ...draft, client_nom: nom, client_email: email, client_telephone: tel, notes })
+    if ('error' in res) { setState('error'); setMsg(res.error) }
+    else setState('done')
+  }
+
+  return (
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4" onClick={onClose}>
+      <div className="w-full max-w-md rounded-xl bg-white p-6 shadow-xl" onClick={(e) => e.stopPropagation()}>
+        {state === 'done' ? (
+          <div className="text-center">
+            <div className="text-4xl">✅</div>
+            <h3 className="mt-2 text-lg font-bold">Demande envoyée !</h3>
+            <p className="mt-2 text-sm text-slate-500">
+              Merci {nom}. Nous avons bien reçu votre demande pour « {nomProduit} ».
+              Notre équipe vous confirme par email très vite.
+            </p>
+            <button onClick={onClose} className="mt-4 rounded-lg bg-amber-500 px-4 py-2 font-medium text-white">Fermer</button>
+          </div>
+        ) : (
+          <>
+            <h3 className="text-lg font-bold text-slate-800">Finaliser ma réservation</h3>
+            <p className="mt-1 text-sm text-slate-500">{nomProduit}</p>
+            <div className="mt-3 rounded-lg bg-amber-50 px-3 py-2 text-sm font-medium text-amber-700">
+              Total : {total} {devise}
+            </div>
+            <div className="mt-4 space-y-2">
+              <input className={ckCls} placeholder="Nom complet *" value={nom} onChange={(e) => setNom(e.target.value)} />
+              <input className={ckCls} type="email" placeholder="Email *" value={email} onChange={(e) => setEmail(e.target.value)} />
+              <input className={ckCls} placeholder="Téléphone / WhatsApp" value={tel} onChange={(e) => setTel(e.target.value)} />
+              <textarea className={ckCls} rows={2} placeholder="Remarques (hôtel, horaire souhaité…)" value={notes} onChange={(e) => setNotes(e.target.value)} />
+            </div>
+            {msg && <p className="mt-2 text-sm text-red-600">{msg}</p>}
+            <div className="mt-4 flex gap-2">
+              <button onClick={onClose} className="flex-1 rounded-lg border border-slate-300 py-2 text-sm">Annuler</button>
+              <button onClick={submit} disabled={state === 'sending'}
+                className="flex-[2] rounded-lg bg-amber-500 py-2 font-semibold text-white hover:bg-amber-600 disabled:opacity-50">
+                {state === 'sending' ? 'Envoi…' : 'Confirmer la demande'}
+              </button>
+            </div>
+            <p className="mt-2 text-center text-xs text-slate-400">Sans paiement en ligne pour l’instant · confirmation par email</p>
+          </>
+        )}
+      </div>
+    </div>
+  )
+}
+
+const ckCls = 'w-full rounded-lg border border-slate-300 px-3 py-2 text-sm'
 
 const selCls = 'w-full rounded-lg border border-slate-300 px-3 py-2 text-sm'
 
