@@ -112,6 +112,17 @@ export function HomePage() {
                 : <Grid items={filtered} />}
             </Section>
 
+            {/* ---- Bannière circuit sur mesure ---- */}
+            <Link to="/circuit-sur-mesure"
+              className="mb-10 flex flex-col items-start justify-between gap-3 rounded-2xl bg-gradient-to-br from-emerald-600 to-teal-700 p-6 text-white transition hover:shadow-lg sm:flex-row sm:items-center">
+              <div>
+                <span className="rounded-full bg-white/20 px-3 py-1 text-xs font-medium">🎁 Devis 100 % gratuit</span>
+                <h2 className="mt-2 text-xl font-bold">Créez votre circuit sur mesure 🗺️</h2>
+                <p className="mt-1 text-sm text-white/90">Villes, visites, hébergements, randonnées, 4×4… on compose l’itinéraire idéal.</p>
+              </div>
+              <span className="rounded-lg bg-white px-5 py-2.5 font-semibold text-emerald-700">Commencer →</span>
+            </Link>
+
             {/* ---- Événements sur devis (teaser) ---- */}
             <Section title="🎉 Événements sur mesure">
               <div className="grid gap-4 sm:grid-cols-3">
