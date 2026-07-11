@@ -29,9 +29,13 @@ type ExcursionPricing = Pick<
 
 type BookingStatut =
   | 'NOUVELLE'
-  | 'CONFIRMEE'
-  | 'EN_OPERATION'
-  | 'TERMINEE'
+  | 'AFFECTEE'
+  | 'CLIENT_INFORME'
+  | 'PARTENAIRES_OK'
+  | 'VERIFIEE'
+  | 'COMPTA_OK'
+  | 'CONTROLEE'
+  | 'CLOTUREE'
   | 'ANNULEE'
 
 interface Booking {
@@ -61,18 +65,33 @@ interface Booking {
 // est bloquée et la liste de ce qui manque s'affiche.
 function champsManquants(b: Booking, to: BookingStatut): string[] {
   const m: string[] = []
-  if (to === 'CONFIRMEE') {
-    if (!b.excursion_id) m.push('Excursion')
-    if (!b.date_excursion) m.push("Date de l'excursion")
-    if (!b.client_nom) m.push('Nom du client')
-    if (!b.nombre_adultes || b.nombre_adultes < 1) m.push('Au moins 1 adulte')
-    if (!b.langue) m.push('Langue')
-    if (!b.hotel) m.push('Hôtel / lieu de prise en charge')
+  if (to === 'AFFECTEE') {
+    // Khalil : transport + guide + heure de prise en charge
+    if (!b.departure_id) m.push('Affectation à un départ (transport + guide) dans le Planning')
     if (!b.heure_prise_en_charge) m.push('Heure de prise en charge')
-  } else if (to === 'EN_OPERATION') {
-    if (!b.departure_id) m.push('Affectation à un départ (guide + transport) dans le Planning')
+  } else if (to === 'CLIENT_INFORME') {
+    // Farah : besoin de l'e-mail du client pour l'informer
+    if (!b.client_email) m.push('E-mail du client (pour l’informer)')
   }
   return m
+}
+
+// Prépare un e-mail pré-rempli (envoi manuel par Farah) avec les infos de pickup.
+function mailtoClient(b: Booking, excursionNom?: string): string {
+  const sujet = `Votre excursion ${excursionNom ?? ''} du ${b.date_excursion ?? ''}`.trim()
+  const corps = [
+    `Bonjour ${b.client_nom ?? ''},`,
+    '',
+    `Votre excursion « ${excursionNom ?? ''} » est confirmée pour le ${b.date_excursion ?? ''}.`,
+    b.hotel ? `Lieu de prise en charge : ${b.hotel}` : '',
+    b.heure_prise_en_charge ? `Heure de prise en charge : ${b.heure_prise_en_charge}` : '',
+    '',
+    'Merci de votre confiance,',
+    "L'équipe Depart Travel Services",
+  ]
+    .filter(Boolean)
+    .join('\n')
+  return `mailto:${b.client_email}?subject=${encodeURIComponent(sujet)}&body=${encodeURIComponent(corps)}`
 }
 
 interface ExcursionOption {
@@ -102,39 +121,60 @@ interface ChosenExtra {
 
 const STATUTS: BookingStatut[] = [
   'NOUVELLE',
-  'CONFIRMEE',
-  'EN_OPERATION',
-  'TERMINEE',
+  'AFFECTEE',
+  'CLIENT_INFORME',
+  'PARTENAIRES_OK',
+  'VERIFIEE',
+  'COMPTA_OK',
+  'CONTROLEE',
+  'CLOTUREE',
   'ANNULEE',
 ]
 
 // Étape suivante du workflow (null = pas d'avancement possible).
 const NEXT_STATUT: Partial<Record<BookingStatut, BookingStatut>> = {
-  NOUVELLE: 'CONFIRMEE',
-  CONFIRMEE: 'EN_OPERATION',
-  EN_OPERATION: 'TERMINEE',
+  NOUVELLE: 'AFFECTEE',
+  AFFECTEE: 'CLIENT_INFORME',
+  CLIENT_INFORME: 'PARTENAIRES_OK',
+  PARTENAIRES_OK: 'VERIFIEE',
+  VERIFIEE: 'COMPTA_OK',
+  COMPTA_OK: 'CONTROLEE',
+  CONTROLEE: 'CLOTUREE',
 }
 
+// Libellé du bouton qui fait passer à l'étape suivante.
 const NEXT_LABEL: Partial<Record<BookingStatut, string>> = {
-  NOUVELLE: 'Confirmer',
-  CONFIRMEE: 'Mettre en opération',
-  EN_OPERATION: 'Terminer',
+  NOUVELLE: 'Valider l’affectation',
+  AFFECTEE: 'Mail envoyé au client',
+  CLIENT_INFORME: 'Partenaires réservés',
+  PARTENAIRES_OK: 'Vérifié',
+  VERIFIEE: 'Comptabilité vérifiée',
+  COMPTA_OK: 'Contrôlé',
+  CONTROLEE: 'Clôturer (bénéfice/déficit)',
 }
 
-// Responsable / étape courante du workflow métier.
+// Étape courante = qui doit agir maintenant.
 const RESPONSABLE: Record<BookingStatut, string> = {
-  NOUVELLE: 'Hiba — réservation',
-  CONFIRMEE: 'Farah — confirmation',
-  EN_OPERATION: 'Hersi — opérations · Karima — logistique',
-  TERMINEE: 'Amine / Aymen — contrôle',
+  NOUVELLE: 'Khalil — transport, guide, heure',
+  AFFECTEE: 'Farah — mail au client',
+  CLIENT_INFORME: 'Karima — réservations partenaires',
+  PARTENAIRES_OK: 'Hiba — vérification',
+  VERIFIEE: 'Karima — vérification comptabilité',
+  COMPTA_OK: 'Hiba, Amine, Aymen — contrôle',
+  CONTROLEE: 'Mohamed — bénéfice / déficit',
+  CLOTUREE: 'Clôturée',
   ANNULEE: 'Annulée',
 }
 
 const STATUT_STYLE: Record<BookingStatut, string> = {
   NOUVELLE: 'bg-blue-100 text-blue-700',
-  CONFIRMEE: 'bg-indigo-100 text-indigo-700',
-  EN_OPERATION: 'bg-amber-100 text-amber-700',
-  TERMINEE: 'bg-green-100 text-green-700',
+  AFFECTEE: 'bg-cyan-100 text-cyan-700',
+  CLIENT_INFORME: 'bg-indigo-100 text-indigo-700',
+  PARTENAIRES_OK: 'bg-violet-100 text-violet-700',
+  VERIFIEE: 'bg-amber-100 text-amber-700',
+  COMPTA_OK: 'bg-orange-100 text-orange-700',
+  CONTROLEE: 'bg-teal-100 text-teal-700',
+  CLOTUREE: 'bg-green-100 text-green-700',
   ANNULEE: 'bg-red-100 text-red-700',
 }
 
@@ -473,6 +513,17 @@ export function Reservations() {
                   </td>
                   <td className="px-3 py-2 text-xs text-slate-500">{RESPONSABLE[b.statut]}</td>
                   <td className="whitespace-nowrap px-3 py-2 text-right">
+                    {/* Étape Farah : lien mailto pré-rempli pour informer le client (envoi manuel). */}
+                    {b.statut === 'AFFECTEE' &&
+                      peutTransition(role, 'AFFECTEE' as RoleStatut, 'CLIENT_INFORME' as RoleStatut) &&
+                      b.client_email && (
+                        <a
+                          href={mailtoClient(b, ex?.nom)}
+                          className="mr-1 inline-block rounded border border-blue-300 px-2 py-1 text-xs font-medium text-blue-700 hover:bg-blue-50"
+                        >
+                          ✉️ Écrire au client
+                        </a>
+                      )}
                     {next && peutTransition(role, b.statut as RoleStatut, next as RoleStatut) && (
                       <button
                         disabled={busy}
@@ -488,7 +539,7 @@ export function Reservations() {
                       </span>
                     )}
                     {b.statut !== 'ANNULEE' &&
-                      b.statut !== 'TERMINEE' &&
+                      b.statut !== 'CLOTUREE' &&
                       peutTransition(role, b.statut as RoleStatut, 'ANNULEE') && (
                         <button
                           disabled={busy}

@@ -8,26 +8,40 @@ import { supabase } from './supabase'
 
 export type ErpRole =
   | 'ADMIN' | 'COMPTABLE' | 'RESERVATION' | 'CONFIRMATION'
-  | 'OPERATIONS' | 'LOGISTIQUE' | 'LECTURE'
+  | 'OPERATIONS' | 'LOGISTIQUE' | 'LECTURE' | 'ANALYSE'
 
+// Pipeline en 8 étapes (cf. supabase/workflow_9etapes.sql)
 export type BookingStatut =
-  | 'NOUVELLE' | 'CONFIRMEE' | 'EN_OPERATION' | 'TERMINEE' | 'ANNULEE'
+  | 'NOUVELLE'        // 1 Hiba   : créée + au planning
+  | 'AFFECTEE'        // 2 Khalil : transport + guide + heure
+  | 'CLIENT_INFORME'  // 3 Farah  : mail au client
+  | 'PARTENAIRES_OK'  // 4 Karima : réservations partenaires
+  | 'VERIFIEE'        // 5 Hiba   : vérifie que tout est bon
+  | 'COMPTA_OK'       // 6 Karima : vérifie la comptabilité
+  | 'CONTROLEE'       // 7 Hiba / Amine / Aymen : contrôle
+  | 'CLOTUREE'        // 8 Mohamed : bénéfice/déficit (résumé)
+  | 'ANNULEE'
 
 export const ROLE_LABEL: Record<ErpRole, string> = {
   ADMIN: 'Administrateur (Direction)',
   RESERVATION: 'Réservation (Hiba)',
   CONFIRMATION: 'Confirmation (Farah)',
-  OPERATIONS: 'Opérations (Hersi)',
+  OPERATIONS: 'Opérations (Khalil)',
   LOGISTIQUE: 'Logistique (Karima)',
   COMPTABLE: 'Comptabilité',
+  ANALYSE: 'Vérification budget (Mohamed)',
   LECTURE: 'Contrôle / Lecture (Amine, Aymen)',
 }
 
 /** Rôle requis pour franchir une transition de statut de réservation. */
 export function rolesPourTransition(from: BookingStatut, to: BookingStatut): ErpRole[] {
-  if (from === 'NOUVELLE' && to === 'CONFIRMEE') return ['ADMIN', 'CONFIRMATION']
-  if (from === 'CONFIRMEE' && to === 'EN_OPERATION') return ['ADMIN', 'OPERATIONS']
-  if (from === 'EN_OPERATION' && to === 'TERMINEE') return ['ADMIN', 'OPERATIONS', 'LOGISTIQUE']
+  if (from === 'NOUVELLE' && to === 'AFFECTEE') return ['ADMIN', 'OPERATIONS']
+  if (from === 'AFFECTEE' && to === 'CLIENT_INFORME') return ['ADMIN', 'CONFIRMATION']
+  if (from === 'CLIENT_INFORME' && to === 'PARTENAIRES_OK') return ['ADMIN', 'LOGISTIQUE']
+  if (from === 'PARTENAIRES_OK' && to === 'VERIFIEE') return ['ADMIN', 'RESERVATION']
+  if (from === 'VERIFIEE' && to === 'COMPTA_OK') return ['ADMIN', 'LOGISTIQUE']
+  if (from === 'COMPTA_OK' && to === 'CONTROLEE') return ['ADMIN', 'LECTURE', 'RESERVATION']
+  if (from === 'CONTROLEE' && to === 'CLOTUREE') return ['ADMIN', 'ANALYSE']
   if (to === 'ANNULEE') return ['ADMIN', 'RESERVATION', 'CONFIRMATION']
   return ['ADMIN']
 }
@@ -62,15 +76,17 @@ export function onglestsVisibles(role: ErpRole): 'ALL' | string[] {
       return ['reservations', 'importota', 'planning']
     case 'CONFIRMATION': // Farah
       return ['reservations', 'planning']
-    case 'OPERATIONS': // Hersi
+    case 'OPERATIONS': // Khalil
       return ['planning', 'ordremission', 'fichereservation', 'reservations']
     case 'LOGISTIQUE': // Karima
-      return ['planning', 'fichereservation', 'referentiels', 'relevepartenaire', 'ordremission', 'flotte']
+      return ['planning', 'fichereservation', 'referentiels', 'relevepartenaire', 'ordremission', 'flotte', 'comptabilite', 'reservations']
     case 'COMPTABLE':
-      return ['comptabilite', 'relevepartenaire', 'chargesfixes', 'caisse', 'dashboard']
+      return ['comptabilite', 'relevepartenaire', 'chargesfixes', 'caisse', 'dashboard', 'reservations']
+    case 'ANALYSE': // Mohamed — vérification budget / rentabilité
+      return ['reservations', 'planning', 'dashboard', 'ia']
     case 'LECTURE': // Amine / Aymen
     default:
-      return ['dashboard', 'ia', 'excursions']
+      return ['dashboard', 'ia', 'excursions', 'reservations']
   }
 }
 
@@ -78,27 +94,33 @@ export function onglestsVisibles(role: ErpRole): 'ALL' | string[] {
  * Workflow en cascade : chaque rôle ne VOIT une réservation que lorsqu'elle
  * est arrivée à son étape. Tant que l'étape précédente n'a pas validé, la
  * personne suivante ne voit rien.
- *   NOUVELLE      -> créée par Hiba, à confirmer par Farah
- *   CONFIRMEE     -> à mettre en opération par Hersi
- *   EN_OPERATION  -> à finaliser par Karima (logistique)
- *   TERMINEE      -> à facturer par la comptabilité
+ *   NOUVELLE       -> créée par Hiba, à affecter par Khalil (transport/guide/heure)
+ *   AFFECTEE       -> à informer le client par Farah
+ *   CLIENT_INFORME -> réservations partenaires par Karima
+ *   PARTENAIRES_OK -> vérification par Hiba
+ *   VERIFIEE       -> vérification comptabilité par Karima
+ *   COMPTA_OK      -> contrôle par Hiba / Amine / Aymen
+ *   CONTROLEE      -> clôture bénéfice/déficit par Mohamed
  * 'ALL' = voit tout (ADMIN, LECTURE).
  */
 export function statutsVisibles(role: ErpRole): 'ALL' | BookingStatut[] {
   switch (role) {
     case 'ADMIN':
       return 'ALL'
-    case 'RESERVATION': // Hiba : ses réservations tant que Farah n'a pas confirmé
+    case 'RESERVATION': // Hiba : crée (NOUVELLE), vérifie (PARTENAIRES_OK), contrôle (COMPTA_OK)
+      return ['NOUVELLE', 'PARTENAIRES_OK', 'COMPTA_OK']
+    case 'OPERATIONS': // Khalil : affecte transport/guide/heure
       return ['NOUVELLE']
-    case 'CONFIRMATION': // Farah : ne voit que ce qui est à confirmer
-      return ['NOUVELLE']
-    case 'OPERATIONS': // Hersi : ne voit que ce qui est confirmé
-      return ['CONFIRMEE']
-    case 'LOGISTIQUE': // Karima : ne voit que ce qui est en opération
-      return ['EN_OPERATION']
-    case 'COMPTABLE': // Compta : sorties en cours / terminées à facturer
-      return ['EN_OPERATION', 'TERMINEE']
-    case 'LECTURE':
+    case 'CONFIRMATION': // Farah : informe le client
+      return ['AFFECTEE']
+    case 'LOGISTIQUE': // Karima : réservations partenaires puis vérif compta
+      return ['CLIENT_INFORME', 'VERIFIEE']
+    case 'COMPTABLE': // Comptabilité : suit les sorties à facturer
+      return ['COMPTA_OK', 'CONTROLEE', 'CLOTUREE']
+    case 'ANALYSE': // Mohamed : contrôle terminé -> clôture (bénéfice/déficit)
+      return ['CONTROLEE', 'CLOTUREE']
+    case 'LECTURE': // Amine / Aymen : contrôlent
+      return ['COMPTA_OK']
     default:
       return 'ALL'
   }

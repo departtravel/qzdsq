@@ -179,12 +179,14 @@ export function Planning(_props: { today?: string } = {}) {
   const from = useMemo(() => firstDayISO(year, month), [year, month])
   const to = useMemo(() => lastDayISO(year, month), [year, month])
 
+  // Quand Khalil (Opérations) confirme le départ (transport + guide affectés),
+  // les réservations encore NOUVELLE passent à AFFECTEE (étape suivante : Farah).
   const promouvoirReservations = useCallback(async (depId: string) => {
     const { error: promoErr } = await supabase
       .from('bookings')
-      .update({ statut: 'EN_OPERATION' })
+      .update({ statut: 'AFFECTEE' })
       .eq('departure_id', depId)
-      .neq('statut', 'ANNULEE')
+      .eq('statut', 'NOUVELLE')
     if (promoErr) setError(promoErr.message)
   }, [])
 

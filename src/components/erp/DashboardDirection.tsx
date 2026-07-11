@@ -194,7 +194,7 @@ export function DashboardDirection() {
     const aVenirSansAffectation = bookings.filter(
       (b) =>
         b.statut !== 'ANNULEE' &&
-        b.statut !== 'TERMINEE' &&
+        b.statut !== 'CLOTUREE' &&
         (b.date_excursion ?? '') >= today &&
         (!b.guide_id || !b.vehicle_id || !b.driver_id),
     )

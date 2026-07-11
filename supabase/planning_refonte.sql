@@ -76,7 +76,7 @@ begin
 
   select coalesce(sum(nombre_adultes),0), coalesce(sum(nombre_enfants),0)
     into ad, en from public.bookings
-    where departure_id = p_departure and statut in ('CONFIRMEE','EN_OPERATION','TERMINEE');
+    where departure_id = p_departure and statut not in ('NOUVELLE','ANNULEE');
   pax := ad + en;
   if pax = 0 then return; end if;
 
@@ -155,7 +155,7 @@ begin
       join public.bookings b on b.id = be.booking_id
       join public.extras   e on e.id = be.extra_id
      where b.departure_id = p_departure
-       and b.statut in ('CONFIRMEE','EN_OPERATION','TERMINEE')
+       and b.statut not in ('NOUVELLE','ANNULEE')
        and coalesce(e.inclure_comptabilite, true) = true
      group by e.id, e.nom, e.prestataire_type, e.prestataire_id
     having sum(be.quantite * coalesce(e.prix_achat, 0)) > 0

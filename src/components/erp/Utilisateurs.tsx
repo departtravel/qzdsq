@@ -18,7 +18,7 @@ interface Profile {
 }
 
 const ERP_ROLES: ErpRole[] = [
-  'ADMIN', 'RESERVATION', 'CONFIRMATION', 'OPERATIONS', 'LOGISTIQUE', 'COMPTABLE', 'LECTURE',
+  'ADMIN', 'RESERVATION', 'CONFIRMATION', 'OPERATIONS', 'LOGISTIQUE', 'COMPTABLE', 'ANALYSE', 'LECTURE',
 ]
 
 export function Utilisateurs() {
@@ -295,12 +295,13 @@ export function Utilisateurs() {
       <div className="mt-4 rounded border border-slate-200 bg-slate-50 px-4 py-3 text-xs text-slate-600">
         <p className="mb-1 font-medium">Rappel des rôles :</p>
         <ul className="list-disc space-y-0.5 pl-5">
-          <li><strong>Réservation (Hiba)</strong> — crée les réservations.</li>
-          <li><strong>Confirmation (Farah)</strong> — confirme les réservations.</li>
-          <li><strong>Opérations (Hersi)</strong> — affecte guide/véhicule/chauffeur, met en opération.</li>
-          <li><strong>Logistique (Karima)</strong> — réservations partenaires, référentiels.</li>
+          <li><strong>Réservation (Hiba)</strong> — crée la réservation, vérifie, contrôle.</li>
+          <li><strong>Opérations (Khalil)</strong> — transport, guide, heure de prise en charge.</li>
+          <li><strong>Confirmation (Farah)</strong> — informe le client (mail).</li>
+          <li><strong>Logistique (Karima)</strong> — réservations partenaires, vérif comptabilité, référentiels.</li>
           <li><strong>Comptabilité</strong> — fournisseurs, factures, paiements.</li>
-          <li><strong>Contrôle / Lecture (Amine, Aymen)</strong> — analyse et rapports.</li>
+          <li><strong>Vérification budget (Mohamed)</strong> — bénéfice/déficit, clôture du départ.</li>
+          <li><strong>Contrôle / Lecture (Amine, Aymen)</strong> — contrôle, analyse et rapports.</li>
           <li><strong>Administrateur</strong> — accès total (super admin).</li>
         </ul>
       </div>
