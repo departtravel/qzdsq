@@ -46,6 +46,17 @@ interface Booking {
 // Effectif de référence utilisé quand aucune réservation réelle n'existe.
 const CAPACITE_VEHICULE_DEFAUT = 5
 
+// Étapes du workflow : qui doit agir à chaque statut (pour l'encadré pilotage).
+const ETAPES: { statut: string; personne: string; action: string; couleur: string }[] = [
+  { statut: 'NOUVELLE', personne: 'Khalil', action: 'transport + guide + heure', couleur: 'border-blue-300 bg-blue-50 text-blue-800' },
+  { statut: 'AFFECTEE', personne: 'Farah', action: 'informer le client (mail)', couleur: 'border-cyan-300 bg-cyan-50 text-cyan-800' },
+  { statut: 'CLIENT_INFORME', personne: 'Karima', action: 'réservations partenaires', couleur: 'border-indigo-300 bg-indigo-50 text-indigo-800' },
+  { statut: 'PARTENAIRES_OK', personne: 'Hiba', action: 'vérifier que tout est bon', couleur: 'border-violet-300 bg-violet-50 text-violet-800' },
+  { statut: 'VERIFIEE', personne: 'Karima', action: 'vérifier la comptabilité', couleur: 'border-amber-300 bg-amber-50 text-amber-800' },
+  { statut: 'COMPTA_OK', personne: 'Hiba, Amine, Aymen', action: 'contrôler', couleur: 'border-orange-300 bg-orange-50 text-orange-800' },
+  { statut: 'CONTROLEE', personne: 'Mohamed', action: 'bénéfice / déficit', couleur: 'border-teal-300 bg-teal-50 text-teal-800' },
+]
+
 interface ExcursionKpi {
   excursion: Excursion
   result: RentabilityResult
@@ -201,6 +212,22 @@ export function DashboardDirection() {
     return { today, nomExc, aConfirmer, aVenirSansAffectation }
   }, [bookings, excursions])
 
+  // Qui doit agir maintenant : réservations en attente, par étape du workflow.
+  const pipeline = useMemo(() => {
+    const nomExc = (id: string | null) =>
+      excursions.find((e) => e.id === id)?.nom ?? 'Excursion'
+    return ETAPES.map((et) => {
+      const items = bookings.filter((b) => b.statut === et.statut)
+      return {
+        ...et,
+        n: items.length,
+        detail: items
+          .slice(0, 5)
+          .map((b) => `${b.date_excursion ?? '?'} · ${nomExc(b.excursion_id)} · ${b.client_nom ?? '—'}`),
+      }
+    }).filter((e) => e.n > 0)
+  }, [bookings, excursions])
+
   const topRentables = useMemo(
     () => [...kpis].sort((a, b) => b.result.margeTnd - a.result.margeTnd).slice(0, 10),
     [kpis],
@@ -275,6 +302,32 @@ export function DashboardDirection() {
           {excursions.length} excursions au catalogue · chiffres basés uniquement sur les
           réservations réelles ({kpis.length} excursion(s) avec réservations).
         </p>
+      </div>
+
+      {/* Qui doit agir maintenant (pilotage du workflow) */}
+      <div className="mb-6 rounded-lg border bg-white p-4 shadow">
+        <h3 className="mb-3 font-semibold">🔀 Qui doit agir maintenant</h3>
+        {pipeline.length === 0 ? (
+          <p className="text-sm text-slate-500">Aucune réservation en attente d’action. ✅</p>
+        ) : (
+          <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3">
+            {pipeline.map((e) => (
+              <div key={e.statut} className={`rounded-lg border p-3 ${e.couleur}`}>
+                <div className="flex items-baseline justify-between">
+                  <span className="text-sm font-semibold">{e.personne}</span>
+                  <span className="text-2xl font-bold">{e.n}</span>
+                </div>
+                <div className="mb-1 text-xs font-medium">→ {e.action}</div>
+                <ul className="space-y-0.5 text-xs opacity-80">
+                  {e.detail.map((d, i) => (
+                    <li key={i} className="truncate">{d}</li>
+                  ))}
+                  {e.n > e.detail.length && <li>+ {e.n - e.detail.length} autre(s)…</li>}
+                </ul>
+              </div>
+            ))}
+          </div>
+        )}
       </div>
 
       {/* À faire en urgence */}
