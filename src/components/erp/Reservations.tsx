@@ -112,11 +112,12 @@ interface ExtraOption {
   devise_achat: string | null
 }
 
-// Extra choisi pour une réservation, avec sa quantité (booking_extras.quantite).
+// Extra choisi pour une réservation, avec quantité adulte + enfant.
 interface ChosenExtra {
   id: string
   nom: string
-  quantite: number
+  quantite: number        // adultes
+  quantiteEnfant: number  // enfants
 }
 
 const STATUTS: BookingStatut[] = [
@@ -260,13 +261,13 @@ export function Reservations() {
     if (bookingIds.length > 0) {
       const { data: be } = await supabase
         .from('booking_extras')
-        .select('booking_id, extra_id, quantite')
+        .select('booking_id, extra_id, quantite, quantite_enfant')
         .in('booking_id', bookingIds)
-      for (const link of (be as { booking_id: string; extra_id: string; quantite: number | null }[]) ?? []) {
+      for (const link of (be as { booking_id: string; extra_id: string; quantite: number | null; quantite_enfant: number | null }[]) ?? []) {
         const extra = extraById.get(link.extra_id)
         if (!extra) continue
         const arr = beMap.get(link.booking_id) ?? []
-        arr.push({ id: extra.id, nom: extra.nom, quantite: link.quantite ?? 1 })
+        arr.push({ id: extra.id, nom: extra.nom, quantite: link.quantite ?? 1, quantiteEnfant: link.quantite_enfant ?? 0 })
         beMap.set(link.booking_id, arr)
       }
     }
@@ -476,7 +477,7 @@ export function Reservations() {
                               key={ex.id}
                               className="rounded-full bg-purple-100 px-2 py-0.5 text-xs font-medium text-purple-700"
                             >
-                              {ex.quantite} × {ex.nom}
+                              {ex.quantite}A{ex.quantiteEnfant > 0 ? `/${ex.quantiteEnfant}E` : ''} × {ex.nom}
                             </span>
                           ))}
                         </div>
@@ -692,22 +693,23 @@ function BookingForm({
   onError: (msg: string) => void
 }) {
   const [form, setForm] = useState<FormState>(EMPTY_FORM)
-  // extra_id -> quantité choisie (présence dans la Map = extra coché).
-  const [selectedExtras, setSelectedExtras] = useState<Map<string, number>>(new Map())
+  // extra_id -> { a: quantité adulte, e: quantité enfant } (présence = coché).
+  const [selectedExtras, setSelectedExtras] = useState<Map<string, { a: number; e: number }>>(new Map())
   const [saving, setSaving] = useState(false)
 
   const toggleExtra = (id: string) =>
     setSelectedExtras((prev) => {
       const next = new Map(prev)
       if (next.has(id)) next.delete(id)
-      else next.set(id, 1)
+      else next.set(id, { a: 1, e: 0 })
       return next
     })
 
-  const setExtraQuantite = (id: string, quantite: number) =>
+  const setExtraQ = (id: string, key: 'a' | 'e', v: number) =>
     setSelectedExtras((prev) => {
       const next = new Map(prev)
-      next.set(id, Math.max(1, quantite))
+      const cur = next.get(id) ?? { a: 1, e: 0 }
+      next.set(id, { ...cur, [key]: Math.max(0, v) })
       return next
     })
 
@@ -752,10 +754,11 @@ function BookingForm({
     // Insère les extras choisis pour cette réservation (avec leur quantité).
     const bookingId = (inserted as { id: string } | null)?.id
     if (bookingId && selectedExtras.size > 0) {
-      const rows = Array.from(selectedExtras).map(([extra_id, quantite]) => ({
+      const rows = Array.from(selectedExtras).map(([extra_id, q]) => ({
         booking_id: bookingId,
         extra_id,
-        quantite,
+        quantite: q.a,
+        quantite_enfant: q.e,
       }))
       const { error: exErr } = await supabase.from('booking_extras').insert(rows)
       if (exErr) {
@@ -933,16 +936,24 @@ function BookingForm({
                       )}
                     </label>
                     {checked && (
-                      <input
-                        type="number"
-                        min={1}
-                        value={selectedExtras.get(ex.id) ?? 1}
-                        onChange={(e) =>
-                          setExtraQuantite(ex.id, Number(e.target.value) || 1)
-                        }
-                        className="w-14 rounded border border-slate-300 px-1 py-0.5 text-sm"
-                        title="Quantité"
-                      />
+                      <span className="flex items-center gap-1">
+                        <input
+                          type="number" min={0}
+                          value={selectedExtras.get(ex.id)?.a ?? 1}
+                          onChange={(e) => setExtraQ(ex.id, 'a', Number(e.target.value) || 0)}
+                          className="w-12 rounded border border-slate-300 px-1 py-0.5 text-sm"
+                          title="Quantité adulte"
+                        />
+                        <span className="text-xs text-slate-400">ad.</span>
+                        <input
+                          type="number" min={0}
+                          value={selectedExtras.get(ex.id)?.e ?? 0}
+                          onChange={(e) => setExtraQ(ex.id, 'e', Number(e.target.value) || 0)}
+                          className="w-12 rounded border border-slate-300 px-1 py-0.5 text-sm"
+                          title="Quantité enfant"
+                        />
+                        <span className="text-xs text-slate-400">enf.</span>
+                      </span>
                     )}
                   </div>
                 )

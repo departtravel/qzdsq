@@ -1566,7 +1566,7 @@ begin
            coalesce(e.nom, 'Extra') as nom,
            e.prestataire_type as ptype,
            e.prestataire_id   as pid,
-           sum(be.quantite * coalesce(e.prix_achat, 0)) as montant
+           sum(be.quantite * coalesce(e.prix_achat, 0) + coalesce(be.quantite_enfant,0) * coalesce(e.prix_achat_enfant, e.prix_achat, 0)) as montant
       from public.booking_extras be
       join public.bookings b on b.id = be.booking_id
       join public.extras   e on e.id = be.extra_id
@@ -1574,7 +1574,7 @@ begin
        and b.statut not in ('NOUVELLE','ANNULEE')
        and coalesce(e.inclure_comptabilite, true) = true
      group by e.id, e.nom, e.prestataire_type, e.prestataire_id
-    having sum(be.quantite * coalesce(e.prix_achat, 0)) > 0
+    having sum(be.quantite * coalesce(e.prix_achat, 0) + coalesce(be.quantite_enfant,0) * coalesce(e.prix_achat_enfant, e.prix_achat, 0)) > 0
   loop
     -- Rattaché à un prestataire ? la fiche tombe chez CE prestataire
     -- (même fournisseur que ses autres coûts) ; sinon fournisseur propre à l'extra.
@@ -1775,6 +1775,23 @@ returns text language sql stable security definer set search_path = public as $$
     else null end
 $$;
 
+
+-- >>>>>>>>>>>>>>>>>>>>>>>>>>>> extras_tarifs.sql <<<<<<<<<<<<<<<<<<<<<<<<<<<<
+
+-- ============================================================
+--  DTS OPERATION ERP — Extras : tarif adulte / enfant (achat & vente)
+--  - L'extra porte son prix d'ACHAT (payé au prestataire/fournisseur)
+--    ET son prix de VENTE (facturé au client), en adulte ET enfant.
+--  - type_tarification distingue PAR_PERSONNE / PAR_VEHICULE…
+--  - Sur une réservation, on peut préciser une quantité adulte ET enfant.
+--  À exécuter après INSTALL_TOUT.sql. Idempotent.
+-- ============================================================
+
+alter table public.extras add column if not exists prix_achat_enfant numeric;
+alter table public.extras add column if not exists prix_vente_enfant numeric;
+
+-- Quantité enfant choisie sur une réservation (en plus de la quantité adulte).
+alter table public.booking_extras add column if not exists quantite_enfant integer not null default 0;
 
 -- >>>>>>>>>>>>>>>>>>>>>>>>>>>> seed.sql <<<<<<<<<<<<<<<<<<<<<<<<<<<<
 

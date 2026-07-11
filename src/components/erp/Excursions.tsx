@@ -296,6 +296,8 @@ function CostLinesEditor({
   excursionId, nombreJours, lignes, onChanged,
 }: { excursionId: string; nombreJours: number; lignes: CostLine[]; onChanged: () => void | Promise<void> }) {
   const [prests, setPrests] = useState<Prest[]>([])
+  // Fournisseur (prestataire) rattaché à chaque extra dans la base Extras.
+  const [extraFour, setExtraFour] = useState<Map<string, { type: string; id: string }>>(new Map())
   const [jours, setJours] = useState(Math.max(1, nombreJours))
   const [openDay, setOpenDay] = useState<number | null>(null) // jour dont le formulaire d'ajout est ouvert
   const [editId, setEditId] = useState<string | null>(null)
@@ -306,7 +308,7 @@ function CostLinesEditor({
     const [r, a, e, tr, gu, ch, rp, ap] = await Promise.all([
       supabase.from('restaurants').select('id, nom').order('nom'),
       supabase.from('accommodations').select('id, nom').order('nom'),
-      supabase.from('extras').select('id, nom, prix_achat, devise_achat').order('nom'),
+      supabase.from('extras').select('id, nom, prix_achat, prix_achat_enfant, devise_achat, prestataire_type, prestataire_id').order('nom'),
       supabase.from('transports').select('id, nom').order('nom'),
       supabase.from('guides').select('id, nom, prenom').order('nom'),
       supabase.from('chauffeurs').select('id, nom, prenom').order('nom'),
@@ -324,8 +326,12 @@ function CostLinesEditor({
       list.push({ kind: 'RESTAURANT', id: x.id, nom: x.nom, prixA: rm.get(x.id)?.a ?? null, prixE: rm.get(x.id)?.e ?? null, devise: 'TND' })
     for (const x of (a.data as { id: string; nom: string }[]) ?? [])
       list.push({ kind: 'HEBERGEMENT', id: x.id, nom: x.nom, prixA: am.get(x.id)?.a ?? null, prixE: am.get(x.id)?.e ?? null, devise: 'TND' })
-    for (const x of (e.data as { id: string; nom: string; prix_achat: number | null; devise_achat: string | null }[]) ?? [])
-      list.push({ kind: 'EXTRA', id: x.id, nom: x.nom, prixA: x.prix_achat, prixE: null, devise: x.devise_achat ?? 'TND' })
+    const efMap = new Map<string, { type: string; id: string }>()
+    for (const x of (e.data as { id: string; nom: string; prix_achat: number | null; prix_achat_enfant: number | null; devise_achat: string | null; prestataire_type: string | null; prestataire_id: string | null }[]) ?? []) {
+      list.push({ kind: 'EXTRA', id: x.id, nom: x.nom, prixA: x.prix_achat, prixE: x.prix_achat_enfant, devise: x.devise_achat ?? 'TND' })
+      if (x.prestataire_type && x.prestataire_id) efMap.set(x.id, { type: x.prestataire_type, id: x.prestataire_id })
+    }
+    setExtraFour(efMap)
     for (const x of (tr.data as { id: string; nom: string }[]) ?? [])
       list.push({ kind: 'TRANSPORT', id: x.id, nom: x.nom, prixA: null, prixE: null, devise: 'TND' })
     for (const x of (gu.data as { id: string; nom: string; prenom: string | null }[]) ?? [])
@@ -351,8 +357,7 @@ function CostLinesEditor({
 
   // Options prestataires proposées selon la catégorie choisie.
   function optionsPour(categorie: string): Prest[] {
-    if (categorie === 'EXTRA') return prests // un extra peut être facturé à N'IMPORTE quel prestataire
-    if (['RESTAURANT', 'HEBERGEMENT', 'TRANSPORT', 'GUIDE', 'CHAUFFEUR'].includes(categorie))
+    if (['RESTAURANT', 'HEBERGEMENT', 'EXTRA', 'TRANSPORT', 'GUIDE', 'CHAUFFEUR'].includes(categorie))
       return prests.filter((p) => p.kind === categorie)
     return prests // gasoil/péage/parking/autre : associable librement (facultatif)
   }
@@ -397,6 +402,11 @@ function CostLinesEditor({
   async function resolvePartner(d: LigneDraft): Promise<{ type: string | null; id: string | null } | 'ERR'> {
     if (d.prestKey) {
       const [kind, id] = d.prestKey.split(':')
+      // Un extra facture chez SON fournisseur (défini dans la base Extras) s'il en a un.
+      if (kind === 'EXTRA') {
+        const f = extraFour.get(id)
+        if (f) return { type: f.type, id: f.id }
+      }
       return { type: kind, id }
     }
     // Pas de prestataire choisi : pour une catégorie rattachable, on relie par nom
@@ -545,13 +555,11 @@ function DepenseForm({
           {CAT_DEPENSE.map((c) => <option key={c.v} value={c.v}>{c.label}</option>)}
         </select>
       </Lbl>
-      <Lbl t={estExtra ? 'Associer à (prestataire)' : 'Prestataire (fiche compta)'}>
+      <Lbl t={estExtra ? 'Extra (base de données)' : 'Prestataire (fiche compta)'}>
         <select value={draft.prestKey} onChange={(e) => onPrest(e.target.value)} className={ipt}>
-          <option value="">{estExtra ? '— extra autonome —' : '— choisir / saisir le nom —'}</option>
+          <option value="">{estExtra ? '— choisir un extra / saisir le nom —' : '— choisir / saisir le nom —'}</option>
           {options.map((p) => (
-            <option key={prestKey(p.kind, p.id)} value={prestKey(p.kind, p.id)}>
-              {estExtra ? `${CAT_LABEL[p.kind]} · ${p.nom}` : p.nom}
-            </option>
+            <option key={prestKey(p.kind, p.id)} value={prestKey(p.kind, p.id)}>{p.nom}</option>
           ))}
         </select>
       </Lbl>

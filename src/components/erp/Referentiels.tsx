@@ -60,6 +60,8 @@ interface Extra {
   type_tarification: string
   prix_achat: number | null
   prix_vente: number | null
+  prix_achat_enfant: number | null
+  prix_vente_enfant: number | null
   inclure_comptabilite: boolean
   capacite: number | null
   prestataire_type: string | null
@@ -1446,6 +1448,8 @@ interface ExtraDraft {
   type_tarification: string
   prix_achat: string
   prix_vente: string
+  prix_achat_enfant: string
+  prix_vente_enfant: string
   inclure_comptabilite: boolean
   prestataire: string // "TYPE:id" ou ''
 }
@@ -1460,6 +1464,8 @@ function ExtrasPanel() {
   const [typeTarif, setTypeTarif] = useState('PAR_PERSONNE')
   const [prixAchat, setPrixAchat] = useState('')
   const [prixVente, setPrixVente] = useState('')
+  const [prixAchatEnf, setPrixAchatEnf] = useState('')
+  const [prixVenteEnf, setPrixVenteEnf] = useState('')
   const [inclureCompta, setInclureCompta] = useState(true)
   const [capacite, setCapacite] = useState('')
   const [prestataire, setPrestataire] = useState('') // "TYPE:id" ou ''
@@ -1472,6 +1478,8 @@ function ExtrasPanel() {
     type_tarification: 'PAR_PERSONNE',
     prix_achat: '',
     prix_vente: '',
+    prix_achat_enfant: '',
+    prix_vente_enfant: '',
     inclure_comptabilite: true,
     prestataire: '',
   })
@@ -1481,7 +1489,7 @@ function ExtrasPanel() {
     const [{ data, error }, prests] = await Promise.all([
       supabase
         .from('extras')
-        .select('id,nom,categorie,type_tarification,prix_achat,prix_vente,inclure_comptabilite,capacite,prestataire_type,prestataire_id')
+        .select('id,nom,categorie,type_tarification,prix_achat,prix_vente,prix_achat_enfant,prix_vente_enfant,inclure_comptabilite,capacite,prestataire_type,prestataire_id')
         .order('nom'),
       chargerPrestataires(),
     ])
@@ -1513,6 +1521,8 @@ function ExtrasPanel() {
       type_tarification: typeTarif,
       prix_achat: prixAchat ? Number(prixAchat) : 0,
       prix_vente: prixVente ? Number(prixVente) : 0,
+      prix_achat_enfant: prixAchatEnf ? Number(prixAchatEnf) : null,
+      prix_vente_enfant: prixVenteEnf ? Number(prixVenteEnf) : null,
       inclure_comptabilite: inclureCompta,
       capacite: capacite ? Number(capacite) : null,
       prestataire_type: ptype,
@@ -1526,6 +1536,8 @@ function ExtrasPanel() {
     setCategorie('')
     setPrixAchat('')
     setPrixVente('')
+    setPrixAchatEnf('')
+    setPrixVenteEnf('')
     setCapacite('')
     setPrestataire('')
     load()
@@ -1540,6 +1552,8 @@ function ExtrasPanel() {
       type_tarification: x.type_tarification,
       prix_achat: x.prix_achat != null ? String(x.prix_achat) : '',
       prix_vente: x.prix_vente != null ? String(x.prix_vente) : '',
+      prix_achat_enfant: x.prix_achat_enfant != null ? String(x.prix_achat_enfant) : '',
+      prix_vente_enfant: x.prix_vente_enfant != null ? String(x.prix_vente_enfant) : '',
       inclure_comptabilite: x.inclure_comptabilite,
       prestataire: x.prestataire_type && x.prestataire_id ? prestKey(x.prestataire_type, x.prestataire_id) : '',
     })
@@ -1561,6 +1575,8 @@ function ExtrasPanel() {
         type_tarification: draft.type_tarification,
         prix_achat: draft.prix_achat ? Number(draft.prix_achat) : 0,
         prix_vente: draft.prix_vente ? Number(draft.prix_vente) : 0,
+        prix_achat_enfant: draft.prix_achat_enfant ? Number(draft.prix_achat_enfant) : null,
+        prix_vente_enfant: draft.prix_vente_enfant ? Number(draft.prix_vente_enfant) : null,
         inclure_comptabilite: draft.inclure_comptabilite,
         prestataire_type: ptype,
         prestataire_id: pid,
@@ -1588,31 +1604,33 @@ function ExtrasPanel() {
           </Field>
           <Field label="Type de tarification">
             <select className={inputCls} value={typeTarif} onChange={(e) => setTypeTarif(e.target.value)}>
-              <option value="PAR_PERSONNE">PAR_PERSONNE</option>
-              <option value="PAR_VEHICULE">PAR_VEHICULE</option>
-              <option value="PAR_GROUPE">PAR_GROUPE</option>
-              <option value="MANUEL">MANUEL</option>
+              <option value="PAR_PERSONNE">Par personne (adulte / enfant)</option>
+              <option value="PAR_VEHICULE">Par véhicule (ex : quad)</option>
+              <option value="PAR_GROUPE">Par groupe</option>
+              <option value="MANUEL">Montant manuel</option>
             </select>
           </Field>
-          <div className="grid grid-cols-2 gap-2">
-            <Field label="Prix achat">
-              <input
-                type="number"
-                min={0}
-                className={inputCls}
-                value={prixAchat}
-                onChange={(e) => setPrixAchat(e.target.value)}
-              />
-            </Field>
-            <Field label="Prix vente">
-              <input
-                type="number"
-                min={0}
-                className={inputCls}
-                value={prixVente}
-                onChange={(e) => setPrixVente(e.target.value)}
-              />
-            </Field>
+          <div className="rounded border border-slate-200 p-2">
+            <p className="mb-1 text-xs font-medium text-slate-500">Achat (payé au prestataire)</p>
+            <div className="grid grid-cols-2 gap-2">
+              <Field label="Achat adulte">
+                <input type="number" min={0} step="0.01" className={inputCls} value={prixAchat} onChange={(e) => setPrixAchat(e.target.value)} />
+              </Field>
+              <Field label="Achat enfant">
+                <input type="number" min={0} step="0.01" className={inputCls} value={prixAchatEnf} placeholder="= adulte si vide" onChange={(e) => setPrixAchatEnf(e.target.value)} />
+              </Field>
+            </div>
+          </div>
+          <div className="rounded border border-slate-200 p-2">
+            <p className="mb-1 text-xs font-medium text-slate-500">Vente (facturé au client)</p>
+            <div className="grid grid-cols-2 gap-2">
+              <Field label="Vente adulte">
+                <input type="number" min={0} step="0.01" className={inputCls} value={prixVente} onChange={(e) => setPrixVente(e.target.value)} />
+              </Field>
+              <Field label="Vente enfant">
+                <input type="number" min={0} step="0.01" className={inputCls} value={prixVenteEnf} placeholder="= adulte si vide" onChange={(e) => setPrixVenteEnf(e.target.value)} />
+              </Field>
+            </div>
           </div>
           <Field label="Capacité (si PAR_VEHICULE)">
             <input
@@ -1702,22 +1720,20 @@ function ExtrasPanel() {
                         </select>
                       </td>
                       <td className="px-2 py-1">
-                        <input
-                          type="number"
-                          min={0}
-                          className={editInputCls}
-                          value={draft.prix_achat}
-                          onChange={(e) => setDraft({ ...draft, prix_achat: e.target.value })}
-                        />
+                        <div className="flex gap-1">
+                          <input type="number" min={0} step="0.01" className={editInputCls} placeholder="ad." title="Achat adulte"
+                            value={draft.prix_achat} onChange={(e) => setDraft({ ...draft, prix_achat: e.target.value })} />
+                          <input type="number" min={0} step="0.01" className={editInputCls} placeholder="enf." title="Achat enfant"
+                            value={draft.prix_achat_enfant} onChange={(e) => setDraft({ ...draft, prix_achat_enfant: e.target.value })} />
+                        </div>
                       </td>
                       <td className="px-2 py-1">
-                        <input
-                          type="number"
-                          min={0}
-                          className={editInputCls}
-                          value={draft.prix_vente}
-                          onChange={(e) => setDraft({ ...draft, prix_vente: e.target.value })}
-                        />
+                        <div className="flex gap-1">
+                          <input type="number" min={0} step="0.01" className={editInputCls} placeholder="ad." title="Vente adulte"
+                            value={draft.prix_vente} onChange={(e) => setDraft({ ...draft, prix_vente: e.target.value })} />
+                          <input type="number" min={0} step="0.01" className={editInputCls} placeholder="enf." title="Vente enfant"
+                            value={draft.prix_vente_enfant} onChange={(e) => setDraft({ ...draft, prix_vente_enfant: e.target.value })} />
+                        </div>
                       </td>
                       <td className="px-2 py-1">
                         <select
@@ -1751,8 +1767,14 @@ function ExtrasPanel() {
                       <td className="px-2 py-1">{x.nom}</td>
                       <td className="px-2 py-1 text-slate-500">{x.categorie ?? '—'}</td>
                       <td className="px-2 py-1 text-xs text-slate-500">{x.type_tarification}</td>
-                      <td className="px-2 py-1 text-right">{x.prix_achat ?? 0}</td>
-                      <td className="px-2 py-1 text-right">{x.prix_vente ?? 0}</td>
+                      <td className="px-2 py-1 text-right">
+                        {x.prix_achat ?? 0}
+                        {x.prix_achat_enfant != null && <span className="text-xs text-slate-400"> / {x.prix_achat_enfant}</span>}
+                      </td>
+                      <td className="px-2 py-1 text-right">
+                        {x.prix_vente ?? 0}
+                        {x.prix_vente_enfant != null && <span className="text-xs text-slate-400"> / {x.prix_vente_enfant}</span>}
+                      </td>
                       <td className="px-2 py-1 text-xs text-slate-500">{prestLabel(x.prestataire_type, x.prestataire_id)}</td>
                       <td className="px-2 py-1 text-center">{x.inclure_comptabilite ? '✓' : '—'}</td>
                       <td className="px-2 py-1">
