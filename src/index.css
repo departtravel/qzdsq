@@ -1,24 +1,57 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Sora:wght@600;700;800&display=swap');
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
+:root {
+  --font-display: 'Sora', 'Inter', ui-sans-serif, system-ui, sans-serif;
+}
+
 body {
-  @apply bg-slate-100 text-slate-800;
+  @apply bg-white text-ink-800 antialiased;
+  font-family: 'Inter', ui-sans-serif, system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+}
+
+h1, h2, h3, .font-display {
+  font-family: var(--font-display);
+  letter-spacing: -0.02em;
+}
+
+@layer components {
+  .text-gradient {
+    @apply bg-gradient-to-r from-brand-500 to-brand-700 bg-clip-text text-transparent;
+  }
+  .glass {
+    @apply bg-white/80 backdrop-blur-md;
+  }
+  .card {
+    @apply overflow-hidden rounded-2xl bg-white shadow-soft ring-1 ring-ink-100 transition duration-300;
+  }
+  .card-hover:hover {
+    @apply -translate-y-1 shadow-lift;
+  }
+  .btn-primary {
+    @apply inline-flex items-center justify-center gap-2 rounded-xl bg-brand-500 px-5 py-3 font-semibold text-white shadow-glow transition hover:bg-brand-600 active:scale-[.98];
+  }
+  .btn-ghost {
+    @apply inline-flex items-center justify-center gap-2 rounded-xl border border-ink-100 bg-white px-5 py-3 font-semibold text-ink-800 transition hover:bg-ink-50;
+  }
+  .chip {
+    @apply rounded-full px-4 py-1.5 text-sm font-medium transition;
+  }
+  /* Ligne de cartes défilante horizontale (façon GYG) */
+  .scroll-row {
+    @apply flex gap-5 overflow-x-auto pb-2;
+    scroll-snap-type: x mandatory;
+    scrollbar-width: thin;
+  }
+  .scroll-row > * { scroll-snap-align: start; }
 }
 
 /* Impression : ne garder que le document (.printable), masquer le reste. */
 @media print {
-  body {
-    @apply bg-white;
-  }
-  .no-print {
-    display: none !important;
-  }
-  header {
-    display: none !important;
-  }
-  .printable {
-    box-shadow: none !important;
-    border: none !important;
-  }
+  body { @apply bg-white; }
+  .no-print, header { display: none !important; }
+  .printable { box-shadow: none !important; border: none !important; }
 }

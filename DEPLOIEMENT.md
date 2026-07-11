@@ -22,7 +22,8 @@ L'application a **deux morceaux** :
    7. `supabase/reservation.sql` ← réservation en ligne (le client réserve depuis le site)
    8. `supabase/messagerie.sql` ← messagerie (le client nous contacte depuis le site)
    9. `supabase/devis.sql` ← demandes de devis (événements + circuits sur mesure)
-   10. `supabase/stats.sql` ← compteur de visites (taux de conversion du dashboard)
+   10. `supabase/produits_media.sql` ← photos, note/avis, best-seller sur les produits
+   11. `supabase/stats.sql` ← compteur de visites (taux de conversion du dashboard)
    11. `supabase/seed.sql`
    12. `supabase/seed_dts.sql`
 

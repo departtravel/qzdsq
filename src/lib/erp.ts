@@ -43,6 +43,14 @@ export interface Excursion {
   prive_dispo?: boolean
   groupe_dispo?: boolean
   langue_source?: string
+  // Médias & réputation (cf. supabase/produits_media.sql)
+  image_url?: string | null
+  galerie?: string[] | null
+  note_moyenne?: number | null
+  nb_avis?: number | null
+  best_seller?: boolean
+  nouveaute?: boolean
+  points_forts?: string[] | null
   devise: string
   commission_ota: number
   taux_conversion: number

@@ -28,7 +28,10 @@ const activeOnly = (e: Excursion) => e.statut === 'ACTIVE'
 
 /** Charge le catalogue complet (produits actifs) pour la home. */
 export async function fetchCatalog(): Promise<{ items: CatalogItem[]; cities: City[] }> {
-  if (!isSupabaseConfigured) return { items: [], cities: [] }
+  if (!isSupabaseConfigured) {
+    const { DEMO_ITEMS, DEMO_CITIES } = await import('./demo')
+    return { items: DEMO_ITEMS, cities: DEMO_CITIES }
+  }
   const [ex, tr, vr, ds, dp, pc, ci] = await Promise.all([
     supabase.from('excursions').select('*').order('code_interne'),
     supabase.from('product_translations').select('*'),

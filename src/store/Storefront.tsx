@@ -35,21 +35,28 @@ export function Storefront() {
 function Header() {
   const { locale, setLocale } = useStore()
   return (
-    <header className="sticky top-0 z-10 border-b bg-white/95 backdrop-blur">
-      <div className="mx-auto flex max-w-6xl items-center justify-between px-4 py-3">
+    <header className="sticky top-0 z-30 border-b border-ink-100 glass">
+      <div className="mx-auto flex max-w-7xl items-center justify-between gap-4 px-4 py-3">
         <Link to="/" className="flex items-center gap-2">
-          <span className="text-xl font-bold text-amber-600">Depart Travel</span>
-          <span className="hidden text-xs text-slate-400 sm:inline">Services</span>
+          <span className="flex h-9 w-9 items-center justify-center rounded-xl bg-brand-500 font-display text-lg font-extrabold text-white shadow-glow">D</span>
+          <span className="font-display text-xl font-extrabold tracking-tight text-ink-900">
+            Depart<span className="text-brand-500">Travel</span>
+          </span>
         </Link>
-        <div className="flex items-center gap-3 text-sm">
-          <Link to="/circuit-sur-mesure" className="hidden font-medium text-slate-600 hover:text-emerald-600 sm:inline">🗺️ Circuit sur mesure</Link>
-          <Link to="/evenements" className="hidden font-medium text-slate-600 hover:text-purple-600 sm:inline">🎉 Événements</Link>
+
+        <nav className="hidden items-center gap-6 text-sm font-medium text-ink-700 md:flex">
+          <Link to="/" className="hover:text-brand-600">Excursions</Link>
+          <Link to="/circuit-sur-mesure" className="hover:text-brand-600">Circuit sur mesure</Link>
+          <Link to="/evenements" className="hover:text-brand-600">Événements</Link>
+        </nav>
+
+        <div className="flex items-center gap-2 text-sm">
           <a href="https://wa.me/" target="_blank" rel="noreferrer"
-            className="hidden rounded-full bg-green-500 px-3 py-1.5 font-medium text-white hover:bg-green-600 sm:inline">
-            💬 WhatsApp
+            className="hidden items-center gap-1.5 rounded-full bg-emerald-500 px-3.5 py-2 font-semibold text-white shadow-sm transition hover:bg-emerald-600 sm:inline-flex">
+            <span>WhatsApp</span>
           </a>
           <select value={locale} onChange={(e) => setLocale(e.target.value as never)}
-            className="rounded border border-slate-300 px-2 py-1.5 text-slate-600">
+            className="rounded-lg border border-ink-100 bg-white px-2 py-2 font-medium text-ink-700">
             {LOCALES.map((l) => <option key={l} value={l}>{LOCALE_LABELS[l]}</option>)}
           </select>
         </div>
@@ -60,25 +67,35 @@ function Header() {
 
 function Footer() {
   return (
-    <footer className="border-t bg-white">
-      <div className="mx-auto max-w-6xl px-4 py-8 text-sm text-slate-500">
-        <div className="flex flex-wrap justify-between gap-4">
-          <div>
-            <div className="font-bold text-amber-600">Depart Travel Services</div>
-            <p className="mt-1 max-w-xs text-slate-400">
-              Excursions, circuits et événements sur mesure en Tunisie.
-            </p>
-          </div>
-          <div className="text-slate-400">
-            <p>✅ Confirmation immédiate</p>
-            <p>🔒 Paiement sécurisé</p>
-            <p>⭐ Agence locale de confiance</p>
-          </div>
+    <footer className="mt-10 bg-ink-900 text-ink-100">
+      <div className="mx-auto grid max-w-7xl gap-8 px-4 py-12 sm:grid-cols-2 lg:grid-cols-4">
+        <div>
+          <div className="font-display text-lg font-extrabold text-white">Depart<span className="text-brand-400">Travel</span></div>
+          <p className="mt-2 text-sm text-ink-100/70">Excursions, circuits et événements sur mesure en Tunisie. Voyagez avec une agence locale de confiance.</p>
         </div>
-        <p className="mt-6 text-xs text-slate-400">
-          © {new Date().getFullYear()} Depart Travel Services · <Link to="/admin" className="hover:underline">Espace pro</Link>
-        </p>
+        <FooterCol titre="Découvrir" liens={[['Excursions', '/'], ['Circuit sur mesure', '/circuit-sur-mesure'], ['Événements', '/evenements']]} />
+        <FooterCol titre="Confiance" liens={[['Confirmation immédiate', '/'], ['Annulation gratuite', '/'], ['Paiement sécurisé', '/']]} />
+        <div>
+          <div className="text-sm font-semibold text-white">Nous contacter</div>
+          <a href="https://wa.me/" className="mt-3 inline-flex rounded-full bg-emerald-500 px-4 py-2 text-sm font-semibold text-white">WhatsApp</a>
+        </div>
+      </div>
+      <div className="border-t border-white/10">
+        <div className="mx-auto flex max-w-7xl items-center justify-between px-4 py-4 text-xs text-ink-100/60">
+          <span>© {new Date().getFullYear()} Depart Travel Services</span>
+          <Link to="/admin" className="hover:text-white">Espace pro</Link>
+        </div>
       </div>
     </footer>
+  )
+}
+function FooterCol({ titre, liens }: { titre: string; liens: [string, string][] }) {
+  return (
+    <div>
+      <div className="text-sm font-semibold text-white">{titre}</div>
+      <ul className="mt-3 space-y-2 text-sm text-ink-100/70">
+        {liens.map(([l, to]) => <li key={l}><Link to={to} className="hover:text-white">{l}</Link></li>)}
+      </ul>
+    </div>
   )
 }

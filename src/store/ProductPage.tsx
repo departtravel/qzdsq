@@ -8,6 +8,8 @@ import {
   type TypeSortie, type ProductVariant, type City,
 } from '../lib/produits'
 import { supabase, isSupabaseConfigured } from '../lib/supabase'
+import { Cover } from './Cover'
+import { Stars } from './HomePage'
 
 const today = () => new Date().toISOString().slice(0, 10)
 
@@ -94,7 +96,7 @@ export function ProductPage() {
   if (!b) return (
     <div className="mx-auto max-w-6xl px-4 py-10">
       <p className="text-slate-500">Produit introuvable.</p>
-      <Link to="/" className="text-amber-600">← Retour</Link>
+      <Link to="/" className="text-brand-600">← Retour</Link>
     </div>
   )
 
@@ -111,12 +113,16 @@ export function ProductPage() {
 
   return (
     <div className="mx-auto max-w-6xl px-4 py-6">
-      <Link to="/" className="text-sm text-amber-600">← Toutes les excursions</Link>
+      <Link to="/" className="text-sm text-brand-600">← Toutes les excursions</Link>
 
       <div className="mt-3 grid gap-6 lg:grid-cols-3">
         {/* ---- Colonne contenu ---- */}
         <div className="lg:col-span-2">
-          <div className="flex h-56 items-center justify-center rounded-xl bg-gradient-to-br from-amber-100 to-orange-200 text-6xl">🏜️</div>
+          <Cover imageUrl={b.excursion.image_url} seed={t.nom} categorie={b.excursion.categorie}
+            className="h-72 w-full" rounded="rounded-2xl" />
+          {b.excursion.note_moyenne != null && (
+            <div className="mt-3"><Stars note={b.excursion.note_moyenne} avis={b.excursion.nb_avis} /></div>
+          )}
           <div className="mt-4 flex items-center gap-2 text-sm text-slate-400">
             <span>{b.excursion.categorie || 'Excursion'}</span>
             {b.excursion.duree && <><span>·</span><span>{b.excursion.duree}</span></>}
@@ -242,7 +248,7 @@ export function ProductPage() {
             )}
 
             <button onClick={() => setCheckout(true)}
-              className="mt-4 w-full rounded-lg bg-amber-500 py-3 font-semibold text-white hover:bg-amber-600">
+              className="mt-4 w-full rounded-lg bg-brand-500 py-3 font-semibold text-white hover:bg-brand-600">
               Réserver
             </button>
             <p className="mt-2 text-center text-xs text-slate-400">Confirmation immédiate · Annulation gratuite</p>
@@ -317,13 +323,13 @@ function CheckoutModal({
               Merci {nom}. Nous avons bien reçu votre demande pour « {nomProduit} ».
               Notre équipe vous confirme par email très vite.
             </p>
-            <button onClick={onClose} className="mt-4 rounded-lg bg-amber-500 px-4 py-2 font-medium text-white">Fermer</button>
+            <button onClick={onClose} className="mt-4 rounded-lg bg-brand-500 px-4 py-2 font-medium text-white">Fermer</button>
           </div>
         ) : (
           <>
             <h3 className="text-lg font-bold text-slate-800">Finaliser ma réservation</h3>
             <p className="mt-1 text-sm text-slate-500">{nomProduit}</p>
-            <div className="mt-3 rounded-lg bg-amber-50 px-3 py-2 text-sm font-medium text-amber-700">
+            <div className="mt-3 rounded-lg bg-brand-50 px-3 py-2 text-sm font-medium text-brand-700">
               Total : {total} {devise}
             </div>
             <div className="mt-4 space-y-2">
@@ -336,7 +342,7 @@ function CheckoutModal({
             <div className="mt-4 flex gap-2">
               <button onClick={onClose} className="flex-1 rounded-lg border border-slate-300 py-2 text-sm">Annuler</button>
               <button onClick={submit} disabled={state === 'sending'}
-                className="flex-[2] rounded-lg bg-amber-500 py-2 font-semibold text-white hover:bg-amber-600 disabled:opacity-50">
+                className="flex-[2] rounded-lg bg-brand-500 py-2 font-semibold text-white hover:bg-brand-600 disabled:opacity-50">
                 {state === 'sending' ? 'Envoi…' : 'Confirmer la demande'}
               </button>
             </div>
@@ -373,7 +379,7 @@ function Bloc({ titre, texte }: { titre: string; texte: string }) {
 function Toggle({ on, onClick, children }: { on: boolean; onClick: () => void; children: React.ReactNode }) {
   return (
     <button onClick={onClick}
-      className={`rounded-lg border px-3 py-2 text-sm ${on ? 'border-amber-500 bg-amber-50 font-medium text-amber-700' : 'border-slate-300 text-slate-600'}`}>
+      className={`rounded-lg border px-3 py-2 text-sm ${on ? 'border-brand-500 bg-brand-50 font-medium text-brand-700' : 'border-slate-300 text-slate-600'}`}>
       {children}
     </button>
   )

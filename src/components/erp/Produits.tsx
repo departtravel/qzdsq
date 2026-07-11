@@ -443,6 +443,13 @@ function OngletGeneral({ p, setEx, num }: any) {
           {['ACTIVE', 'BROUILLON', 'ARCHIVE'].map((d) => <option key={d}>{d}</option>)}
         </select>
       </div>
+      <div className="sm:col-span-2"><L>Photo principale (URL)</L><input className={inputCls} value={e.image_url ?? ''} onChange={(x) => setEx({ image_url: x.target.value })} placeholder="https://…/photo.jpg" /></div>
+      <div><L>Note moyenne (0-5)</L><input type="number" min={0} max={5} step="0.1" className={inputCls} value={e.note_moyenne ?? ''} onChange={(x) => setEx({ note_moyenne: x.target.value === '' ? null : num(x.target.value) })} /></div>
+      <div><L>Nombre d'avis</L><input type="number" min={0} className={inputCls} value={e.nb_avis ?? ''} onChange={(x) => setEx({ nb_avis: num(x.target.value) })} /></div>
+      <div className="flex items-center gap-4 sm:col-span-2">
+        <label className="flex items-center gap-2 text-sm"><input type="checkbox" checked={e.best_seller ?? false} onChange={(x) => setEx({ best_seller: x.target.checked })} /> 🏆 Best-seller</label>
+        <label className="flex items-center gap-2 text-sm"><input type="checkbox" checked={e.nouveaute ?? false} onChange={(x) => setEx({ nouveaute: x.target.checked })} /> ✨ Nouveauté</label>
+      </div>
     </div>
   )
 }
