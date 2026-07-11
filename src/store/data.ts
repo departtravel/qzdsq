@@ -159,6 +159,25 @@ export async function createBooking(d: BookingDraft): Promise<{ id: string } | {
   return { id: bookingId }
 }
 
+// ----- Paiement en ligne (Stripe) ----------------------------
+/** Crée une session Stripe et renvoie l'URL de redirection. */
+export async function createCheckout(args: {
+  booking_id: string; montant_total: number; devise: string
+  mode: 'acompte' | 'total'; acompte_pct?: number | null; produit: string
+}): Promise<{ url: string } | { error: string }> {
+  if (!isSupabaseConfigured) return { error: 'Paiement non disponible en démo.' }
+  try {
+    const { data, error } = await supabase.functions.invoke('create-checkout', {
+      body: { ...args, origin: location.origin },
+    })
+    if (error) return { error: error.message }
+    if (data?.error) return { error: data.error }
+    return { url: data.url as string }
+  } catch (e) {
+    return { error: String(e) }
+  }
+}
+
 // ----- Contact / messagerie ----------------------------------
 export interface ContactDraft {
   client_nom: string

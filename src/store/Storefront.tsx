@@ -6,6 +6,7 @@ import { HomePage } from './HomePage'
 import { ProductPage } from './ProductPage'
 import { EventsPage } from './EventsPage'
 import { CircuitPage } from './CircuitPage'
+import { PaymentOk, PaymentCancel } from './PaymentPages'
 import { ContactWidget } from './ContactWidget'
 import { LOCALES, LOCALE_LABELS } from '../lib/produits'
 
@@ -22,6 +23,8 @@ export function Storefront() {
             <Route path="/excursion/:id" element={<ProductPage />} />
             <Route path="/evenements" element={<EventsPage />} />
             <Route path="/circuit-sur-mesure" element={<CircuitPage />} />
+            <Route path="/paiement-ok" element={<PaymentOk />} />
+            <Route path="/paiement-annule" element={<PaymentCancel />} />
             <Route path="*" element={<HomePage />} />
           </Routes>
         </main>

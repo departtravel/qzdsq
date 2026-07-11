@@ -51,6 +51,7 @@ export interface Excursion {
   best_seller?: boolean
   nouveaute?: boolean
   points_forts?: string[] | null
+  acompte_pct?: number | null
   devise: string
   commission_ota: number
   taux_conversion: number

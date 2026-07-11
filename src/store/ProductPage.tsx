@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useState } from 'react'
 import { Link, useParams } from 'react-router-dom'
 import { useStore } from './StoreContext'
-import { fetchProduct, tradProduit, createBooking, type ProductBundle } from './data'
+import { fetchProduct, tradProduit, createBooking, createCheckout, type ProductBundle } from './data'
 import { setSeo } from './seo'
 import {
   pricingVariante, pricingProduit, calculerPrixProduit, meilleureReduction, placesRestantes,
@@ -264,6 +264,7 @@ export function ProductPage() {
           nomProduit={t.nom}
           total={devis.total}
           devise={b.excursion.devise}
+          acomptePct={b.excursion.acompte_pct ?? null}
           draft={{
             produit: t.nom,
             excursion_id: b.excursion.id,
@@ -292,12 +293,13 @@ export function ProductPage() {
 
 // ---------- Modal de finalisation de réservation ----------
 function CheckoutModal({
-  onClose, nomProduit, total, devise, draft,
+  onClose, nomProduit, total, devise, acomptePct, draft,
 }: {
   onClose: () => void
   nomProduit: string
   total: number
   devise: string
+  acomptePct: number | null
   draft: Omit<import('./data').BookingDraft, 'client_nom' | 'client_email' | 'client_telephone' | 'notes'>
 }) {
   const [nom, setNom] = useState('')
@@ -306,14 +308,30 @@ function CheckoutModal({
   const [notes, setNotes] = useState('')
   const [state, setState] = useState<'form' | 'sending' | 'done' | 'error'>('form')
   const [msg, setMsg] = useState('')
+  const [bookingId, setBookingId] = useState<string | null>(null)
+  const [paying, setPaying] = useState(false)
 
   const submit = async () => {
     if (!nom || !email) { setMsg('Nom et email sont requis.'); return }
     setState('sending'); setMsg('')
     const res = await createBooking({ ...draft, client_nom: nom, client_email: email, client_telephone: tel, notes })
     if ('error' in res) { setState('error'); setMsg(res.error) }
-    else setState('done')
+    else { setBookingId(res.id); setState('done') }
   }
+
+  const payer = async (mode: 'acompte' | 'total') => {
+    if (!bookingId) return
+    setPaying(true); setMsg('')
+    const res = await createCheckout({
+      booking_id: bookingId, montant_total: total, devise, mode,
+      acompte_pct: acomptePct ?? undefined, produit: nomProduit,
+    })
+    if ('error' in res) { setMsg(res.error); setPaying(false) }
+    else window.location.href = res.url
+  }
+
+  const pct = acomptePct ?? 30
+  const acompte = Math.round(total * (pct / 100))
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4" onClick={onClose}>
@@ -321,12 +339,23 @@ function CheckoutModal({
         {state === 'done' ? (
           <div className="text-center">
             <div className="text-4xl">✅</div>
-            <h3 className="mt-2 text-lg font-bold">Demande envoyée !</h3>
+            <h3 className="mt-2 text-lg font-bold">Réservation enregistrée !</h3>
             <p className="mt-2 text-sm text-slate-500">
-              Merci {nom}. Nous avons bien reçu votre demande pour « {nomProduit} ».
-              Notre équipe vous confirme par email très vite.
+              Merci {nom}. Sécurisez votre place en payant en ligne, ou réglez plus tard (confirmation par email).
             </p>
-            <button onClick={onClose} className="mt-4 rounded-lg bg-brand-500 px-4 py-2 font-medium text-white">Fermer</button>
+            {msg && <p className="mt-2 text-sm text-red-600">{msg}</p>}
+            <div className="mt-4 space-y-2">
+              <button onClick={() => payer('acompte')} disabled={paying}
+                className="w-full rounded-lg bg-brand-500 py-2.5 font-semibold text-white hover:bg-brand-600 disabled:opacity-50">
+                {paying ? 'Redirection…' : `Payer l'acompte (${pct}% · ${acompte} ${devise})`}
+              </button>
+              <button onClick={() => payer('total')} disabled={paying}
+                className="w-full rounded-lg border border-brand-300 py-2.5 font-semibold text-brand-700 hover:bg-brand-50 disabled:opacity-50">
+                Payer le total ({total} {devise})
+              </button>
+              <button onClick={onClose} className="w-full py-2 text-sm text-slate-500">Payer plus tard</button>
+            </div>
+            <p className="mt-2 text-center text-xs text-slate-400">🔒 Paiement sécurisé par Stripe</p>
           </div>
         ) : (
           <>
@@ -349,7 +378,7 @@ function CheckoutModal({
                 {state === 'sending' ? 'Envoi…' : 'Confirmer la demande'}
               </button>
             </div>
-            <p className="mt-2 text-center text-xs text-slate-400">Sans paiement en ligne pour l’instant · confirmation par email</p>
+            <p className="mt-2 text-center text-xs text-slate-400">Paiement en ligne à l’étape suivante · ou réglez plus tard</p>
           </>
         )}
       </div>

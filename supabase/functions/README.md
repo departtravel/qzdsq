@@ -86,3 +86,31 @@ supabase functions deploy send-email --no-verify-jwt
 
 Sans `RESEND_API_KEY`, la fonction ne casse rien : elle journalise et n'envoie
 pas d'e-mail (le parcours client reste fonctionnel).
+
+---
+
+# Paiement en ligne Stripe (`create-checkout` + `stripe-webhook`)
+
+`create-checkout` crée une session Stripe Checkout (acompte ou total) et renvoie
+l'URL de paiement ; `stripe-webhook` confirme la réservation à la réception du
+paiement.
+
+## Secrets
+
+```bash
+supabase secrets set STRIPE_SECRET_KEY=sk_live_xxx
+supabase secrets set STRIPE_WEBHOOK_SECRET=whsec_xxx
+supabase secrets set DEPOSIT_PCT=30
+```
+
+## Déploiement
+
+```bash
+supabase functions deploy create-checkout --no-verify-jwt
+supabase functions deploy stripe-webhook  --no-verify-jwt
+```
+
+Puis dans Stripe > Developers > Webhooks : créer un endpoint pointant vers l'URL
+de `stripe-webhook`, écouter `checkout.session.completed`, et copier le
+`whsec_...` dans `STRIPE_WEBHOOK_SECRET`. Sans clés Stripe, le bouton de paiement
+affiche une erreur propre et la réservation reste enregistrée (règlement plus tard).

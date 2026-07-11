@@ -521,6 +521,10 @@ function OngletTarifs({ p, setEx, num }: any) {
           <input type="number" min={0} step="0.01" className={inputCls} value={e.taux_conversion_prive ?? 4.2} onChange={(x) => setEx({ taux_conversion_prive: num(x.target.value) })} />
         </div>
       </div>
+      <div className="md:col-span-2">
+        <L>Acompte demandé en ligne (% du total — vide = valeur par défaut)</L>
+        <input type="number" min={0} max={100} className={`${inputCls} sm:w-1/3`} value={e.acompte_pct ?? ''} onChange={(x) => setEx({ acompte_pct: x.target.value === '' ? null : num(x.target.value) })} placeholder="ex. 30" />
+      </div>
     </div>
   )
 }

@@ -24,9 +24,10 @@ L'application a **deux morceaux** :
    9. `supabase/devis.sql` ← demandes de devis (événements + circuits sur mesure)
    10. `supabase/produits_media.sql` ← photos, note/avis, best-seller sur les produits
    11. `supabase/avis.sql` ← avis clients (dépôt, modération, note recalculée)
-   12. `supabase/stats.sql` ← compteur de visites (taux de conversion du dashboard)
-   11. `supabase/seed.sql`
-   12. `supabase/seed_dts.sql`
+   12. `supabase/paiement.sql` ← paiement en ligne Stripe (acompte/total)
+   13. `supabase/stats.sql` ← compteur de visites (taux de conversion du dashboard)
+   14. `supabase/seed.sql`
+   15. `supabase/seed_dts.sql`
 
 > **Deux espaces dans l'app :**
 > - `/` → **vitrine publique** (Depart Travel Services) : accueil, entrée par ville, pages produit avec configurateur (ville → option → groupe/privé → date → extras → prix live + promo).
