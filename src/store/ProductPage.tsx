@@ -7,7 +7,7 @@ import {
   pricingVariante, pricingProduit, calculerPrixProduit, meilleureReduction, placesRestantes,
   type TypeSortie, type ProductVariant, type City,
 } from '../lib/produits'
-import { supabase } from '../lib/supabase'
+import { supabase, isSupabaseConfigured } from '../lib/supabase'
 
 const today = () => new Date().toISOString().slice(0, 10)
 
@@ -32,10 +32,13 @@ export function ProductPage() {
 
   useEffect(() => {
     if (!id) return
-    Promise.all([fetchProduct(id), supabase.from('cities').select('*')]).then(([bundle, ci]) => {
+    Promise.all([
+      fetchProduct(id),
+      isSupabaseConfigured ? supabase.from('cities').select('*') : Promise.resolve({ data: [] as City[] }),
+    ]).then(([bundle, ci]) => {
       setB(bundle)
       const map: Record<string, City> = {}
-      for (const c of (ci.data as City[]) ?? []) map[c.id] = c
+      for (const c of ((ci as any).data as City[]) ?? []) map[c.id] = c
       setCities(map)
       if (bundle) {
         const depart = bundle.cities.filter((c) => c.role === 'DEPART')

@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react'
-import { supabase } from '../lib/supabase'
+import { supabase, isSupabaseConfigured } from '../lib/supabase'
 import { createQuote } from './data'
 import { setSeo } from './seo'
 import type { City } from '../lib/produits'
@@ -32,8 +32,9 @@ export function CircuitPage() {
   const [err, setErr] = useState('')
 
   useEffect(() => {
-    supabase.from('cities').select('*').eq('actif', true).order('nom')
-      .then(({ data }) => setCities((data as City[]) ?? []))
+    if (isSupabaseConfigured)
+      supabase.from('cities').select('*').eq('actif', true).order('nom')
+        .then(({ data }) => setCities((data as City[]) ?? []))
     setSeo({
       title: 'Circuit sur mesure en Tunisie — Devis gratuit | Depart Travel Services',
       description:

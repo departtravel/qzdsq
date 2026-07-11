@@ -2,7 +2,7 @@
 //  Vitrine — accès aux données PUBLIQUES du catalogue (anon).
 //  Lecture seule ; s'appuie sur les policies de public_read.sql.
 // ============================================================
-import { supabase } from '../lib/supabase'
+import { supabase, isSupabaseConfigured } from '../lib/supabase'
 import type { Excursion } from '../lib/erp'
 import type {
   ProductTranslation, ProductVariant, ProductDiscount,
@@ -28,6 +28,7 @@ const activeOnly = (e: Excursion) => e.statut === 'ACTIVE'
 
 /** Charge le catalogue complet (produits actifs) pour la home. */
 export async function fetchCatalog(): Promise<{ items: CatalogItem[]; cities: City[] }> {
+  if (!isSupabaseConfigured) return { items: [], cities: [] }
   const [ex, tr, vr, ds, dp, pc, ci] = await Promise.all([
     supabase.from('excursions').select('*').order('code_interne'),
     supabase.from('product_translations').select('*'),
@@ -65,6 +66,7 @@ export async function fetchCatalog(): Promise<{ items: CatalogItem[]; cities: Ci
 
 /** Charge un produit complet pour la page détail. */
 export async function fetchProduct(id: string): Promise<ProductBundle | null> {
+  if (!isSupabaseConfigured) return null
   const [ex, tr, op, ot, vr, ds, dp, pc] = await Promise.all([
     supabase.from('excursions').select('*').eq('id', id).single(),
     supabase.from('product_translations').select('*').eq('excursion_id', id),
@@ -120,6 +122,7 @@ export interface BookingDraft {
 
 /** Insère une réservation (statut NOUVELLE, source WEB) + ses extras. */
 export async function createBooking(d: BookingDraft): Promise<{ id: string } | { error: string }> {
+  if (!isSupabaseConfigured) return { error: 'Supabase non configuré' }
   const { extras, ...booking } = d
   const { data, error } = await supabase
     .from('bookings')
@@ -148,6 +151,7 @@ export interface ContactDraft {
 
 /** Ouvre une conversation et poste le premier message du client. */
 export async function createConversation(d: ContactDraft): Promise<{ id: string } | { error: string }> {
+  if (!isSupabaseConfigured) return { error: 'Supabase non configuré' }
   const { message, ...conv } = d
   const { data, error } = await supabase
     .from('conversations')
@@ -183,6 +187,7 @@ export interface QuoteDraft {
 
 /** Enregistre une demande de devis (statut NOUVELLE, source WEB). */
 export async function createQuote(d: QuoteDraft): Promise<{ id: string } | { error: string }> {
+  if (!isSupabaseConfigured) return { error: 'Supabase non configuré' }
   const { data, error } = await supabase
     .from('quote_requests')
     .insert({ ...d, statut: 'NOUVELLE', source: 'WEB' })
@@ -196,6 +201,7 @@ export async function createQuote(d: QuoteDraft): Promise<{ id: string } | { err
 /** Enregistre une visite, au plus une fois par session navigateur. */
 export async function trackVisit(): Promise<void> {
   try {
+    if (!isSupabaseConfigured) return
     let sid = sessionStorage.getItem('dts_sid')
     if (!sid) {
       sid = Math.random().toString(36).slice(2) + Date.now().toString(36)
