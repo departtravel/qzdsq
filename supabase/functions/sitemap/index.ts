@@ -21,7 +21,7 @@ Deno.serve(async () => {
     supabase.from('excursions').select('id, statut').eq('statut', 'ACTIVE'),
     supabase.from('cities').select('nom').eq('actif', true),
   ])
-  const slugify = (s: string) => s.toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g, '')
+  const slugify = (s: string) => s.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '')
     .replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '')
 
   const urls: string[] = []

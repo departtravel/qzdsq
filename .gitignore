@@ -14,3 +14,4 @@ vite.config.d.ts
 
 # Archives livrables
 *.zip
+dist-preview
