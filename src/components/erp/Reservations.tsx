@@ -696,6 +696,31 @@ function BookingForm({
   // extra_id -> { a: quantité adulte, e: quantité enfant } (présence = coché).
   const [selectedExtras, setSelectedExtras] = useState<Map<string, { a: number; e: number }>>(new Map())
   const [saving, setSaving] = useState(false)
+  // Extras créés à la volée dans ce formulaire (s'ajoutent au catalogue affiché).
+  const [extrasSup, setExtrasSup] = useState<ExtraOption[]>([])
+  const catalog = [...extrasCatalog, ...extrasSup]
+  // Mini-formulaire « + nouvel extra »
+  const [showNewExtra, setShowNewExtra] = useState(false)
+  const [neNom, setNeNom] = useState('')
+  const [neType, setNeType] = useState('PAR_PERSONNE')
+  const [neAchat, setNeAchat] = useState('')
+  const [neAchatEnf, setNeAchatEnf] = useState('')
+
+  async function creerExtra() {
+    if (!neNom.trim()) { onError('Nom de l’extra requis.'); return }
+    const { data, error } = await supabase.from('extras').insert({
+      nom: neNom.trim(),
+      type_tarification: neType,
+      prix_achat: neAchat ? Number(neAchat) : 0,
+      prix_achat_enfant: neAchatEnf ? Number(neAchatEnf) : null,
+      inclure_comptabilite: true,
+    }).select('id, nom, prix_achat, devise_achat').single()
+    if (error) { onError(error.message); return }
+    const ex = data as ExtraOption
+    setExtrasSup((p) => [...p, ex])
+    setSelectedExtras((prev) => new Map(prev).set(ex.id, { a: 1, e: 0 }))
+    setNeNom(''); setNeAchat(''); setNeAchatEnf(''); setShowNewExtra(false)
+  }
 
   const toggleExtra = (id: string) =>
     setSelectedExtras((prev) => {
@@ -911,11 +936,49 @@ function BookingForm({
         </Field>
 
         <Field label="Extras (options)" full>
-          {extrasCatalog.length === 0 ? (
+          <div className="mb-2 flex items-center gap-2">
+            <button
+              type="button"
+              onClick={() => setShowNewExtra((s) => !s)}
+              className="rounded border border-blue-300 px-2 py-1 text-xs font-medium text-blue-700 hover:bg-blue-50"
+            >
+              {showNewExtra ? 'Fermer' : '＋ Nouvel extra'}
+            </button>
+            <span className="text-xs text-slate-400">Créé dans la base et coché aussitôt.</span>
+          </div>
+          {showNewExtra && (
+            <div className="mb-3 flex flex-wrap items-end gap-2 rounded-lg border border-blue-200 bg-blue-50/50 p-2">
+              <label className="text-xs">
+                <span className="mb-0.5 block text-slate-500">Nom</span>
+                <input value={neNom} onChange={(e) => setNeNom(e.target.value)} className="w-40 rounded border border-slate-300 px-2 py-1 text-sm" />
+              </label>
+              <label className="text-xs">
+                <span className="mb-0.5 block text-slate-500">Tarification</span>
+                <select value={neType} onChange={(e) => setNeType(e.target.value)} className="rounded border border-slate-300 px-2 py-1 text-sm">
+                  <option value="PAR_PERSONNE">Par personne</option>
+                  <option value="PAR_VEHICULE">Par véhicule</option>
+                  <option value="PAR_GROUPE">Par groupe</option>
+                </select>
+              </label>
+              <label className="text-xs">
+                <span className="mb-0.5 block text-slate-500">Achat adulte</span>
+                <input type="number" min={0} step="0.01" value={neAchat} onChange={(e) => setNeAchat(e.target.value)} className="w-24 rounded border border-slate-300 px-2 py-1 text-sm" />
+              </label>
+              <label className="text-xs">
+                <span className="mb-0.5 block text-slate-500">Achat enfant</span>
+                <input type="number" min={0} step="0.01" value={neAchatEnf} onChange={(e) => setNeAchatEnf(e.target.value)} placeholder="= adulte" className="w-24 rounded border border-slate-300 px-2 py-1 text-sm" />
+              </label>
+              <button type="button" onClick={creerExtra} className="rounded bg-blue-600 px-3 py-1.5 text-sm font-medium text-white hover:bg-blue-700">
+                Créer et ajouter
+              </button>
+              <span className="w-full text-xs text-slate-400">Astuce : tu pourras compléter le prix de vente et le fournisseur dans Référentiels → Extras.</span>
+            </div>
+          )}
+          {catalog.length === 0 ? (
             <span className="text-xs italic text-slate-400">Aucun extra disponible.</span>
           ) : (
             <div className="flex flex-wrap gap-2">
-              {extrasCatalog.map((ex) => {
+              {catalog.map((ex) => {
                 const checked = selectedExtras.has(ex.id)
                 return (
                   <div
