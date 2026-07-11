@@ -130,7 +130,7 @@ begin
   -- RESTAURANTS / HÉBERGEMENTS / EXTRAS : prix adulte × adultes + prix enfant × enfants
   for cl in
     select * from public.excursion_cost_lines
-    where excursion_id = d.excursion_id and partner_type in ('RESTAURANT','HEBERGEMENT','EXTRA')
+    where excursion_id = d.excursion_id and partner_type in ('RESTAURANT','HEBERGEMENT','EXTRA','TRANSPORT','GUIDE','CHAUFFEUR')
       and partner_id is not null and inclure_comptabilite = true
   loop
     sid := public.ensure_supplier(cl.partner_type, cl.partner_id, cl.nom_depense);

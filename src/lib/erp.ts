@@ -57,6 +57,10 @@ export interface CostLine {
   prix_enfant?: number | null
   devise: string
   inclure_comptabilite: boolean
+  /** Prestataire rattaché (fiche compta) et taux de TVA (TTC). */
+  partner_type?: string | null
+  partner_id?: string | null
+  taux_tva?: number | null
 }
 
 // ----- Paramètres d'un calcul de rentabilité ----------------

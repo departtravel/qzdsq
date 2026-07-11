@@ -250,193 +250,329 @@ function ExcursionDetail({ excursion, onBack }: { excursion: Excursion; onBack: 
   )
 }
 
-const CATS = ['TRANSPORT', 'GUIDE', 'CHAUFFEUR', 'RESTAURANT', 'HEBERGEMENT', 'EXTRA', 'GASOIL', 'PEAGE', 'PARKING', 'AUTRE'] as const
 const TYPES = ['PAR_PERSONNE', 'PAR_VEHICULE', 'PAR_GROUPE', 'FIXE'] as const
 
-interface Partner { id: string; nom: string }
+// Catégories de dépense proposées (les 3 premières mises en avant).
+const CAT_DEPENSE: { v: string; label: string }[] = [
+  { v: 'RESTAURANT', label: 'Restaurant' },
+  { v: 'HEBERGEMENT', label: 'Hébergement' },
+  { v: 'EXTRA', label: 'Extra' },
+  { v: 'TRANSPORT', label: 'Transport' },
+  { v: 'GUIDE', label: 'Guide' },
+  { v: 'CHAUFFEUR', label: 'Chauffeur' },
+  { v: 'GASOIL', label: 'Gasoil' },
+  { v: 'PEAGE', label: 'Péage' },
+  { v: 'PARKING', label: 'Parking' },
+  { v: 'AUTRE', label: 'Autre' },
+]
+const CAT_LABEL: Record<string, string> = Object.fromEntries(CAT_DEPENSE.map((c) => [c.v, c.label]))
+// Catégories rattachées à un référentiel (donc à une fiche compta).
+type PrestKind = 'RESTAURANT' | 'HEBERGEMENT' | 'EXTRA' | 'TRANSPORT' | 'GUIDE' | 'CHAUFFEUR'
+const KIND_TABLE: Record<PrestKind, string> = {
+  RESTAURANT: 'restaurants', HEBERGEMENT: 'accommodations', EXTRA: 'extras',
+  TRANSPORT: 'transports', GUIDE: 'guides', CHAUFFEUR: 'chauffeurs',
+}
 
-// Éditeur des lignes de coût d'une excursion existante (repas, hébergement,
-// guide, transport, extras…). Renseigne partner_type/partner_id pour la compta.
+interface Prest { kind: PrestKind; id: string; nom: string; prixA: number | null; prixE: number | null; devise: string | null }
+
+interface LigneDraft {
+  categorie: string
+  prestKey: string // "KIND:id" (prestataire de la fiche compta) ou ''
+  type_depense: string
+  nom: string
+  prixA: string
+  prixE: string
+  devise: string
+  tva: string
+}
+const DRAFT_VIDE: LigneDraft = {
+  categorie: 'RESTAURANT', prestKey: '', type_depense: 'PAR_PERSONNE',
+  nom: '', prixA: '', prixE: '', devise: 'TND', tva: '19',
+}
+
+// Éditeur des dépenses d'une excursion, séparé par JOUR. Chaque dépense est
+// reliée (facultativement) à un prestataire -> sa fiche comptabilité.
 function CostLinesEditor({
   excursionId, nombreJours, lignes, onChanged,
 }: { excursionId: string; nombreJours: number; lignes: CostLine[]; onChanged: () => void | Promise<void> }) {
-  const [restaurants, setRestaurants] = useState<Partner[]>([])
-  const [accommodations, setAccommodations] = useState<Partner[]>([])
-  const [extras, setExtras] = useState<(Partner & { prix_achat: number | null; devise_achat: string | null })[]>([])
-  // Prix adulte du partenaire (dernier tarif connu), pour pré-remplissage.
-  const [restoPrix, setRestoPrix] = useState<Map<string, { a: number; e: number }>>(new Map())
-  const [hebergPrix, setHebergPrix] = useState<Map<string, { a: number; e: number }>>(new Map())
+  const [prests, setPrests] = useState<Prest[]>([])
+  const [jours, setJours] = useState(Math.max(1, nombreJours))
+  const [openDay, setOpenDay] = useState<number | null>(null) // jour dont le formulaire d'ajout est ouvert
+  const [editId, setEditId] = useState<string | null>(null)
+  const [draft, setDraft] = useState<LigneDraft>(DRAFT_VIDE)
   const [error, setError] = useState<string | null>(null)
 
-  const [jour, setJour] = useState(1)
-  const [categorie, setCategorie] = useState<string>('RESTAURANT')
-  const [typeDep, setTypeDep] = useState<string>('PAR_PERSONNE')
-  const [nom, setNom] = useState('')
-  const [prix, setPrix] = useState('')
-  const [prixEnf, setPrixEnf] = useState('')
-  const [devise, setDevise] = useState('TND')
-  const [tva, setTva] = useState('19')
-  const [partnerId, setPartnerId] = useState('')
-
-  useEffect(() => {
-    Promise.all([
+  const loadPrests = useCallback(async () => {
+    const [r, a, e, tr, gu, ch, rp, ap] = await Promise.all([
       supabase.from('restaurants').select('id, nom').order('nom'),
       supabase.from('accommodations').select('id, nom').order('nom'),
       supabase.from('extras').select('id, nom, prix_achat, devise_achat').order('nom'),
+      supabase.from('transports').select('id, nom').order('nom'),
+      supabase.from('guides').select('id, nom, prenom').order('nom'),
+      supabase.from('chauffeurs').select('id, nom, prenom').order('nom'),
       supabase.from('restaurant_prices').select('restaurant_id, prix_adulte, prix_enfant, date_debut').order('date_debut', { ascending: false }),
       supabase.from('accommodation_prices').select('accommodation_id, prix_adulte, prix_enfant, date').order('date', { ascending: false }),
-    ]).then(([r, a, e, rp, ap]) => {
-      setRestaurants((r.data as Partner[]) ?? [])
-      setAccommodations((a.data as Partner[]) ?? [])
-      setExtras((e.data as (Partner & { prix_achat: number | null; devise_achat: string | null })[]) ?? [])
-      // On garde le tarif le plus récent (la requête est triée décroissant).
-      const rm = new Map<string, { a: number; e: number }>()
-      for (const x of (rp.data as { restaurant_id: string; prix_adulte: number; prix_enfant: number }[]) ?? [])
-        if (!rm.has(x.restaurant_id)) rm.set(x.restaurant_id, { a: x.prix_adulte, e: x.prix_enfant })
-      setRestoPrix(rm)
-      const am = new Map<string, { a: number; e: number }>()
-      for (const x of (ap.data as { accommodation_id: string; prix_adulte: number; prix_enfant: number }[]) ?? [])
-        if (!am.has(x.accommodation_id)) am.set(x.accommodation_id, { a: x.prix_adulte, e: x.prix_enfant })
-      setHebergPrix(am)
-    })
+    ])
+    const rm = new Map<string, { a: number; e: number }>()
+    for (const x of (rp.data as { restaurant_id: string; prix_adulte: number; prix_enfant: number }[]) ?? [])
+      if (!rm.has(x.restaurant_id)) rm.set(x.restaurant_id, { a: x.prix_adulte, e: x.prix_enfant })
+    const am = new Map<string, { a: number; e: number }>()
+    for (const x of (ap.data as { accommodation_id: string; prix_adulte: number; prix_enfant: number }[]) ?? [])
+      if (!am.has(x.accommodation_id)) am.set(x.accommodation_id, { a: x.prix_adulte, e: x.prix_enfant })
+    const list: Prest[] = []
+    for (const x of (r.data as { id: string; nom: string }[]) ?? [])
+      list.push({ kind: 'RESTAURANT', id: x.id, nom: x.nom, prixA: rm.get(x.id)?.a ?? null, prixE: rm.get(x.id)?.e ?? null, devise: 'TND' })
+    for (const x of (a.data as { id: string; nom: string }[]) ?? [])
+      list.push({ kind: 'HEBERGEMENT', id: x.id, nom: x.nom, prixA: am.get(x.id)?.a ?? null, prixE: am.get(x.id)?.e ?? null, devise: 'TND' })
+    for (const x of (e.data as { id: string; nom: string; prix_achat: number | null; devise_achat: string | null }[]) ?? [])
+      list.push({ kind: 'EXTRA', id: x.id, nom: x.nom, prixA: x.prix_achat, prixE: null, devise: x.devise_achat ?? 'TND' })
+    for (const x of (tr.data as { id: string; nom: string }[]) ?? [])
+      list.push({ kind: 'TRANSPORT', id: x.id, nom: x.nom, prixA: null, prixE: null, devise: 'TND' })
+    for (const x of (gu.data as { id: string; nom: string; prenom: string | null }[]) ?? [])
+      list.push({ kind: 'GUIDE', id: x.id, nom: `${x.nom} ${x.prenom ?? ''}`.trim(), prixA: null, prixE: null, devise: 'TND' })
+    for (const x of (ch.data as { id: string; nom: string; prenom: string | null }[]) ?? [])
+      list.push({ kind: 'CHAUFFEUR', id: x.id, nom: `${x.nom} ${x.prenom ?? ''}`.trim(), prixA: null, prixE: null, devise: 'TND' })
+    setPrests(list)
   }, [])
 
-  const partenaires = categorie === 'RESTAURANT' ? restaurants : categorie === 'HEBERGEMENT' ? accommodations : categorie === 'EXTRA' ? extras : []
-  const partnerType = categorie === 'RESTAURANT' || categorie === 'HEBERGEMENT' || categorie === 'EXTRA' ? categorie : null
+  useEffect(() => { loadPrests() }, [loadPrests])
 
-  async function ajouter() {
-    setError(null)
-    if (!nom.trim()) { setError('Nom de la dépense requis.'); return }
+  // Le nombre de jours affichés couvre toujours les dépenses déjà saisies.
+  useEffect(() => {
+    const maxJ = lignes.reduce((m, l) => Math.max(m, l.jour || 1), 1)
+    setJours((j) => Math.max(j, maxJ, Math.max(1, nombreJours)))
+  }, [lignes, nombreJours])
 
-    // Prestataire : on relie la dépense à une fiche compta.
-    // - déjà choisi dans le menu -> on l'utilise.
-    // - nom tapé qui existe déjà (même nom) -> on réutilise sa fiche.
-    // - nom nouveau -> on crée le prestataire (et sa fiche compta est créée
-    //   automatiquement par la base), puis on le relie.
-    let pid: string | null = partnerType ? (partnerId || null) : null
-    if (partnerType && !pid) {
-      const liste = categorie === 'RESTAURANT' ? restaurants : categorie === 'HEBERGEMENT' ? accommodations : extras
-      const existant = liste.find((p) => p.nom.trim().toLowerCase() === nom.trim().toLowerCase())
-      if (existant) {
-        pid = existant.id
-      } else {
-        const table = categorie === 'RESTAURANT' ? 'restaurants' : categorie === 'HEBERGEMENT' ? 'accommodations' : 'extras'
-        const payload: Record<string, unknown> =
-          categorie === 'EXTRA'
-            ? { nom: nom.trim(), categorie: 'AUTRE', type_tarification: typeDep, prix_achat: prix ? Number(prix) : 0, devise_achat: devise }
-            : { nom: nom.trim() }
-        const { data: created, error: e1 } = await supabase.from(table).insert(payload).select('id').single()
-        if (e1) { setError('Création du prestataire : ' + e1.message); return }
-        pid = (created as { id: string }).id
+  const prestKey = (kind: string, id: string) => `${kind}:${id}`
+  const prestLabel = (l: CostLine) =>
+    l.partner_id && l.partner_type
+      ? (prests.find((p) => p.kind === l.partner_type && p.id === l.partner_id)?.nom ?? l.partner_type)
+      : '—'
+
+  // Options prestataires proposées selon la catégorie choisie.
+  function optionsPour(categorie: string): Prest[] {
+    if (categorie === 'EXTRA') return prests // un extra peut être facturé à N'IMPORTE quel prestataire
+    if (['RESTAURANT', 'HEBERGEMENT', 'TRANSPORT', 'GUIDE', 'CHAUFFEUR'].includes(categorie))
+      return prests.filter((p) => p.kind === categorie)
+    return prests // gasoil/péage/parking/autre : associable librement (facultatif)
+  }
+
+  function ouvrirAjout(jour: number) {
+    setEditId(null); setError(null)
+    setOpenDay(jour)
+    setDraft({ ...DRAFT_VIDE })
+  }
+  function ouvrirEdition(l: CostLine) {
+    setError(null); setOpenDay(null)
+    setEditId(l.id)
+    setDraft({
+      categorie: l.categorie,
+      prestKey: l.partner_type && l.partner_id ? prestKey(l.partner_type, l.partner_id) : '',
+      type_depense: l.type_depense ?? 'PAR_PERSONNE',
+      nom: l.nom_depense,
+      prixA: l.prix_unitaire != null ? String(l.prix_unitaire) : '',
+      prixE: l.prix_enfant != null ? String(l.prix_enfant) : '',
+      devise: l.devise ?? 'TND',
+      tva: l.taux_tva != null ? String(l.taux_tva) : '19',
+    })
+  }
+  function annuler() { setOpenDay(null); setEditId(null); setDraft(DRAFT_VIDE); setError(null) }
+
+  function choisirPrestataire(key: string) {
+    const d = { ...draft, prestKey: key }
+    if (key) {
+      const [kind, id] = key.split(':')
+      const p = prests.find((x) => x.kind === kind && x.id === id)
+      if (p) {
+        d.nom = p.nom
+        if (p.prixA != null) d.prixA = String(p.prixA)
+        if (p.prixE != null) d.prixE = String(p.prixE)
+        if (p.devise) d.devise = p.devise
       }
     }
+    setDraft(d)
+  }
 
-    const { error } = await supabase.from('excursion_cost_lines').insert({
+  // Détermine (partner_type, partner_id) et crée le prestataire si nom nouveau.
+  async function resolvePartner(d: LigneDraft): Promise<{ type: string | null; id: string | null } | 'ERR'> {
+    if (d.prestKey) {
+      const [kind, id] = d.prestKey.split(':')
+      return { type: kind, id }
+    }
+    // Pas de prestataire choisi : pour une catégorie rattachable, on relie par nom
+    // (réutilise la fiche si le nom existe, sinon crée le prestataire + sa fiche).
+    const kind = d.categorie as PrestKind
+    if (!(kind in KIND_TABLE)) return { type: null, id: null } // gasoil/péage/parking/autre : pas de fiche
+    const existant = prests.find((p) => p.kind === kind && p.nom.trim().toLowerCase() === d.nom.trim().toLowerCase())
+    if (existant) return { type: kind, id: existant.id }
+    const payload: Record<string, unknown> =
+      kind === 'EXTRA'
+        ? { nom: d.nom.trim(), categorie: 'AUTRE', type_tarification: d.type_depense, prix_achat: d.prixA ? Number(d.prixA) : 0, devise_achat: d.devise }
+        : { nom: d.nom.trim() }
+    const { data, error } = await supabase.from(KIND_TABLE[kind]).insert(payload).select('id').single()
+    if (error) { setError('Création du prestataire : ' + error.message); return 'ERR' }
+    await loadPrests()
+    return { type: kind, id: (data as { id: string }).id }
+  }
+
+  async function enregistrer(jour: number) {
+    setError(null)
+    if (!draft.nom.trim()) { setError('Nom de la dépense requis.'); return }
+    const partner = await resolvePartner(draft)
+    if (partner === 'ERR') return
+    const payload = {
       excursion_id: excursionId,
       jour,
-      categorie,
-      type_depense: typeDep,
-      nom_depense: nom.trim(),
-      prix_unitaire: prix ? Number(prix) : 0,
-      prix_enfant: prixEnf !== '' ? Number(prixEnf) : null,
-      devise,
-      taux_tva: Number(tva) || 0,
+      categorie: draft.categorie,
+      type_depense: draft.type_depense,
+      nom_depense: draft.nom.trim(),
+      prix_unitaire: draft.prixA ? Number(draft.prixA) : 0,
+      prix_enfant: draft.prixE !== '' ? Number(draft.prixE) : null,
+      devise: draft.devise,
+      taux_tva: Number(draft.tva) || 0,
       inclure_comptabilite: true,
-      partner_type: partnerType,
-      partner_id: pid,
-    })
-    if (error) { setError(error.message); return }
-    setNom(''); setPrix(''); setPrixEnf(''); setPartnerId('')
+      partner_type: partner.type,
+      partner_id: partner.id,
+    }
+    const res = editId
+      ? await supabase.from('excursion_cost_lines').update(payload).eq('id', editId)
+      : await supabase.from('excursion_cost_lines').insert(payload)
+    if (res.error) { setError(res.error.message); return }
+    annuler()
     onChanged()
   }
 
   async function supprimer(id: string) {
+    if (!confirm('Supprimer cette dépense ?')) return
     await supabase.from('excursion_cost_lines').delete().eq('id', id)
+    if (editId === id) annuler()
     onChanged()
   }
 
+  async function ajouterJournee() {
+    const n = jours + 1
+    setJours(n)
+    await supabase.from('excursions').update({ nombre_jours: n }).eq('id', excursionId)
+    ouvrirAjout(n)
+  }
+
   return (
-    <div className="mt-4 rounded-lg bg-white p-4 shadow">
-      <h3 className="mb-3 font-semibold">Ajouter / gérer les charges de cette excursion</h3>
-      {error && <div className="mb-2 rounded border border-red-200 bg-red-50 px-3 py-2 text-sm text-red-700">{error}</div>}
-
-      <div className="mb-3 grid grid-cols-2 gap-2 sm:grid-cols-4 lg:grid-cols-8">
-        <Lbl t="Jour">
-          <select value={jour} onChange={(e) => setJour(Number(e.target.value))} className={ipt}>
-            {Array.from({ length: Math.max(1, nombreJours) }, (_, i) => i + 1).map((j) => (
-              <option key={j} value={j}>Jour {j}</option>
-            ))}
-          </select>
-        </Lbl>
-        <Lbl t="Catégorie">
-          <select value={categorie} onChange={(e) => { setCategorie(e.target.value); setPartnerId('') }} className={ipt}>
-            {CATS.map((c) => <option key={c} value={c}>{c}</option>)}
-          </select>
-        </Lbl>
-        {partnerType && (
-          <Lbl t="Prestataire">
-            <select
-              value={partnerId}
-              onChange={(e) => {
-                const id = e.target.value
-                setPartnerId(id)
-                const p = partenaires.find((x) => x.id === id)
-                if (!p) return
-                setNom(p.nom)
-                if (categorie === 'EXTRA') {
-                  const ex = extras.find((x) => x.id === id)
-                  if (ex) { setPrix(String(ex.prix_achat ?? '')); setPrixEnf(''); setDevise(ex.devise_achat ?? 'TND') }
-                } else if (categorie === 'RESTAURANT') {
-                  const p = restoPrix.get(id)
-                  setPrix(String(p?.a ?? '')); setPrixEnf(String(p?.e ?? '')); setDevise('TND'); setTypeDep('PAR_PERSONNE')
-                } else if (categorie === 'HEBERGEMENT') {
-                  const p = hebergPrix.get(id)
-                  setPrix(String(p?.a ?? '')); setPrixEnf(String(p?.e ?? '')); setDevise('TND'); setTypeDep('PAR_PERSONNE')
-                }
-              }}
-              className={ipt}
-            >
-              <option value="">— choisir / manuel —</option>
-              {partenaires.map((p) => <option key={p.id} value={p.id}>{p.nom}</option>)}
-            </select>
-          </Lbl>
-        )}
-        <Lbl t="Type">
-          <select value={typeDep} onChange={(e) => setTypeDep(e.target.value)} className={ipt}>
-            {TYPES.map((t) => <option key={t} value={t}>{t}</option>)}
-          </select>
-        </Lbl>
-        <Lbl t="Nom dépense"><input value={nom} onChange={(e) => setNom(e.target.value)} className={ipt} /></Lbl>
-        <Lbl t="Prix adulte"><input type="number" min={0} step="0.01" value={prix} onChange={(e) => setPrix(e.target.value)} className={ipt} /></Lbl>
-        <Lbl t="Prix enfant"><input type="number" min={0} step="0.01" value={prixEnf} placeholder="= adulte si vide" onChange={(e) => setPrixEnf(e.target.value)} className={ipt} /></Lbl>
-        <Lbl t="Devise"><input value={devise} onChange={(e) => setDevise(e.target.value)} className={ipt} /></Lbl>
-        <Lbl t="TVA (TTC)">
-          <select value={tva} onChange={(e) => setTva(e.target.value)} className={ipt}>
-            <option value="19">19 %</option><option value="7">7 %</option><option value="0">0 %</option>
-          </select>
-        </Lbl>
+    <div className="mt-4 space-y-4">
+      <div className="flex items-center justify-between">
+        <h3 className="font-semibold">Dépenses par jour</h3>
+        <button onClick={ajouterJournee} className="rounded border border-blue-300 px-3 py-1 text-sm font-medium text-blue-700 hover:bg-blue-50">
+          ＋ Ajouter une journée
+        </button>
       </div>
-      <button onClick={ajouter} className="rounded bg-blue-600 px-4 py-1.5 text-sm font-medium text-white hover:bg-blue-700">
-        + Ajouter la charge
-      </button>
+      {error && <div className="rounded border border-red-200 bg-red-50 px-3 py-2 text-sm text-red-700">{error}</div>}
 
-      {lignes.length > 0 && (
-        <table className="mt-4 w-full text-sm">
-          <tbody>
-            {lignes.map((l) => (
-              <tr key={l.id} className="border-t">
-                <td className="py-1 text-slate-500">J{l.jour} · {l.categorie}</td>
-                <td className="py-1">{l.nom_depense}</td>
-                <td className="py-1 text-slate-500">{l.type_depense}</td>
-                <td className="py-1 text-right">{l.prix_unitaire} {l.devise}</td>
-                <td className="py-1 text-right">
-                  <button onClick={() => supprimer(l.id)} className="text-xs text-red-600 hover:underline">✕</button>
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
-      )}
+      {Array.from({ length: jours }, (_, i) => i + 1).map((jour) => {
+        const dujour = lignes.filter((l) => (l.jour || 1) === jour)
+        return (
+          <div key={jour} className="rounded-lg border border-slate-200 bg-white p-4 shadow-sm">
+            <div className="mb-2 flex items-center justify-between">
+              <h4 className="font-semibold text-slate-700">Jour {jour}</h4>
+              <button
+                onClick={() => (openDay === jour ? annuler() : ouvrirAjout(jour))}
+                className="rounded bg-blue-600 px-3 py-1 text-sm font-medium text-white hover:bg-blue-700"
+              >
+                {openDay === jour ? 'Fermer' : '＋ Ajouter une dépense'}
+              </button>
+            </div>
+
+            {dujour.length === 0 ? (
+              <p className="text-sm text-slate-400">Aucune dépense pour ce jour.</p>
+            ) : (
+              <div className="divide-y">
+                {dujour.map((l) =>
+                  editId === l.id ? (
+                    <DepenseForm
+                      key={l.id} draft={draft} setDraft={setDraft} options={optionsPour(draft.categorie)}
+                      onPrest={choisirPrestataire} onSave={() => enregistrer(jour)} onCancel={annuler} prestKey={prestKey}
+                    />
+                  ) : (
+                    <div key={l.id} className="flex flex-wrap items-center gap-2 py-2 text-sm">
+                      <span className="rounded bg-slate-100 px-2 py-0.5 text-xs font-medium text-slate-600">{CAT_LABEL[l.categorie] ?? l.categorie}</span>
+                      <span className="font-medium">{l.nom_depense}</span>
+                      <span className="text-xs text-slate-400">{l.type_depense}</span>
+                      <span className="text-slate-600">
+                        {l.prix_unitaire} {l.devise}
+                        {l.prix_enfant != null && <span className="text-slate-400"> · enf. {l.prix_enfant}</span>}
+                      </span>
+                      <span className="text-xs text-slate-400">→ {prestLabel(l)}</span>
+                      <span className="ml-auto flex gap-2">
+                        <button onClick={() => ouvrirEdition(l)} className="text-xs font-medium text-blue-600 hover:underline">Modifier</button>
+                        <button onClick={() => supprimer(l.id)} className="text-xs font-medium text-red-600 hover:underline">Supprimer</button>
+                      </span>
+                    </div>
+                  ),
+                )}
+              </div>
+            )}
+
+            {openDay === jour && !editId && (
+              <div className="mt-3 border-t pt-3">
+                <DepenseForm
+                  draft={draft} setDraft={setDraft} options={optionsPour(draft.categorie)}
+                  onPrest={choisirPrestataire} onSave={() => enregistrer(jour)} onCancel={annuler} prestKey={prestKey}
+                />
+              </div>
+            )}
+          </div>
+        )
+      })}
+    </div>
+  )
+}
+
+// Formulaire d'une dépense (ajout ou édition), réutilisé partout.
+function DepenseForm({
+  draft, setDraft, options, onPrest, onSave, onCancel, prestKey,
+}: {
+  draft: LigneDraft
+  setDraft: (d: LigneDraft) => void
+  options: Prest[]
+  onPrest: (key: string) => void
+  onSave: () => void
+  onCancel: () => void
+  prestKey: (kind: string, id: string) => string
+}) {
+  const estExtra = draft.categorie === 'EXTRA'
+  return (
+    <div className="grid grid-cols-2 gap-2 rounded-lg bg-slate-50 p-3 sm:grid-cols-4 lg:grid-cols-8">
+      <Lbl t="Type de dépense">
+        <select value={draft.categorie} onChange={(e) => setDraft({ ...draft, categorie: e.target.value, prestKey: '' })} className={ipt}>
+          {CAT_DEPENSE.map((c) => <option key={c.v} value={c.v}>{c.label}</option>)}
+        </select>
+      </Lbl>
+      <Lbl t={estExtra ? 'Associer à (prestataire)' : 'Prestataire (fiche compta)'}>
+        <select value={draft.prestKey} onChange={(e) => onPrest(e.target.value)} className={ipt}>
+          <option value="">{estExtra ? '— extra autonome —' : '— choisir / saisir le nom —'}</option>
+          {options.map((p) => (
+            <option key={prestKey(p.kind, p.id)} value={prestKey(p.kind, p.id)}>
+              {estExtra ? `${CAT_LABEL[p.kind]} · ${p.nom}` : p.nom}
+            </option>
+          ))}
+        </select>
+      </Lbl>
+      <Lbl t="Nom"><input value={draft.nom} onChange={(e) => setDraft({ ...draft, nom: e.target.value })} className={ipt} /></Lbl>
+      <Lbl t="Mode">
+        <select value={draft.type_depense} onChange={(e) => setDraft({ ...draft, type_depense: e.target.value })} className={ipt}>
+          {TYPES.map((t) => <option key={t} value={t}>{t}</option>)}
+        </select>
+      </Lbl>
+      <Lbl t="Prix adulte"><input type="number" min={0} step="0.01" value={draft.prixA} onChange={(e) => setDraft({ ...draft, prixA: e.target.value })} className={ipt} /></Lbl>
+      <Lbl t="Prix enfant"><input type="number" min={0} step="0.01" value={draft.prixE} placeholder="= adulte si vide" onChange={(e) => setDraft({ ...draft, prixE: e.target.value })} className={ipt} /></Lbl>
+      <Lbl t="Devise"><input value={draft.devise} onChange={(e) => setDraft({ ...draft, devise: e.target.value })} className={ipt} /></Lbl>
+      <Lbl t="TVA (TTC)">
+        <select value={draft.tva} onChange={(e) => setDraft({ ...draft, tva: e.target.value })} className={ipt}>
+          <option value="19">19 %</option><option value="7">7 %</option><option value="0">0 %</option>
+        </select>
+      </Lbl>
+      <div className="col-span-2 flex items-end gap-2 sm:col-span-4 lg:col-span-8">
+        <button onClick={onSave} className="rounded bg-green-600 px-4 py-1.5 text-sm font-medium text-white hover:bg-green-700">Enregistrer</button>
+        <button onClick={onCancel} className="rounded bg-slate-200 px-4 py-1.5 text-sm font-medium text-slate-600 hover:bg-slate-300">Annuler</button>
+      </div>
     </div>
   )
 }
