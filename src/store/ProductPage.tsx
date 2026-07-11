@@ -10,6 +10,7 @@ import {
 import { supabase, isSupabaseConfigured } from '../lib/supabase'
 import { Cover } from './Cover'
 import { Stars } from './HomePage'
+import { ReviewsSection } from './Reviews'
 
 const today = () => new Date().toISOString().slice(0, 10)
 
@@ -134,6 +135,7 @@ export function ProductPage() {
             {t.inclus && <Bloc titre="✅ Inclus" texte={t.inclus} />}
             {t.non_inclus && <Bloc titre="❌ Non inclus" texte={t.non_inclus} />}
           </div>
+          <ReviewsSection excursionId={b.excursion.id} />
         </div>
 
         {/* ---- Colonne configurateur (sticky) ---- */}

@@ -236,6 +236,37 @@ export async function trackVisit(): Promise<void> {
   } catch { /* silencieux : ne jamais bloquer la vitrine */ }
 }
 
+// ----- Avis clients ------------------------------------------
+export interface Review {
+  id: string
+  excursion_id: string
+  client_nom: string
+  pays: string | null
+  note: number
+  commentaire: string | null
+  created_at: string
+}
+
+/** Avis PUBLIÉS d'un produit (les plus récents d'abord). */
+export async function fetchReviews(excursionId: string): Promise<Review[]> {
+  if (!isSupabaseConfigured) return []
+  const { data } = await supabase
+    .from('reviews').select('*')
+    .eq('excursion_id', excursionId).eq('statut', 'PUBLIE')
+    .order('created_at', { ascending: false })
+  return (data as Review[]) ?? []
+}
+
+/** Dépose un avis (en attente de modération). */
+export async function createReview(d: {
+  excursion_id: string; client_nom: string; pays: string | null; note: number; commentaire: string | null
+}): Promise<{ ok: true } | { error: string }> {
+  if (!isSupabaseConfigured) return { error: 'Supabase non configuré' }
+  const { error } = await supabase.from('reviews').insert({ ...d, statut: 'EN_ATTENTE' })
+  if (error) return { error: error.message }
+  return { ok: true }
+}
+
 /** Traduction d'un produit dans la locale voulue, avec repli sur la source. */
 export function tradProduit(b: { excursion: Excursion; translations: ProductTranslation[] }, loc: Locale) {
   const t = b.translations.find((x) => x.locale === loc)
