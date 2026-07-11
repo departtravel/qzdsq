@@ -2,7 +2,8 @@ import { useEffect, useMemo, useState } from 'react'
 import { Link } from 'react-router-dom'
 import { useStore } from './StoreContext'
 import { fetchCatalog, tradProduit, type CatalogItem } from './data'
-import { setSeo } from './seo'
+import { setSeo, setJsonLd, organizationJsonLd } from './seo'
+import { FaqSection } from './Faq'
 import { Cover } from './Cover'
 import type { City } from '../lib/produits'
 import {
@@ -28,6 +29,8 @@ export function HomePage() {
       description:
         'Réservez vos excursions, désert, circuits et activités en Tunisie. Départs depuis Tunis, Djerba, Hammamet, Sousse… Confirmation immédiate, meilleurs prix.',
     })
+    setJsonLd('dts-org', organizationJsonLd())
+    return () => setJsonLd('dts-org')
   }, [])
 
   const categories = useMemo(
@@ -192,6 +195,9 @@ export function HomePage() {
             ))}
           </div>
         </Section>
+
+        {/* ===== FAQ ===== */}
+        <FaqSection />
 
         {/* ===== Événements ===== */}
         <Section title="🎉 Événements sur mesure" sub="Team building · EVG / EVJF · Mariage">

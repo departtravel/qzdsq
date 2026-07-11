@@ -1,0 +1,6 @@
+User-agent: *
+Allow: /
+Disallow: /admin
+
+# Remplace par l'URL absolue de ton sitemap (voir supabase/functions/sitemap).
+Sitemap: /sitemap.xml

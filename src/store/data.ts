@@ -267,6 +267,27 @@ export async function trackVisit(): Promise<void> {
   } catch { /* silencieux : ne jamais bloquer la vitrine */ }
 }
 
+// ----- FAQ ---------------------------------------------------
+export interface Faq { id: string; question: string; reponse: string; excursion_id: string | null }
+
+/** FAQ affichées : générales (+ celles du produit si excursionId fourni). */
+export async function fetchFaqs(excursionId?: string): Promise<Faq[]> {
+  if (!isSupabaseConfigured) {
+    return [
+      { id: 'f1', excursion_id: null, question: 'Comment réserver une excursion ?', reponse: 'Choisissez votre ville de départ, votre excursion, la date et vos options, puis validez en ligne. Confirmation immédiate par e-mail.' },
+      { id: 'f2', excursion_id: null, question: 'Le paiement est-il sécurisé ?', reponse: 'Oui, via Stripe. Vous pouvez régler un acompte ou la totalité.' },
+      { id: 'f3', excursion_id: null, question: 'Puis-je annuler ma réservation ?', reponse: 'La plupart de nos excursions bénéficient de l’annulation gratuite.' },
+      { id: 'f4', excursion_id: null, question: 'Proposez-vous des sorties privées ?', reponse: 'Oui, en groupe ou en privatif, et des circuits 100 % sur mesure.' },
+    ]
+  }
+  let query = supabase.from('faqs').select('*').eq('actif', true).order('ordre')
+  query = excursionId
+    ? query.or(`excursion_id.is.null,excursion_id.eq.${excursionId}`)
+    : query.is('excursion_id', null)
+  const { data } = await query
+  return (data as Faq[]) ?? []
+}
+
 // ----- Avis clients ------------------------------------------
 export interface Review {
   id: string

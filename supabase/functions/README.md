@@ -114,3 +114,18 @@ Puis dans Stripe > Developers > Webhooks : créer un endpoint pointant vers l'UR
 de `stripe-webhook`, écouter `checkout.session.completed`, et copier le
 `whsec_...` dans `STRIPE_WEBHOOK_SECRET`. Sans clés Stripe, le bouton de paiement
 affiche une erreur propre et la réservation reste enregistrée (règlement plus tard).
+
+---
+
+# Sitemap SEO (`sitemap`)
+
+`sitemap` génère `sitemap.xml` (pages fixes + une URL par excursion active).
+
+```bash
+supabase secrets set SITE_URL=https://www.ton-domaine.com
+supabase functions deploy sitemap --no-verify-jwt
+```
+
+Puis, chez ton hébergeur, fais pointer `/sitemap.xml` vers l'URL de la fonction
+(ou mets cette URL dans `public/robots.txt`), et déclare le sitemap dans
+Google Search Console.

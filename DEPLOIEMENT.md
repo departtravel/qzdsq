@@ -26,8 +26,9 @@ L'application a **deux morceaux** :
    11. `supabase/avis.sql` ← avis clients (dépôt, modération, note recalculée)
    12. `supabase/paiement.sql` ← paiement en ligne Stripe (acompte/total)
    13. `supabase/stats.sql` ← compteur de visites (taux de conversion du dashboard)
-   14. `supabase/seed.sql`
-   15. `supabase/seed_dts.sql`
+   14. `supabase/faq.sql` ← FAQ éditable (SEO rich results)
+   15. `supabase/seed.sql`
+   16. `supabase/seed_dts.sql`
 
 > **Deux espaces dans l'app :**
 > - `/` → **vitrine publique** (Depart Travel Services) : accueil, entrée par ville, pages produit avec configurateur (ville → option → groupe/privé → date → extras → prix live + promo).

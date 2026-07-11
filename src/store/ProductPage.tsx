@@ -11,6 +11,7 @@ import { supabase, isSupabaseConfigured } from '../lib/supabase'
 import { Cover } from './Cover'
 import { Stars } from './HomePage'
 import { ReviewsSection } from './Reviews'
+import { FaqSection } from './Faq'
 
 const today = () => new Date().toISOString().slice(0, 10)
 
@@ -54,14 +55,19 @@ export function ProductPage() {
         setSeo({
           title: `${t.nom} — Depart Travel Services`,
           description: t.description?.slice(0, 155),
+          image: bundle.excursion.image_url ?? undefined,
           jsonLd: {
             '@context': 'https://schema.org', '@type': 'TouristTrip',
             name: t.nom, description: t.description,
+            image: bundle.excursion.image_url ?? undefined,
             offers: {
               '@type': 'Offer', priceCurrency: bundle.excursion.devise,
               price: pricingVariante(pricingProduit(bundle.excursion), null).prix_adulte,
               availability: 'https://schema.org/InStock',
             },
+            ...(bundle.excursion.note_moyenne != null && (bundle.excursion.nb_avis ?? 0) > 0
+              ? { aggregateRating: { '@type': 'AggregateRating', ratingValue: bundle.excursion.note_moyenne, reviewCount: bundle.excursion.nb_avis } }
+              : {}),
           },
         })
       }
@@ -143,6 +149,7 @@ export function ProductPage() {
             {t.non_inclus && <Bloc titre="❌ Non inclus" texte={t.non_inclus} />}
           </div>
           <ReviewsSection excursionId={b.excursion.id} />
+          <FaqSection excursionId={b.excursion.id} />
         </div>
 
         {/* ---- Colonne configurateur (sticky) ---- */}
