@@ -74,6 +74,36 @@ export function onglestsVisibles(role: ErpRole): 'ALL' | string[] {
   }
 }
 
+/**
+ * Workflow en cascade : chaque rôle ne VOIT une réservation que lorsqu'elle
+ * est arrivée à son étape. Tant que l'étape précédente n'a pas validé, la
+ * personne suivante ne voit rien.
+ *   NOUVELLE      -> créée par Hiba, à confirmer par Farah
+ *   CONFIRMEE     -> à mettre en opération par Hersi
+ *   EN_OPERATION  -> à finaliser par Karima (logistique)
+ *   TERMINEE      -> à facturer par la comptabilité
+ * 'ALL' = voit tout (ADMIN, LECTURE).
+ */
+export function statutsVisibles(role: ErpRole): 'ALL' | BookingStatut[] {
+  switch (role) {
+    case 'ADMIN':
+      return 'ALL'
+    case 'RESERVATION': // Hiba : ses réservations tant que Farah n'a pas confirmé
+      return ['NOUVELLE']
+    case 'CONFIRMATION': // Farah : ne voit que ce qui est à confirmer
+      return ['NOUVELLE']
+    case 'OPERATIONS': // Hersi : ne voit que ce qui est confirmé
+      return ['CONFIRMEE']
+    case 'LOGISTIQUE': // Karima : ne voit que ce qui est en opération
+      return ['EN_OPERATION']
+    case 'COMPTABLE': // Compta : sorties en cours / terminées à facturer
+      return ['EN_OPERATION', 'TERMINEE']
+    case 'LECTURE':
+    default:
+      return 'ALL'
+  }
+}
+
 /** Charge le rôle ERP de l'utilisateur connecté. Défaut : LECTURE. */
 export function useErpRole(): { role: ErpRole; ready: boolean } {
   const [role, setRole] = useState<ErpRole>('LECTURE')

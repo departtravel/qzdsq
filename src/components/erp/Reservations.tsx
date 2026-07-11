@@ -10,6 +10,7 @@ import {
   useErpRole,
   peutCreerReservation,
   peutTransition,
+  statutsVisibles,
   ROLE_LABEL,
   type BookingStatut as RoleStatut,
 } from '../../lib/roles'
@@ -51,6 +52,27 @@ interface Booking {
   driver_id: string | null
   notes: string | null
   created_at: string | null
+  hotel: string | null
+  heure_prise_en_charge: string | null
+  departure_id: string | null
+}
+
+// Champs obligatoires pour franchir une étape. Si l'un manque, la validation
+// est bloquée et la liste de ce qui manque s'affiche.
+function champsManquants(b: Booking, to: BookingStatut): string[] {
+  const m: string[] = []
+  if (to === 'CONFIRMEE') {
+    if (!b.excursion_id) m.push('Excursion')
+    if (!b.date_excursion) m.push("Date de l'excursion")
+    if (!b.client_nom) m.push('Nom du client')
+    if (!b.nombre_adultes || b.nombre_adultes < 1) m.push('Au moins 1 adulte')
+    if (!b.langue) m.push('Langue')
+    if (!b.hotel) m.push('Hôtel / lieu de prise en charge')
+    if (!b.heure_prise_en_charge) m.push('Heure de prise en charge')
+  } else if (to === 'EN_OPERATION') {
+    if (!b.departure_id) m.push('Affectation à un départ (guide + transport) dans le Planning')
+  }
+  return m
 }
 
 interface ExcursionOption {
@@ -228,22 +250,46 @@ export function Reservations() {
     return m
   }, [otas])
 
+  // Workflow en cascade : on ne voit que les réservations arrivées à son étape.
+  const visibles = useMemo(() => statutsVisibles(role), [role])
+  const bookingsVisibles = useMemo(
+    () => (visibles === 'ALL' ? bookings : bookings.filter((b) => visibles.includes(b.statut))),
+    [bookings, visibles],
+  )
+
   const filtered = useMemo(() => {
-    const list = filtre === 'TOUS' ? bookings : bookings.filter((b) => b.statut === filtre)
+    const list = filtre === 'TOUS' ? bookingsVisibles : bookingsVisibles.filter((b) => b.statut === filtre)
     return [...list].sort((a, b) =>
       (a.date_excursion ?? '').localeCompare(b.date_excursion ?? ''),
     )
-  }, [bookings, filtre])
+  }, [bookingsVisibles, filtre])
 
   const compteurs = useMemo(() => {
-    const c: Record<string, number> = { TOUS: bookings.length }
+    const c: Record<string, number> = { TOUS: bookingsVisibles.length }
     for (const s of STATUTS) c[s] = 0
-    for (const b of bookings) c[b.statut] = (c[b.statut] ?? 0) + 1
+    for (const b of bookingsVisibles) c[b.statut] = (c[b.statut] ?? 0) + 1
     return c
-  }, [bookings])
+  }, [bookingsVisibles])
+
+  // Statuts affichés dans les filtres = ceux que le rôle peut voir.
+  const statutsAffiches = useMemo(
+    () => (visibles === 'ALL' ? STATUTS : STATUTS.filter((s) => visibles.includes(s))),
+    [visibles],
+  )
 
   const changerStatut = useCallback(
     async (booking: Booking, statut: BookingStatut) => {
+      setError(null)
+      // Validation bloquante : on ne passe pas à l'étape suivante s'il manque une info.
+      if (statut !== 'ANNULEE') {
+        const manque = champsManquants(booking, statut)
+        if (manque.length > 0) {
+          setError(
+            `Impossible de valider « ${booking.client_nom ?? 'cette réservation'} » — il manque : ${manque.join(', ')}.`,
+          )
+          return
+        }
+      }
       setBusyId(booking.id)
       const { error } = await supabase
         .from('bookings')
@@ -274,15 +320,17 @@ export function Reservations() {
   )
 
   if (loading) return <p className="text-slate-500">Chargement des réservations…</p>
-  if (error)
-    return (
-      <div className="rounded border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">
-        {error} — as-tu exécuté <code>supabase/erp.sql</code> puis <code>supabase/seed.sql</code> ?
-      </div>
-    )
 
   return (
     <div>
+      {error && (
+        <div className="mb-4 flex items-start justify-between gap-3 rounded border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">
+          <span>⚠️ {error}</span>
+          <button onClick={() => setError(null)} className="font-medium hover:underline">
+            Fermer
+          </button>
+        </div>
+      )}
       <div className="mb-2 flex flex-wrap items-center justify-between gap-3">
         <h2 className="text-lg font-semibold">Réservations ({bookings.length})</h2>
         {peutCreerReservation(role) && (
@@ -297,8 +345,11 @@ export function Reservations() {
 
       {/* Bandeau du rôle courant */}
       <div className="mb-4 rounded border border-slate-200 bg-slate-50 px-3 py-2 text-xs text-slate-600">
-        Connecté en tant que <strong>{ROLE_LABEL[role]}</strong>. Vous ne pouvez agir que sur les
-        étapes autorisées à votre rôle — les autres actions sont masquées (et refusées par la base).
+        Connecté en tant que <strong>{ROLE_LABEL[role]}</strong>.{' '}
+        {visibles === 'ALL'
+          ? 'Vous voyez toutes les étapes.'
+          : "Vous ne voyez que les réservations arrivées à votre étape ; une fois validées, elles passent automatiquement à la personne suivante."}
+        {' '}Une validation est refusée s’il manque une information obligatoire (le détail s’affiche).
       </div>
 
       {showForm && (
@@ -321,7 +372,7 @@ export function Reservations() {
           active={filtre === 'TOUS'}
           onClick={() => setFiltre('TOUS')}
         />
-        {STATUTS.map((s) => (
+        {statutsAffiches.map((s) => (
           <FiltreChip
             key={s}
             label={`${s} (${compteurs[s] ?? 0})`}
