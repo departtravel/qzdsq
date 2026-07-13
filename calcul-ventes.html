@@ -1,182 +1,108 @@
 <style>
   :root {
-    --sand:        #f4efe4;
-    --sand-2:      #ece4d2;
-    --ink:         #232a2c;
-    --ink-soft:    #4a565a;
-    --sea:         #0b7d84;
-    --sea-deep:    #075a60;
-    --sea-tint:    #d7ebec;
-    --line:        #d8cfba;
-    --good:        #1f7a4d;
-    --good-bg:     #e2f0e6;
-    --bad:         #a3362b;
-    --bad-bg:      #f6e0dc;
-    --warn:        #9a6a12;
-    --card:        #fbf8f1;
-    --shadow:      0 1px 2px rgba(35,42,44,.06), 0 8px 24px rgba(35,42,44,.06);
-    --radius:      12px;
-  }
-  @media (prefers-color-scheme: dark) {
-    :root {
-      --sand:      #12181a;
-      --sand-2:    #0d1214;
-      --ink:       #eef2f0;
-      --ink-soft:  #a3b0b2;
-      --sea:       #38b6bd;
-      --sea-deep:  #6fd0d6;
-      --sea-tint:  #12312f;
-      --line:      #26332f;
-      --good:      #6ed69a;
-      --good-bg:   #102a1d;
-      --bad:       #f0917f;
-      --bad-bg:    #331714;
-      --warn:      #d6a642;
-      --card:      #161d1f;
-      --shadow:    0 1px 2px rgba(0,0,0,.4), 0 8px 24px rgba(0,0,0,.35);
-    }
-  }
-  :root[data-theme="light"] {
     --sand:#f4efe4; --sand-2:#ece4d2; --ink:#232a2c; --ink-soft:#4a565a;
     --sea:#0b7d84; --sea-deep:#075a60; --sea-tint:#d7ebec; --line:#d8cfba;
     --good:#1f7a4d; --good-bg:#e2f0e6; --bad:#a3362b; --bad-bg:#f6e0dc;
-    --warn:#9a6a12; --card:#fbf8f1; --shadow:0 1px 2px rgba(35,42,44,.06),0 8px 24px rgba(35,42,44,.06);
+    --warn:#9a6a12; --warn-bg:#f5ecd6; --card:#fbf8f1; --field:#fff;
+    --shadow:0 1px 2px rgba(35,42,44,.06),0 10px 30px rgba(35,42,44,.07);
+    --radius:14px;
   }
-  :root[data-theme="dark"] {
-    --sand:#12181a; --sand-2:#0d1214; --ink:#eef2f0; --ink-soft:#a3b0b2;
-    --sea:#38b6bd; --sea-deep:#6fd0d6; --sea-tint:#12312f; --line:#26332f;
-    --good:#6ed69a; --good-bg:#102a1d; --bad:#f0917f; --bad-bg:#331714;
-    --warn:#d6a642; --card:#161d1f; --shadow:0 1px 2px rgba(0,0,0,.4),0 8px 24px rgba(0,0,0,.35);
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --sand:#0f1416; --sand-2:#0a0e10; --ink:#eef2f0; --ink-soft:#9fb0b2;
+      --sea:#38b6bd; --sea-deep:#6fd0d6; --sea-tint:#0f2a2b; --line:#243230;
+      --good:#6ed69a; --good-bg:#0f2a1d; --bad:#f0917f; --bad-bg:#301513;
+      --warn:#d6a642; --warn-bg:#2b2410; --card:#141b1d; --field:#0e1416;
+      --shadow:0 1px 2px rgba(0,0,0,.4),0 10px 30px rgba(0,0,0,.4);
+    }
   }
+  :root[data-theme="light"]{--sand:#f4efe4;--sand-2:#ece4d2;--ink:#232a2c;--ink-soft:#4a565a;--sea:#0b7d84;--sea-deep:#075a60;--sea-tint:#d7ebec;--line:#d8cfba;--good:#1f7a4d;--good-bg:#e2f0e6;--bad:#a3362b;--bad-bg:#f6e0dc;--warn:#9a6a12;--warn-bg:#f5ecd6;--card:#fbf8f1;--field:#fff;--shadow:0 1px 2px rgba(35,42,44,.06),0 10px 30px rgba(35,42,44,.07);}
+  :root[data-theme="dark"]{--sand:#0f1416;--sand-2:#0a0e10;--ink:#eef2f0;--ink-soft:#9fb0b2;--sea:#38b6bd;--sea-deep:#6fd0d6;--sea-tint:#0f2a2b;--line:#243230;--good:#6ed69a;--good-bg:#0f2a1d;--bad:#f0917f;--bad-bg:#301513;--warn:#d6a642;--warn-bg:#2b2410;--card:#141b1d;--field:#0e1416;--shadow:0 1px 2px rgba(0,0,0,.4),0 10px 30px rgba(0,0,0,.4);}
 
   * { box-sizing: border-box; }
-  body {
-    margin: 0;
-    background: var(--sand);
-    color: var(--ink);
-    font-family: "Segoe UI", system-ui, -apple-system, sans-serif;
-    line-height: 1.5;
-    -webkit-font-smoothing: antialiased;
-  }
-  .wrap { max-width: 1120px; margin: 0 auto; padding: 28px 20px 80px; }
+  body { margin:0; background:var(--sand); color:var(--ink); font-family:"Segoe UI",system-ui,-apple-system,sans-serif; line-height:1.5; -webkit-font-smoothing:antialiased; }
+  .wrap { max-width:1180px; margin:0 auto; padding:26px 18px 90px; }
 
-  header.top {
-    display: flex; flex-wrap: wrap; align-items: flex-end; justify-content: space-between;
-    gap: 16px; margin-bottom: 26px;
-    padding-bottom: 20px; border-bottom: 2px solid var(--line);
-  }
-  .brand-eyebrow {
-    font-size: 12px; letter-spacing: .16em; text-transform: uppercase;
-    color: var(--sea); font-weight: 700; margin: 0 0 6px;
-  }
-  h1 {
-    font-family: Georgia, "Times New Roman", serif;
-    font-size: clamp(26px, 4vw, 38px); line-height: 1.1; margin: 0;
-    text-wrap: balance; font-weight: 600;
-  }
-  .sub { color: var(--ink-soft); margin: 8px 0 0; max-width: 60ch; font-size: 15px; }
-  .toolbar { display: flex; gap: 8px; flex-wrap: wrap; }
+  header.top { display:flex; flex-wrap:wrap; align-items:flex-end; justify-content:space-between; gap:16px; margin-bottom:24px; padding-bottom:18px; border-bottom:2px solid var(--line); }
+  .eyebrow { font-size:12px; letter-spacing:.16em; text-transform:uppercase; color:var(--sea); font-weight:700; margin:0 0 6px; }
+  h1 { font-family:Georgia,"Times New Roman",serif; font-size:clamp(25px,3.6vw,36px); line-height:1.1; margin:0; font-weight:600; text-wrap:balance; }
+  .sub { color:var(--ink-soft); margin:8px 0 0; max-width:64ch; font-size:14.5px; }
+  .toolbar { display:flex; gap:8px; flex-wrap:wrap; }
 
-  button {
-    font: inherit; cursor: pointer; border-radius: 9px; border: 1px solid var(--line);
-    background: var(--card); color: var(--ink); padding: 9px 14px; font-size: 14px;
-    font-weight: 600; transition: transform .05s, background .15s, border-color .15s;
-  }
-  button:hover { border-color: var(--sea); }
-  button:active { transform: translateY(1px); }
-  button:focus-visible { outline: 2px solid var(--sea); outline-offset: 2px; }
-  button.primary { background: var(--sea); border-color: var(--sea); color: #fff; }
-  button.primary:hover { background: var(--sea-deep); border-color: var(--sea-deep); }
-  :root[data-theme="dark"] button.primary,
-  @media (prefers-color-scheme: dark) { button.primary { color: #05191a; } }
+  button { font:inherit; cursor:pointer; border-radius:9px; border:1px solid var(--line); background:var(--card); color:var(--ink); padding:9px 14px; font-size:14px; font-weight:600; transition:transform .05s,background .15s,border-color .15s; }
+  button:hover { border-color:var(--sea); }
+  button:active { transform:translateY(1px); }
+  button:focus-visible { outline:2px solid var(--sea); outline-offset:2px; }
+  button.primary { background:var(--sea); border-color:var(--sea); color:#fff; }
+  button.primary:hover { background:var(--sea-deep); border-color:var(--sea-deep); }
 
-  /* KPI row */
-  .kpis { display: grid; grid-template-columns: repeat(4, 1fr); gap: 14px; margin-bottom: 26px; }
-  @media (max-width: 760px) { .kpis { grid-template-columns: repeat(2, 1fr); } }
-  .kpi {
-    background: var(--card); border: 1px solid var(--line); border-radius: var(--radius);
-    padding: 16px 18px; box-shadow: var(--shadow); position: relative; overflow: hidden;
-  }
-  .kpi::before { content:""; position:absolute; left:0; top:0; bottom:0; width:4px; background: var(--sea); }
-  .kpi.k-cost::before { background: var(--warn); }
-  .kpi.k-profit::before { background: var(--good); }
-  .kpi.k-margin::before { background: var(--sea-deep); }
-  .kpi .label { font-size: 12px; letter-spacing: .06em; text-transform: uppercase; color: var(--ink-soft); font-weight: 600; }
-  .kpi .val { font-size: clamp(22px, 3vw, 30px); font-weight: 700; margin-top: 6px; font-variant-numeric: tabular-nums; }
-  .kpi .val small { font-size: 14px; font-weight: 600; color: var(--ink-soft); }
+  .kpis { display:grid; grid-template-columns:repeat(5,1fr); gap:12px; margin-bottom:22px; }
+  @media (max-width:820px){ .kpis{ grid-template-columns:repeat(2,1fr);} }
+  .kpi { background:var(--card); border:1px solid var(--line); border-radius:var(--radius); padding:14px 16px; box-shadow:var(--shadow); position:relative; overflow:hidden; }
+  .kpi::before { content:""; position:absolute; left:0; top:0; bottom:0; width:4px; background:var(--sea); }
+  .kpi.k-cost::before{ background:var(--warn);} .kpi.k-profit::before{ background:var(--good);} .kpi.k-margin::before{ background:var(--sea-deep);} .kpi.k-vat::before{ background:var(--ink-soft);}
+  .kpi .label { font-size:11px; letter-spacing:.05em; text-transform:uppercase; color:var(--ink-soft); font-weight:700; }
+  .kpi .val { font-size:clamp(19px,2.4vw,25px); font-weight:700; margin-top:5px; font-variant-numeric:tabular-nums; }
+  .kpi .val small { font-size:12px; font-weight:600; color:var(--ink-soft); }
 
-  .panel {
-    background: var(--card); border: 1px solid var(--line); border-radius: var(--radius);
-    box-shadow: var(--shadow); overflow: hidden; margin-bottom: 22px;
-  }
-  .panel-head {
-    display: flex; align-items: center; justify-content: space-between; gap: 10px;
-    padding: 14px 18px; background: var(--sand-2); border-bottom: 1px solid var(--line);
-  }
-  .panel-head h2 { margin: 0; font-size: 16px; font-family: Georgia, serif; font-weight: 600; }
-  .panel-head .hint { font-size: 13px; color: var(--ink-soft); }
+  .verdict { border-radius:var(--radius); padding:14px 18px; margin-bottom:22px; display:flex; gap:13px; align-items:flex-start; font-size:14.5px; box-shadow:var(--shadow); }
+  .verdict.clean { background:var(--good-bg); border:1px solid color-mix(in srgb,var(--good) 40%,transparent); }
+  .verdict.alert { background:var(--bad-bg); border:1px solid color-mix(in srgb,var(--bad) 40%,transparent); }
+  .verdict .big { font-size:21px; line-height:1; }
+  .verdict strong { display:block; margin-bottom:2px; }
+  .clean-t{color:var(--good);} .alert-t{color:var(--bad);}
 
-  .table-scroll { overflow-x: auto; }
-  table { width: 100%; border-collapse: collapse; min-width: 860px; }
-  thead th {
-    text-align: left; font-size: 11px; letter-spacing: .05em; text-transform: uppercase;
-    color: var(--ink-soft); font-weight: 700; padding: 11px 12px; border-bottom: 1px solid var(--line);
-    white-space: nowrap;
-  }
-  thead th.num, tbody td.num { text-align: right; }
-  tbody td { padding: 7px 12px; border-bottom: 1px solid var(--line); vertical-align: middle; }
-  tbody tr:last-child td { border-bottom: none; }
-  tbody input {
-    width: 100%; font: inherit; font-size: 14px; padding: 7px 9px; border-radius: 7px;
-    border: 1px solid transparent; background: transparent; color: var(--ink);
-  }
-  tbody input:hover { border-color: var(--line); }
-  tbody input:focus { border-color: var(--sea); background: var(--sand); outline: none; }
-  td.num input { text-align: right; font-variant-numeric: tabular-nums; }
-  td.calc { text-align: right; font-variant-numeric: tabular-nums; font-weight: 600; white-space: nowrap; }
+  /* Excursion card */
+  .exc { background:var(--card); border:1px solid var(--line); border-radius:var(--radius); box-shadow:var(--shadow); margin-bottom:20px; overflow:hidden; }
+  .exc-head { display:flex; flex-wrap:wrap; align-items:center; gap:12px; padding:14px 16px; background:var(--sand-2); border-bottom:1px solid var(--line); }
+  .exc-head .name-in { flex:1 1 240px; font-size:16px; font-weight:700; font-family:Georgia,serif; padding:8px 10px; border:1px solid var(--line); border-radius:8px; background:var(--field); color:var(--ink); }
+  .exc-head .mini { display:flex; align-items:center; gap:6px; font-size:13px; color:var(--ink-soft); }
+  .exc-head .del { border:none; background:transparent; color:var(--ink-soft); font-size:18px; padding:4px 9px; border-radius:7px; }
+  .exc-head .del:hover { background:var(--bad-bg); color:var(--bad); }
 
-  .badge { display: inline-block; padding: 3px 9px; border-radius: 999px; font-size: 12px; font-weight: 700; white-space: nowrap; }
-  .badge.ok  { background: var(--good-bg); color: var(--good); }
-  .badge.loss{ background: var(--bad-bg);  color: var(--bad); }
-  .badge.thin{ background: var(--sea-tint);color: var(--warn); }
+  .exc-body { display:grid; grid-template-columns:repeat(3,1fr); gap:0; }
+  @media (max-width:900px){ .exc-body{ grid-template-columns:1fr;} }
+  .block { padding:16px; border-right:1px solid var(--line); border-bottom:1px solid var(--line); }
+  .block:nth-child(3n){ border-right:none; }
+  .block h3 { margin:0 0 12px; font-size:12px; letter-spacing:.08em; text-transform:uppercase; color:var(--sea); font-weight:700; display:flex; align-items:center; gap:7px; }
+  .result-block { grid-column:1/-1; border-right:none; border-bottom:none; background:var(--sand-2); display:flex; flex-wrap:wrap; gap:20px; align-items:center; justify-content:space-between; }
 
-  td.act { text-align: center; }
-  .icon-btn { border: none; background: transparent; color: var(--ink-soft); font-size: 17px; padding: 4px 8px; border-radius: 6px; }
-  .icon-btn:hover { background: var(--bad-bg); color: var(--bad); border: none; }
+  .fld { display:flex; flex-direction:column; gap:3px; margin-bottom:10px; }
+  .fld label { font-size:12px; color:var(--ink-soft); font-weight:600; }
+  .fld input, .fld select { font:inherit; font-size:14px; padding:7px 9px; border:1px solid var(--line); border-radius:7px; background:var(--field); color:var(--ink); width:100%; }
+  .fld input:focus, .fld select:focus { outline:none; border-color:var(--sea); }
+  .fld input[type=number]{ text-align:right; font-variant-numeric:tabular-nums; }
+  .row2 { display:grid; grid-template-columns:1fr 1fr; gap:8px; }
+  .toggle-row { display:flex; gap:6px; margin-bottom:10px; }
+  .toggle-row button { flex:1; padding:7px 4px; font-size:13px; }
+  .toggle-row button.on { background:var(--sea); color:#fff; border-color:var(--sea); }
+  .chk { display:flex; align-items:center; gap:8px; font-size:13.5px; color:var(--ink); margin-bottom:8px; cursor:pointer; font-weight:600; }
+  .chk input { width:16px; height:16px; accent-color:var(--sea); }
+  .hide { display:none; }
+  .sub-cost { font-size:12px; color:var(--ink-soft); text-align:right; margin:-4px 0 8px; font-variant-numeric:tabular-nums; }
 
-  .panel-foot { padding: 12px 18px; display: flex; gap: 10px; flex-wrap: wrap; background: var(--sand-2); border-top: 1px solid var(--line); }
+  .res-item { text-align:center; }
+  .res-item .l { font-size:11px; letter-spacing:.05em; text-transform:uppercase; color:var(--ink-soft); font-weight:700; }
+  .res-item .v { font-size:22px; font-weight:800; font-variant-numeric:tabular-nums; margin-top:3px; }
+  .res-item .v.profit-pos{ color:var(--good);} .res-item .v.profit-neg{ color:var(--bad);}
+  .badge { display:inline-block; padding:4px 12px; border-radius:999px; font-size:13px; font-weight:700; }
+  .badge.ok{ background:var(--good-bg); color:var(--good);} .badge.loss{ background:var(--bad-bg); color:var(--bad);} .badge.thin{ background:var(--warn-bg); color:var(--warn);}
 
-  /* Alert / verdict banner */
-  .verdict { border-radius: var(--radius); padding: 16px 20px; margin-bottom: 24px; display: flex; gap: 14px; align-items: flex-start; font-size: 15px; box-shadow: var(--shadow); }
-  .verdict.clean { background: var(--good-bg); border: 1px solid color-mix(in srgb, var(--good) 40%, transparent); }
-  .verdict.alert { background: var(--bad-bg);  border: 1px solid color-mix(in srgb, var(--bad) 40%, transparent); }
-  .verdict .big { font-size: 22px; line-height: 1; }
-  .verdict strong { display: block; margin-bottom: 3px; }
-  .verdict .clean-t { color: var(--good); }
-  .verdict .alert-t { color: var(--bad); }
-
-  .legal {
-    font-size: 13px; color: var(--ink-soft); background: var(--card); border: 1px dashed var(--line);
-    border-radius: var(--radius); padding: 16px 18px; line-height: 1.6;
-  }
-  .legal b { color: var(--ink); }
-  .foot-note { margin-top: 26px; font-size: 12px; color: var(--ink-soft); text-align: center; }
-
-  @media print {
-    body { background: #fff; }
-    .toolbar, .panel-foot, .icon-btn, button { display: none !important; }
-  }
+  .legal { font-size:13px; color:var(--ink-soft); background:var(--card); border:1px dashed var(--line); border-radius:var(--radius); padding:16px 18px; line-height:1.6; margin-top:8px; }
+  .legal b { color:var(--ink); }
+  .foot-note { margin-top:22px; font-size:12px; color:var(--ink-soft); text-align:center; }
+  @media print { .toolbar,.del,button.addbtn{ display:none!important;} body{ background:#fff;} }
 </style>
 
 <div class="wrap">
   <header class="top">
     <div>
-      <p class="brand-eyebrow">Agence de voyages · Djerba, Tunisie</p>
-      <h1>Calcul des ventes, coûts &amp; bénéfices</h1>
-      <p class="sub">Saisis chaque prestation vendue. L'outil calcule la marge ligne par ligne et démontre, chiffres à l'appui, que chaque vente est faite <b>au-dessus du coût d'achat</b> — la preuve directe qu'il n'y a pas de revente à perte.</p>
+      <p class="eyebrow">Agence de voyages · Djerba, Tunisie</p>
+      <h1>Calcul détaillé des ventes, coûts &amp; bénéfices</h1>
+      <p class="sub">Chaque excursion est décomposée poste par poste — de la vente EUR sur la plateforme jusqu'au bénéfice net en TND, TVA récupérée déduite. Preuve directe que chaque prestation est vendue <b>au-dessus de son coût réel</b>.</p>
     </div>
     <div class="toolbar">
-      <button onclick="addRow()">+ Ajouter une ligne</button>
+      <button class="addbtn" onclick="addExc()">+ Nouvelle excursion</button>
       <button onclick="loadDemo()">Exemple</button>
       <button onclick="resetAll()">Vider</button>
       <button class="primary" onclick="window.print()">Imprimer / PDF</button>
@@ -184,187 +110,236 @@
   </header>
 
   <section class="kpis">
-    <div class="kpi k-ca">
-      <div class="label">Chiffre d'affaires (ventes)</div>
-      <div class="val"><span id="kCA">0</span> <small>TND</small></div>
-    </div>
-    <div class="kpi k-cost">
-      <div class="label">Coûts d'achat totaux</div>
-      <div class="val"><span id="kCost">0</span> <small>TND</small></div>
-    </div>
-    <div class="kpi k-profit">
-      <div class="label">Bénéfice net</div>
-      <div class="val"><span id="kProfit">0</span> <small>TND</small></div>
-    </div>
-    <div class="kpi k-margin">
-      <div class="label">Marge globale</div>
-      <div class="val"><span id="kMargin">0</span><small>%</small></div>
-    </div>
+    <div class="kpi k-ca"><div class="label">Recette reçue (TND)</div><div class="val"><span id="kCA">0</span> <small>TND</small></div></div>
+    <div class="kpi k-cost"><div class="label">Coûts nets</div><div class="val"><span id="kCost">0</span> <small>TND</small></div></div>
+    <div class="kpi k-vat"><div class="label">TVA récupérée</div><div class="val"><span id="kVat">0</span> <small>TND</small></div></div>
+    <div class="kpi k-profit"><div class="label">Bénéfice net</div><div class="val"><span id="kProfit">0</span> <small>TND</small></div></div>
+    <div class="kpi k-margin"><div class="label">Marge globale</div><div class="val"><span id="kMargin">0</span><small>%</small></div></div>
   </section>
 
   <div id="verdict" class="verdict clean">
     <span class="big">✓</span>
-    <div id="verdictText"><strong class="clean-t">Aucune revente à perte détectée</strong>
-      Toutes les prestations sont vendues au-dessus de leur coût d'achat.</div>
+    <div id="verdictText"><strong class="clean-t">Aucune revente à perte</strong>Toutes les excursions dégagent un bénéfice positif.</div>
   </div>
 
-  <section class="panel">
-    <div class="panel-head">
-      <h2>Détail des prestations</h2>
-      <span class="hint">Prix &amp; coûts unitaires · en TND</span>
-    </div>
-    <div class="table-scroll">
-      <table>
-        <thead>
-          <tr>
-            <th style="width:22%">Prestation / Excursion</th>
-            <th style="width:14%">Canal</th>
-            <th class="num">Prix vente unit.</th>
-            <th class="num">Coût achat unit.</th>
-            <th class="num">Frais annexes unit.</th>
-            <th class="num">Qté</th>
-            <th class="num">CA ligne</th>
-            <th class="num">Coût ligne</th>
-            <th class="num">Bénéfice</th>
-            <th class="num">Marge</th>
-            <th>État</th>
-            <th></th>
-          </tr>
-        </thead>
-        <tbody id="rows"></tbody>
-        <tfoot>
-          <tr style="font-weight:700; background:var(--sand-2)">
-            <td colspan="6" style="padding:11px 12px">TOTAL</td>
-            <td class="calc" id="tCA">0</td>
-            <td class="calc" id="tCost">0</td>
-            <td class="calc" id="tProfit">0</td>
-            <td class="calc" id="tMargin">0%</td>
-            <td colspan="2"></td>
-          </tr>
-        </tfoot>
-      </table>
-    </div>
-    <div class="panel-foot">
-      <button onclick="addRow()">+ Ajouter une ligne</button>
-      <span class="hint" style="align-self:center">« Frais annexes » = commission plateforme, transport, guide, entrées, taxes… tout ce qui s'ajoute au coût d'achat.</span>
-    </div>
-  </section>
+  <div id="list"></div>
+
+  <button class="addbtn" onclick="addExc()" style="width:100%; padding:14px; border-style:dashed;">+ Ajouter une excursion</button>
 
   <div class="legal">
-    <b>Pourquoi ce document compte juridiquement.</b> La revente à perte se caractérise par un prix de vente <b>inférieur au coût d'achat effectif</b>. Tant que la colonne « Bénéfice » reste positive sur chaque ligne, tu démontres l'inverse : des prix bas <b>mais rentables</b>, ce qui est parfaitement licite et relève de ta liberté commerciale. Vendre moins cher qu'un concurrent n'est pas une infraction. Conserve ce tableau avec les <b>justificatifs</b> (factures d'achat, contrats GYG, relevés bancaires) : c'est la pièce n°1 de ton dossier de défense.
+    <b>Comment lit-on chaque fiche.</b> On part du <b>prix de vente en EUR</b> (plateforme), on retire la <b>commission</b>, on convertit au <b>taux du jour</b> → recette réellement encaissée en TND. On soustrait ensuite chaque coût réel (transport, guide, repas, entrées, hébergement, TVA transport à ta charge) puis on <b>rajoute la TVA récupérable</b> sur les factures fournisseurs TTC. Tant que le <b>bénéfice reste positif</b>, il n'y a pas de revente à perte : des prix compétitifs <b>mais rentables</b>, ce qui est parfaitement licite. Conserver ce document avec les justificatifs (factures d'achat TTC, contrats plateforme, relevés bancaires).
   </div>
-
-  <p class="foot-note">Outil de gestion interne — données enregistrées uniquement dans ce navigateur (localStorage). Ne remplace pas un conseil comptable ou juridique.</p>
+  <p class="foot-note">Données enregistrées uniquement dans ce navigateur. Formules à valider avec ton comptable (taux de TVA & déductibilité selon ta situation réelle).</p>
 </div>
 
 <script>
-  const fmt = n => (isFinite(n) ? n : 0).toLocaleString('fr-FR', {minimumFractionDigits: 0, maximumFractionDigits: 2});
   const $ = id => document.getElementById(id);
+  const fmt = n => (isFinite(n)?n:0).toLocaleString('fr-FR',{minimumFractionDigits:0,maximumFractionDigits:2});
+  const num = v => parseFloat(String(v).replace(',','.'))||0;
+  const recVAT = (ttc,taux) => taux>0 ? ttc*(taux/(100+taux)) : 0; // TVA incluse dans un montant TTC
   let data = [];
 
+  function blank(){ return {
+    name:"", pax:2, days:1,
+    pv:0, comm:25, taux:3.4,                 // recette
+    tMode:"propre",                          // transport
+    leasing:0, chauffeur:0, tvaTrans:7,      // parc propre
+    location:0, tvaLoc:19,                    // location
+    gMode:"aucun", gSal:0, gJour:0,          // guide
+    repasOn:false, repas:0, tRepas:13,
+    entreeOn:false, entree:0, tEntree:19,
+    hebOn:false, heb:0, tHeb:7
+  };}
+
   const DEMO = [
-    { name: "Excursion Sahara 2 jours", chan: "GetYourGuide", pv: 180, ca: 110, fee: 22, qte: 4 },
-    { name: "Tour de l'île de Djerba", chan: "GetYourGuide", pv: 55, ca: 30, fee: 8, qte: 12 },
-    { name: "Sortie plongée Flamant Rose", chan: "Direct agence", pv: 90, ca: 60, fee: 6, qte: 3 },
-    { name: "Transfert aéroport privé", chan: "Direct agence", pv: 40, ca: 28, fee: 3, qte: 8 },
+    {...blank(), name:"Sahara 2 jours", pax:4, days:2, pv:180, comm:25, taux:3.4,
+      tMode:"propre", leasing:2400, chauffeur:900, tvaTrans:7,
+      gMode:"extra", gJour:120,
+      repasOn:true, repas:35, tRepas:13, entreeOn:true, entree:15, tEntree:19,
+      hebOn:true, heb:60, tHeb:7},
+    {...blank(), name:"Tour de l'île de Djerba", pax:8, days:1, pv:55, comm:25, taux:3.4,
+      tMode:"location", location:220, tvaLoc:19,
+      gMode:"salarie", gSal:1500,
+      entreeOn:true, entree:8, tEntree:19}
   ];
 
-  function blank() { return { name: "", chan: "", pv: 0, ca: 0, fee: 0, qte: 1 }; }
+  function calc(r){
+    // Recette
+    const venteEUR = r.pv * r.pax;
+    const commission = venteEUR * r.comm/100;
+    const recuEUR = venteEUR - commission;
+    const recuTND = recuEUR * r.taux;
+    // Transport
+    let transCost=0, transVATcost=0, vatTrans=0;
+    if(r.tMode==="propre"){
+      transCost = (r.leasing/30 + r.chauffeur/30) * r.days;
+      transVATcost = transCost * r.tvaTrans/100;   // TVA à notre charge (parc propre)
+    } else {
+      transCost = r.location;                       // location TTC
+      vatTrans = recVAT(r.location, r.tvaLoc);      // TVA récupérable
+    }
+    // Guide
+    let guideCost=0;
+    if(r.gMode==="salarie") guideCost = (r.gSal/30)*r.days;
+    else if(r.gMode==="extra") guideCost = r.gJour*r.days;
+    // Prestations /pers TTC
+    const repasTTC = r.repasOn ? r.repas*r.pax : 0;
+    const entreeTTC = r.entreeOn ? r.entree*r.pax : 0;
+    const hebTTC = r.hebOn ? r.heb*r.pax : 0;
+    const vatRepas = r.repasOn ? recVAT(repasTTC, r.tRepas) : 0;
+    const vatEntree = r.entreeOn ? recVAT(entreeTTC, r.tEntree) : 0;
+    const vatHeb = r.hebOn ? recVAT(hebTTC, r.tHeb) : 0;
 
-  function addRow(row) {
-    data.push(row || blank());
-    render(); save();
+    const coutBrut = transCost + transVATcost + guideCost + repasTTC + entreeTTC + hebTTC;
+    const tvaRec = vatTrans + vatRepas + vatEntree + vatHeb;
+    const coutNet = coutBrut - tvaRec;
+    const benef = recuTND - coutNet;
+    const marge = recuTND>0 ? benef/recuTND*100 : 0;
+    return {recuTND, transCost, transVATcost, guideCost, repasTTC, entreeTTC, hebTTC, coutBrut, tvaRec, coutNet, benef, marge};
   }
-  function removeRow(i) { data.splice(i, 1); if (!data.length) data.push(blank()); render(); save(); }
-  function loadDemo() { data = DEMO.map(d => ({...d})); render(); save(); }
-  function resetAll() { data = [blank()]; render(); save(); }
 
-  function update(i, field, val) {
-    if (field === 'name' || field === 'chan') data[i][field] = val;
-    else data[i][field] = parseFloat(String(val).replace(',', '.')) || 0;
-    computeTotals(); save();
-  }
+  function esc(s){ return String(s).replace(/"/g,'&quot;'); }
 
-  function lineCalc(r) {
-    const caL = r.pv * r.qte;
-    const costL = (r.ca + r.fee) * r.qte;
-    const prof = caL - costL;
-    const marg = caL > 0 ? (prof / caL) * 100 : 0;
-    const unitProfit = r.pv - (r.ca + r.fee);
-    return { caL, costL, prof, marg, unitProfit };
-  }
+  function render(){
+    const L = $('list'); L.innerHTML='';
+    data.forEach((r,i)=>{
+      const el = document.createElement('div'); el.className='exc';
+      el.innerHTML = `
+      <div class="exc-head">
+        <input class="name-in" value="${esc(r.name)}" placeholder="Nom de l'excursion" oninput="upd(${i},'name',this.value)">
+        <span class="mini">👥 <input type="number" min="1" value="${r.pax}" style="width:64px" oninput="upd(${i},'pax',this.value)"> pers</span>
+        <span class="mini">🗓 <input type="number" min="1" value="${r.days}" style="width:56px" oninput="upd(${i},'days',this.value)"> j</span>
+        <button class="del" title="Supprimer" onclick="delExc(${i})">✕</button>
+      </div>
+      <div class="exc-body">
+        <div class="block">
+          <h3>💶 Recette (plateforme)</h3>
+          <div class="fld"><label>Prix de vente / personne (EUR)</label><input type="number" value="${r.pv||''}" oninput="upd(${i},'pv',this.value)"></div>
+          <div class="row2">
+            <div class="fld"><label>Commission %</label><input type="number" value="${r.comm}" oninput="upd(${i},'comm',this.value)"></div>
+            <div class="fld"><label>Taux EUR→TND</label><input type="number" step="0.01" value="${r.taux}" oninput="upd(${i},'taux',this.value)"></div>
+          </div>
+          <div class="sub-cost" id="rec${i}"></div>
+        </div>
 
-  function render() {
-    const tb = $('rows');
-    tb.innerHTML = '';
-    data.forEach((r, i) => {
-      const tr = document.createElement('tr');
-      tr.innerHTML = `
-        <td><input value="${r.name.replace(/"/g,'&quot;')}" placeholder="Nom de la prestation" oninput="update(${i},'name',this.value)"></td>
-        <td><input value="${r.chan.replace(/"/g,'&quot;')}" placeholder="GYG / Direct…" oninput="update(${i},'chan',this.value)"></td>
-        <td class="num"><input class="n" inputmode="decimal" value="${r.pv||''}" placeholder="0" oninput="update(${i},'pv',this.value);refresh(${i})"></td>
-        <td class="num"><input class="n" inputmode="decimal" value="${r.ca||''}" placeholder="0" oninput="update(${i},'ca',this.value);refresh(${i})"></td>
-        <td class="num"><input class="n" inputmode="decimal" value="${r.fee||''}" placeholder="0" oninput="update(${i},'fee',this.value);refresh(${i})"></td>
-        <td class="num"><input class="n" inputmode="decimal" value="${r.qte||''}" placeholder="1" oninput="update(${i},'qte',this.value);refresh(${i})"></td>
-        <td class="calc" id="caL${i}"></td>
-        <td class="calc" id="costL${i}"></td>
-        <td class="calc" id="profL${i}"></td>
-        <td class="calc" id="margL${i}"></td>
-        <td id="stL${i}"></td>
-        <td class="act"><button class="icon-btn" title="Supprimer" onclick="removeRow(${i})">✕</button></td>`;
-      tb.appendChild(tr);
+        <div class="block">
+          <h3>🚐 Transport</h3>
+          <div class="toggle-row">
+            <button class="${r.tMode==='propre'?'on':''}" onclick="upd(${i},'tMode','propre')">Parc propre</button>
+            <button class="${r.tMode==='location'?'on':''}" onclick="upd(${i},'tMode','location')">Location</button>
+          </div>
+          <div class="${r.tMode==='propre'?'':'hide'}">
+            <div class="row2">
+              <div class="fld"><label>Leasing / mois</label><input type="number" value="${r.leasing||''}" oninput="upd(${i},'leasing',this.value)"></div>
+              <div class="fld"><label>Salaire chauffeur / mois</label><input type="number" value="${r.chauffeur||''}" oninput="upd(${i},'chauffeur',this.value)"></div>
+            </div>
+            <div class="fld"><label>TVA transport % (à ta charge)</label><input type="number" value="${r.tvaTrans}" oninput="upd(${i},'tvaTrans',this.value)"></div>
+          </div>
+          <div class="${r.tMode==='location'?'':'hide'}">
+            <div class="fld"><label>Tarif location / FTAV (TND, TTC)</label><input type="number" value="${r.location||''}" oninput="upd(${i},'location',this.value)"></div>
+            <div class="fld"><label>TVA location % (récupérable)</label><input type="number" value="${r.tvaLoc}" oninput="upd(${i},'tvaLoc',this.value)"></div>
+          </div>
+          <div class="sub-cost" id="tr${i}"></div>
+        </div>
+
+        <div class="block">
+          <h3>🎫 Guide</h3>
+          <div class="toggle-row">
+            <button class="${r.gMode==='aucun'?'on':''}" onclick="upd(${i},'gMode','aucun')">Aucun</button>
+            <button class="${r.gMode==='salarie'?'on':''}" onclick="upd(${i},'gMode','salarie')">Salarié</button>
+            <button class="${r.gMode==='extra'?'on':''}" onclick="upd(${i},'gMode','extra')">Extra</button>
+          </div>
+          <div class="fld ${r.gMode==='salarie'?'':'hide'}"><label>Salaire guide / mois</label><input type="number" value="${r.gSal||''}" oninput="upd(${i},'gSal',this.value)"></div>
+          <div class="fld ${r.gMode==='extra'?'':'hide'}"><label>Prix guide / jour</label><input type="number" value="${r.gJour||''}" oninput="upd(${i},'gJour',this.value)"></div>
+          <div class="sub-cost" id="gd${i}"></div>
+        </div>
+
+        <div class="block">
+          <h3>🍽 Repas (inclus)</h3>
+          <label class="chk"><input type="checkbox" ${r.repasOn?'checked':''} onchange="upd(${i},'repasOn',this.checked)"> Repas inclus</label>
+          <div class="${r.repasOn?'':'hide'}">
+            <div class="fld"><label>Prix TTC / personne</label><input type="number" value="${r.repas||''}" oninput="upd(${i},'repas',this.value)"></div>
+            <div class="fld"><label>TVA % (récupérable)</label><input type="number" value="${r.tRepas}" oninput="upd(${i},'tRepas',this.value)"></div>
+          </div>
+        </div>
+
+        <div class="block">
+          <h3>🏛 Entrées (incluses)</h3>
+          <label class="chk"><input type="checkbox" ${r.entreeOn?'checked':''} onchange="upd(${i},'entreeOn',this.checked)"> Entrées incluses</label>
+          <div class="${r.entreeOn?'':'hide'}">
+            <div class="fld"><label>Prix TTC / personne</label><input type="number" value="${r.entree||''}" oninput="upd(${i},'entree',this.value)"></div>
+            <div class="fld"><label>TVA % (récupérable)</label><input type="number" value="${r.tEntree}" oninput="upd(${i},'tEntree',this.value)"></div>
+          </div>
+        </div>
+
+        <div class="block">
+          <h3>🏨 Hébergement (inclus)</h3>
+          <label class="chk"><input type="checkbox" ${r.hebOn?'checked':''} onchange="upd(${i},'hebOn',this.checked)"> Hébergement inclus</label>
+          <div class="${r.hebOn?'':'hide'}">
+            <div class="fld"><label>Prix TTC / personne</label><input type="number" value="${r.heb||''}" oninput="upd(${i},'heb',this.value)"></div>
+            <div class="fld"><label>TVA % (récupérable)</label><input type="number" value="${r.tHeb}" oninput="upd(${i},'tHeb',this.value)"></div>
+          </div>
+        </div>
+
+        <div class="block result-block">
+          <div class="res-item"><div class="l">Recette reçue</div><div class="v" id="oRec${i}">0</div></div>
+          <div class="res-item"><div class="l">Coûts nets</div><div class="v" id="oCost${i}">0</div></div>
+          <div class="res-item"><div class="l">TVA récupérée</div><div class="v" id="oVat${i}">0</div></div>
+          <div class="res-item"><div class="l">Bénéfice</div><div class="v" id="oBen${i}">0</div></div>
+          <div class="res-item"><div class="l">Marge</div><div class="v" id="oMarg${i}">0%</div></div>
+          <div class="res-item"><div class="l">État</div><div id="oBadge${i}" style="margin-top:4px"></div></div>
+        </div>
+      </div>`;
+      L.appendChild(el);
       refresh(i);
     });
-    computeTotals();
+    totals();
   }
 
-  function refresh(i) {
-    const r = data[i]; if (!r) return;
-    const c = lineCalc(r);
-    $('caL'+i).textContent = fmt(c.caL);
-    $('costL'+i).textContent = fmt(c.costL);
-    $('profL'+i).textContent = fmt(c.prof);
-    $('margL'+i).textContent = fmt(c.marg) + '%';
-    const st = $('stL'+i);
-    if (r.pv === 0 && r.ca === 0) { st.innerHTML = ''; }
-    else if (c.unitProfit < 0) st.innerHTML = '<span class="badge loss">Revente à perte</span>';
-    else if (c.marg < 10) st.innerHTML = '<span class="badge thin">Marge faible</span>';
-    else st.innerHTML = '<span class="badge ok">Rentable</span>';
-    const prof = $('profL'+i);
-    prof.style.color = c.prof < 0 ? 'var(--bad)' : c.prof > 0 ? 'var(--good)' : 'inherit';
+  function refresh(i){
+    const r=data[i]; if(!r) return; const c=calc(r);
+    $('rec'+i).textContent = `→ reçu ${fmt(c.recuTND)} TND`;
+    $('tr'+i).textContent = `Coût transport ${fmt(c.transCost+c.transVATcost)} TND`;
+    $('gd'+i).textContent = c.guideCost>0?`Coût guide ${fmt(c.guideCost)} TND`:'';
+    $('oRec'+i).textContent = fmt(c.recuTND);
+    $('oCost'+i).textContent = fmt(c.coutNet);
+    $('oVat'+i).textContent = fmt(c.tvaRec);
+    const ben=$('oBen'+i); ben.textContent=fmt(c.benef); ben.className='v '+(c.benef<0?'profit-neg':'profit-pos');
+    $('oMarg'+i).textContent = fmt(c.marge)+'%';
+    const b=$('oBadge'+i);
+    if(c.benef<0) b.innerHTML='<span class="badge loss">Revente à perte</span>';
+    else if(c.marge<10) b.innerHTML='<span class="badge thin">Marge faible</span>';
+    else b.innerHTML='<span class="badge ok">Rentable</span>';
+    totals();
   }
 
-  function computeTotals() {
-    let CA = 0, COST = 0, losses = 0;
-    data.forEach(r => { const c = lineCalc(r); CA += c.caL; COST += c.costL; if (c.unitProfit < 0 && (r.pv||r.ca)) losses++; });
-    const PROFIT = CA - COST;
-    const MARGIN = CA > 0 ? (PROFIT / CA) * 100 : 0;
-    $('kCA').textContent = fmt(CA);
-    $('kCost').textContent = fmt(COST);
-    $('kProfit').textContent = fmt(PROFIT);
-    $('kMargin').textContent = fmt(MARGIN);
-    $('tCA').textContent = fmt(CA);
-    $('tCost').textContent = fmt(COST);
-    $('tProfit').textContent = fmt(PROFIT);
-    $('tMargin').textContent = fmt(MARGIN) + '%';
-
-    const v = $('verdict'), t = $('verdictText');
-    if (losses > 0) {
-      v.className = 'verdict alert';
-      v.querySelector('.big').textContent = '⚠';
-      t.innerHTML = `<strong class="alert-t">${losses} ligne(s) en revente à perte</strong>Le prix de vente est inférieur au coût d'achat + frais. Corrige le prix ou vérifie le coût saisi — une vente sous le coût est juridiquement attaquable.`;
-    } else {
-      v.className = 'verdict clean';
-      v.querySelector('.big').textContent = '✓';
-      t.innerHTML = `<strong class="clean-t">Aucune revente à perte détectée</strong>Toutes les prestations sont vendues au-dessus de leur coût d'achat. Marge globale de ${fmt(MARGIN)} %.`;
+  function totals(){
+    let CA=0,COST=0,VAT=0,losses=0;
+    data.forEach(r=>{ const c=calc(r); CA+=c.recuTND; COST+=c.coutNet; VAT+=c.tvaRec; if(c.benef<0 && (r.pv||r.location||r.leasing)) losses++; });
+    const P=CA-COST, M=CA>0?P/CA*100:0;
+    $('kCA').textContent=fmt(CA); $('kCost').textContent=fmt(COST); $('kVat').textContent=fmt(VAT);
+    $('kProfit').textContent=fmt(P); $('kMargin').textContent=fmt(M);
+    const v=$('verdict'), t=$('verdictText');
+    if(losses>0){ v.className='verdict alert'; v.querySelector('.big').textContent='⚠';
+      t.innerHTML=`<strong class="alert-t">${losses} excursion(s) en revente à perte</strong>Le bénéfice est négatif : le prix ne couvre pas les coûts réels. Corrige avant que ce soit exploitable contre toi.`;
+    } else { v.className='verdict clean'; v.querySelector('.big').textContent='✓';
+      t.innerHTML=`<strong class="clean-t">Aucune revente à perte</strong>Toutes les excursions dégagent un bénéfice positif. Marge globale ${fmt(M)} %.`;
     }
   }
 
-  function save() { try { localStorage.setItem('djerba_calc', JSON.stringify(data)); } catch(e){} }
-  function load() {
-    try { const s = localStorage.getItem('djerba_calc'); if (s) data = JSON.parse(s); } catch(e){}
-    if (!data || !data.length) data = [blank()];
+  function upd(i,f,val){
+    if(['name','tMode','gMode'].includes(f)) data[i][f]=val;
+    else if(['repasOn','entreeOn','hebOn'].includes(f)) data[i][f]=val;
+    else data[i][f]=num(val);
+    save();
+    if(['tMode','gMode','repasOn','entreeOn','hebOn'].includes(f)) render(); else refresh(i);
   }
+  function addExc(){ data.push(blank()); render(); save(); }
+  function delExc(i){ data.splice(i,1); if(!data.length) data.push(blank()); render(); save(); }
+  function loadDemo(){ data=DEMO.map(d=>({...d})); render(); save(); }
+  function resetAll(){ data=[blank()]; render(); save(); }
+  function save(){ try{ localStorage.setItem('djerba_calc_v2',JSON.stringify(data)); }catch(e){} }
+  function load(){ try{ const s=localStorage.getItem('djerba_calc_v2'); if(s) data=JSON.parse(s); }catch(e){} if(!data||!data.length) data=[blank()]; }
 
   load(); render();
 </script>
