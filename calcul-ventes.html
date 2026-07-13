@@ -66,6 +66,19 @@
   .fld input:focus,.fld select:focus{outline:none;border-color:var(--sea);}
   .fld input[type=number]{text-align:right;font-variant-numeric:tabular-nums;}
   .sub-cost{font-size:12px;color:var(--ink-soft);text-align:right;margin:-2px 0 4px;font-variant-numeric:tabular-nums;}
+  .hide{display:none!important;}
+  .calc-detail{grid-column:1/-1;border-right:none;background:var(--sand-2);}
+  .calc-detail h3{margin:0 0 10px;font-size:12px;letter-spacing:.07em;text-transform:uppercase;color:var(--sea);font-weight:700;}
+  .cd-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px;}
+  @media(max-width:760px){.cd-grid{grid-template-columns:1fr;}}
+  .cd-box{background:var(--card);border:1px solid var(--line);border-radius:10px;padding:12px 14px;font-size:13px;font-variant-numeric:tabular-nums;}
+  .cd-box .t{font-size:11px;text-transform:uppercase;letter-spacing:.04em;color:var(--ink-soft);font-weight:700;margin-bottom:7px;}
+  .cd-row{display:flex;justify-content:space-between;gap:10px;padding:3px 0;border-bottom:1px dotted var(--line);}
+  .cd-row:last-child{border-bottom:none;}
+  .cd-row.sum{font-weight:800;border-top:1.5px solid var(--ink);border-bottom:none;margin-top:5px;padding-top:6px;}
+  .cd-net{margin-top:12px;border-radius:10px;padding:13px 16px;display:flex;justify-content:space-between;align-items:center;font-size:16px;font-weight:800;}
+  .cd-net.pos{background:var(--good-bg);color:var(--good);}
+  .cd-net.neg{background:var(--bad-bg);color:var(--bad);}
 
   .dep-line{display:grid;grid-template-columns:1.5fr 128px 88px 62px 58px 58px 28px;gap:6px;align-items:center;margin-bottom:6px;}
   .dep-line input,.dep-line select{font:inherit;font-size:13px;padding:6px 7px;border:1px solid var(--line);border-radius:7px;background:var(--field);color:var(--ink);width:100%;}
@@ -227,11 +240,15 @@
     if(r.gMode==="salarie"){const g=cfg.guides[r.gIdx]||{sal:0};guideCost=(g.sal/30)*r.days;}
     else if(r.gMode==="extra"){guideCost=r.gJour*r.days;}
     let fixe=vehNet+drvCost+guideCost, varPerPax=0, tvaRec=vehVAT;
+    const fixeLines=[], varLines=[];
+    fixeLines.push([r.tMode==='location'?'Location véhicule':`Véhicule (${(cfg.fleet[r.vIdx]||{n:'—'}).n})`, vehNet]);
+    if(drvCost>0) fixeLines.push([`Chauffeur (${(cfg.drivers[r.dIdx]||{n:'—'}).n})`, drvCost]);
+    if(guideCost>0) fixeLines.push([r.gMode==='salarie'?`Guide salarié (${(cfg.guides[r.gIdx]||{n:'—'}).n})`:`Guide extra (${fmt(r.gJour)}/j×${fmt(r.days)}j)`, guideCost]);
     (r.dep||[]).forEach(x=>{
-      const amt=num(x.amount),tva=num(x.tva);
-      if(x.base==='pers'){const v=recVAT(amt,tva);varPerPax+=amt-v;tvaRec+=v*r.pax;}
-      else if(x.base==='veh'){const nb=Math.ceil(r.pax/Math.max(1,num(x.cap)||1));const tot=amt*nb;const v=recVAT(tot,tva);fixe+=tot-v;tvaRec+=v;}
-      else{const v=recVAT(amt,tva);fixe+=amt-v;tvaRec+=v;}
+      const amt=num(x.amount),tva=num(x.tva),nm=x.n||'Dépense';
+      if(x.base==='pers'){const v=recVAT(amt,tva);varPerPax+=amt-v;tvaRec+=v*r.pax; varLines.push([nm, amt-v]);}
+      else if(x.base==='veh'){const nb=Math.ceil(r.pax/Math.max(1,num(x.cap)||1));const tot=amt*nb;const v=recVAT(tot,tva);fixe+=tot-v;tvaRec+=v; fixeLines.push([`${nm} (${nb} véh)`, tot-v]);}
+      else{const v=recVAT(amt,tva);fixe+=amt-v;tvaRec+=v; fixeLines.push([`${nm} (groupe)`, amt-v]);}
     });
     const coutNet=fixe+varPerPax*r.pax;
     const benef=recuTND-coutNet;
@@ -239,7 +256,7 @@
     const contrib=revPerPaxTND-varPerPax;
     const seuil=contrib>0?Math.ceil(fixe/contrib):Infinity;
     const netEUR=r.pv*(1-r.comm/100), commEUR=r.pv*r.comm/100;
-    return {recuTND,coutNet,tvaRec,benef,marge,fixe,varPerPax,contrib,seuil,revPerPaxTND,netEUR,commEUR,vehNet,drvCost,guideCost,coutPerPax:r.pax>0?coutNet/r.pax:0};
+    return {recuTND,coutNet,tvaRec,benef,marge,fixe,varPerPax,contrib,seuil,revPerPaxTND,netEUR,commEUR,vehNet,drvCost,guideCost,coutPerPax:r.pax>0?coutNet/r.pax:0,fixeLines,varLines,varTotal:varPerPax*r.pax};
   }
 
   /* ---------- RESSOURCES ---------- */
@@ -308,6 +325,14 @@
           <div class="dep-head"><span>Libellé</span><span>Base</span><span>Montant TTC</span><span>TVA %</span><span>Cap./véh</span><span>Jour</span><span></span></div>
           <div id="dep${i}"></div>
         </div>
+        <div class="block calc-detail">
+          <h3>🔎 Détail du calcul</h3>
+          <div class="cd-grid">
+            <div class="cd-box" id="cdRev${i}"></div>
+            <div class="cd-box" id="cdCost${i}"></div>
+          </div>
+          <div class="cd-net" id="cdNet${i}"></div>
+        </div>
         <div class="block stat-block">
           <div class="res-item"><div class="l">Vente / pers</div><div class="v" id="oVpp${i}">0</div></div>
           <div class="res-item"><div class="l">Coût / pers</div><div class="v" id="oCpp${i}">0</div></div>
@@ -357,6 +382,32 @@
     const vd=$('veh'+i);
     if(vd){ if(r.tMode==='location') vd.textContent=`Location ${fmt(num(r.locPrix))} TTC → ${fmt(c.vehNet)} net + chauffeur ${fmt(c.drvCost)}`;
       else { const veh=cfg.fleet[r.vIdx]||{lease:0}; vd.textContent=`${fmt(veh.lease)}÷30×${fmt(r.days)}j = ${fmt(c.vehNet)} net + chauffeur ${fmt(c.drvCost)}`; } }
+    // Détail du calcul
+    const cdRev=$('cdRev'+i);
+    if(cdRev){
+      const varStr=c.varLines.length?c.varLines.map(l=>fmt(l[1])).join(' + '):'0';
+      cdRev.innerHTML=`<div class="t">Recette</div>
+        <div class="cd-row"><span>Vente / personne</span><span>${fmt(c.revPerPaxTND)} TND</span></div>
+        <div class="cd-row"><span>× nombre de personnes</span><span>× ${fmt(r.pax)}</span></div>
+        <div class="cd-row sum"><span>Recette totale</span><span>${fmt(c.recuTND)} TND</span></div>
+        <div class="t" style="margin-top:12px">Charges variables (par personne)</div>
+        ${c.varLines.map(l=>`<div class="cd-row"><span>${esc(l[0])}</span><span>${fmt(l[1])} TND</span></div>`).join('')||'<div class="cd-row"><span>—</span><span>0</span></div>'}
+        <div class="cd-row sum"><span>Charge / personne (${varStr})</span><span>${fmt(c.varPerPax)} TND</span></div>
+        <div class="cd-row"><span>Dépenses variables totales (× ${fmt(r.pax)})</span><span>${fmt(c.varTotal)} TND</span></div>`;
+    }
+    const cdCost=$('cdCost'+i);
+    if(cdCost){
+      cdCost.innerHTML=`<div class="t">Charges fixes (par départ)</div>
+        ${c.fixeLines.map(l=>`<div class="cd-row"><span>${esc(l[0])}</span><span>${fmt(l[1])} TND</span></div>`).join('')}
+        <div class="cd-row sum"><span>Total charges fixes</span><span>${fmt(c.fixe)} TND</span></div>
+        <div class="t" style="margin-top:12px">Coût total</div>
+        <div class="cd-row"><span>Fixes ${fmt(c.fixe)} + Variables ${fmt(c.varTotal)}</span><span>${fmt(c.coutNet)} TND</span></div>
+        <div class="cd-row"><span>Coût / personne</span><span>${fmt(c.coutPerPax)} TND</span></div>
+        <div class="cd-row"><span>TVA récupérée (déduite)</span><span>${fmt(c.tvaRec)} TND</span></div>`;
+    }
+    const cdNet=$('cdNet'+i);
+    if(cdNet){ cdNet.className='cd-net '+(c.benef<0?'neg':'pos');
+      cdNet.innerHTML=`<span>NET : ${fmt(c.recuTND)} − ${fmt(c.coutNet)} =</span><span>${c.benef<0?'DÉFICIT ':'BÉNÉFICE '}${fmt(c.benef)} TND (${fmt(c.marge)}%)</span>`; }
     $('oVpp'+i).textContent=fmt(c.revPerPaxTND);
     $('oCpp'+i).textContent=fmt(c.coutPerPax);
     $('oRec'+i).textContent=fmt(c.recuTND);
