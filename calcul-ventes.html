@@ -156,15 +156,21 @@
 
   let cfg, exc;
   function defaults(){
-    cfg={ taux:3.4,
-      fleet:[{n:"Autocar",lease:0,tva:19},{n:"Ford Transit",lease:0,tva:19},{n:"Toyota Coaster",lease:0,tva:19},{n:"Suzuki Ertiga",lease:0,tva:19}],
-      guides:[{n:"Guide 1",sal:0}],
-      drivers:[{n:"Chauffeur 1",sal:0}] };
+    cfg={ taux:3.34,
+      fleet:[
+        {n:"Autocar",lease:5028.104,tva:19},
+        {n:"Ford Transit",lease:3938,tva:19},
+        {n:"Toyota Coaster",lease:3660,tva:19},
+        {n:"Suzuki Ertiga",lease:1250,tva:19},
+        {n:"4x4",lease:3250,tva:19}
+      ],
+      guides:[{n:"Guide (salarié)",sal:2000}],
+      drivers:[{n:"Chauffeur (salarié)",sal:900}] };
     exc=[ blankExc() ];
   }
   function blankExc(){ return {
     name:"", pax:2, days:1,
-    pv:0, comm:25,
+    pv:0, comm:30,
     vIdx:0, dIdx:0,
     gMode:"aucun", gIdx:0, gJour:0,
     repasOn:false, repas:0, tRepas:13,
@@ -364,19 +370,35 @@
   function toggleRes(){ const b=$('resBody'); const c=$('resChev'); const h=b.style.display==='none'; b.style.display=h?'block':'none'; c.textContent=h?'▼ masquer':'▶ afficher'; }
 
   function loadDemo(){
-    cfg={ taux:3.4,
-      fleet:[{n:"Autocar",lease:3800,tva:19},{n:"Ford Transit",lease:1600,tva:19},{n:"Toyota Coaster",lease:2200,tva:19},{n:"Suzuki Ertiga",lease:900,tva:19}],
-      guides:[{n:"Karim",sal:1400},{n:"Sonia",sal:1500}],
-      drivers:[{n:"Ali",sal:1200},{n:"Mohamed",sal:1250}] };
+    defaults();
+    // vIdx: 0=Autocar 1=Ford Transit 2=Toyota Coaster 3=Suzuki Ertiga 4=4x4
     exc=[
-      {...blankExc(),name:"Sahara 2 jours",pax:6,days:2,pv:180,comm:25,vIdx:2,dIdx:0,gMode:"extra",gJour:120,repasOn:true,repas:35,tRepas:13,entreeOn:true,entree:15,tEntree:19,hebOn:true,heb:60,tHeb:7},
-      {...blankExc(),name:"Tour de l'île de Djerba",pax:8,days:1,pv:55,comm:25,vIdx:1,dIdx:1,gMode:"salarie",gIdx:0,entreeOn:true,entree:8,tEntree:19}
+      // GYG-TDE-003 — Djerba cheval / dromadaire / quad (journée)
+      {...blankExc(),name:"Djerba fun : cheval, dromadaire & quad",pax:8,days:1,pv:110,comm:30,vIdx:2,dIdx:0,gMode:"salarie",gIdx:0,
+        repasOn:true,repas:30,tRepas:13,entreeOn:true,entree:40,tEntree:19},
+      // GYG-TDE-006 — coucher de soleil désert (journée, 4x4)
+      {...blankExc(),name:"Coucher de soleil désert & soirée bédouine",pax:5,days:1,pv:140,comm:30,vIdx:4,dIdx:0,gMode:"salarie",gIdx:0,
+        repasOn:true,repas:15,tRepas:13},
+      // GYG-TT-003 — Tataouine / Chenini (journée)
+      {...blankExc(),name:"Tataouine, Chenini & villages berbères",pax:10,days:1,pv:49,comm:30,vIdx:1,dIdx:0,gMode:"salarie",gIdx:0,
+        repasOn:true,repas:15,tRepas:13,entreeOn:true,entree:3,tEntree:19},
+      // GYG-TT-012 — Ksar Ghilane & Tataouine (journée)
+      {...blankExc(),name:"Ksar Ghilane & Tataouine Chenini 1 journée",pax:10,days:1,pv:69,comm:30,vIdx:1,dIdx:0,gMode:"salarie",gIdx:0,
+        repasOn:true,repas:15,tRepas:13,entreeOn:true,entree:20,tEntree:19},
+      // GYG-TDE-002 — Ksar Ghilane / Tataouine 2 jours
+      {...blankExc(),name:"Ksar Ghilane & Tataouine — 2 jours",pax:12,days:2,pv:125,comm:30,vIdx:2,dIdx:0,gMode:"salarie",gIdx:0,
+        repasOn:true,repas:20,tRepas:13,entreeOn:true,entree:23,tEntree:19,hebOn:true,heb:55,tHeb:7},
+      // GYG-TDE-005 — Tunis Medina, Bardo, Carthage, Sidi Bou Saïd (journée)
+      {...blankExc(),name:"Tunis Médina, Bardo, Carthage & Sidi Bou Saïd",pax:12,days:1,pv:75,comm:30,vIdx:0,dIdx:0,gMode:"salarie",gIdx:0,
+        repasOn:true,repas:30,tRepas:13,entreeOn:true,entree:50,tEntree:19},
+      // GYG-TT-005 — Bateau pirate Flamingo Island (petit prix, bateau externe)
+      {...blankExc(),name:"Bateau pirate → Flamingo Island",pax:20,days:1,pv:20,comm:30,vIdx:3,dIdx:0,gMode:"aucun",gIdx:0}
     ];
     save(); renderRes(); renderExc();
   }
   function resetAll(){ defaults(); save(); renderRes(); renderExc(); }
-  function save(){ try{ localStorage.setItem('djerba_v3',JSON.stringify({cfg,exc})); }catch(e){} }
-  function load(){ try{ const s=localStorage.getItem('djerba_v3'); if(s){ const o=JSON.parse(s); cfg=o.cfg; exc=o.exc; } }catch(e){} if(!cfg||!exc) defaults(); }
+  function save(){ try{ localStorage.setItem('djerba_v4',JSON.stringify({cfg,exc})); }catch(e){} }
+  function load(){ try{ const s=localStorage.getItem('djerba_v4'); if(s){ const o=JSON.parse(s); cfg=o.cfg; exc=o.exc; } }catch(e){} if(!cfg||!exc){ loadDemo(); return true; } return false; }
 
-  load(); renderRes(); renderExc();
+  if(!load()){ renderRes(); renderExc(); }
 </script>
