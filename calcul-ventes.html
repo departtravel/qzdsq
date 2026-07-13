@@ -317,6 +317,7 @@
           <div class="res-item"><div class="l">Marge</div><div class="v" id="oMarg${i}">0%</div></div>
           <div class="res-item"><div class="l">État</div><div id="oBadge${i}" style="margin-top:4px"></div></div>
           <div class="breakeven" id="oSeuil${i}"></div>
+          ${tab==='reel'?`<button class="primary" style="flex:0 0 auto" onclick="facture(${i})">🧾 Facture / Imprimer</button>`:''}
         </div>
       </div>`;
       L.appendChild(el);
@@ -417,6 +418,106 @@
     $('title').textContent=t==='cat'?'Catalogue — rentabilité des excursions':'État du réel — départs datés';
     $('subtitle').textContent=t==='cat'?"Tes tarifs standards. L'app calcule le coût réel (TVA comprise) et le seuil de rentabilité : le nombre minimum de personnes pour qu'un départ ne soit pas déficitaire.":"Saisis un départ précis : sa date, le nombre réel de clients et toutes les dépenses réellement engagées. L'app sort la marge exacte de ce départ.";
     save(); renderExc();
+  }
+
+  /* ---------- FACTURE / FICHE DÉTAILLÉE ---------- */
+  function facture(i){
+    const r=A()[i]; const c=calc(r); const taux=cfg.taux;
+    const DEF_TVA=19; // TVA par défaut à déduire si non précisée
+    // Lignes de coût détaillées
+    const rows=[];
+    // Véhicule
+    if(r.tMode==='location'){ const ttc=num(r.locPrix),tva=num(r.locTva)||0,v=recVAT(ttc,tva);
+      rows.push(['Location véhicule',1,ttc,tva,v,ttc-v]); }
+    else { const veh=cfg.fleet[r.vIdx]||{n:'—',lease:0,tva:DEF_TVA}; const ttc=(veh.lease/30)*r.days,tva=num(veh.tva)||0,v=recVAT(ttc,tva);
+      rows.push([`Véhicule : ${veh.n} (leasing ${fmt(veh.lease)}÷30×${fmt(r.days)}j)`,1,ttc,tva,v,ttc-v]); }
+    // Chauffeur
+    const drv=cfg.drivers[r.dIdx]||{n:'—',sal:0}; if(r.dIdx!=null){ const ttc=(drv.sal/30)*r.days; rows.push([`Chauffeur : ${drv.n}`,1,ttc,0,0,ttc]); }
+    // Guide
+    if(r.gMode==='salarie'){ const g=cfg.guides[r.gIdx]||{n:'—',sal:0}; const ttc=(g.sal/30)*r.days; rows.push([`Guide (salarié) : ${g.n}`,1,ttc,0,0,ttc]); }
+    else if(r.gMode==='extra'){ const ttc=r.gJour*r.days; rows.push([`Guide extra (${fmt(r.gJour)}/j × ${fmt(r.days)}j)`,1,ttc,0,0,ttc]); }
+    // Dépenses
+    (r.dep||[]).forEach(x=>{ const amt=num(x.amount); let tva=num(x.tva); if(!tva&&tva!==0) tva=DEF_TVA; let qte,ttc,base;
+      if(x.base==='pers'){ qte=r.pax; ttc=amt*r.pax; base=`${fmt(amt)} × ${r.pax} pers`; }
+      else if(x.base==='veh'){ const nb=Math.ceil(r.pax/Math.max(1,num(x.cap)||1)); qte=nb; ttc=amt*nb; base=`${fmt(amt)} × ${nb} véh`; }
+      else { qte=1; ttc=amt; base='groupe'; }
+      const v=recVAT(ttc,tva); rows.push([`${x.n||'Dépense'} (${base})${r.days>1?' · J'+(x.jour||1):''}`,qte,ttc,tva,v,ttc-v]);
+    });
+    const totTTC=rows.reduce((s,x)=>s+x[2],0), totTVA=rows.reduce((s,x)=>s+x[4],0), totHT=rows.reduce((s,x)=>s+x[5],0);
+    const money=n=>fmt(n)+' TND';
+    const rowsHTML=rows.map(x=>`<tr><td>${x[0]}</td><td class="n">${money(x[2])}</td><td class="n">${fmt(x[3])}%</td><td class="n">${money(x[4])}</td><td class="n">${money(x[5])}</td></tr>`).join('');
+
+    const html=`<!doctype html><html lang="fr"><head><meta charset="utf-8"><title>Fiche ${esc(r.name)}</title>
+    <style>
+      *{box-sizing:border-box;font-family:"Segoe UI",Arial,sans-serif;}
+      body{margin:0;padding:32px;color:#232a2c;background:#fff;font-size:13.5px;}
+      .head{display:flex;justify-content:space-between;align-items:flex-start;border-bottom:3px solid #0b7d84;padding-bottom:16px;margin-bottom:20px;}
+      .co{font-size:20px;font-weight:800;color:#0b7d84;font-family:Georgia,serif;}
+      .co small{display:block;font-size:11px;color:#4a565a;font-weight:400;margin-top:3px;}
+      .doc{text-align:right;font-size:12px;color:#4a565a;}
+      .doc b{font-size:15px;color:#232a2c;display:block;margin-bottom:4px;}
+      h2{font-size:12px;letter-spacing:.08em;text-transform:uppercase;color:#0b7d84;margin:22px 0 8px;border-bottom:1px solid #d8cfba;padding-bottom:4px;}
+      .meta{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:6px;}
+      .meta div{background:#f4efe4;border-radius:8px;padding:9px 11px;}
+      .meta .l{font-size:10px;text-transform:uppercase;color:#4a565a;font-weight:700;}
+      .meta .v{font-size:15px;font-weight:700;margin-top:2px;}
+      table{width:100%;border-collapse:collapse;margin-top:4px;}
+      th,td{padding:7px 9px;border-bottom:1px solid #e5ddca;text-align:left;}
+      th{font-size:10.5px;text-transform:uppercase;letter-spacing:.03em;color:#4a565a;background:#f4efe4;}
+      td.n,th.n{text-align:right;font-variant-numeric:tabular-nums;}
+      tfoot td{font-weight:800;border-top:2px solid #232a2c;border-bottom:none;background:#f4efe4;}
+      .rec{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-top:6px;}
+      .rec .box{background:#f4efe4;border-radius:8px;padding:12px 14px;line-height:1.9;font-variant-numeric:tabular-nums;}
+      .result{display:flex;gap:12px;margin-top:8px;}
+      .result .r{flex:1;text-align:center;border-radius:10px;padding:14px;}
+      .result .r .l{font-size:11px;text-transform:uppercase;font-weight:700;color:#4a565a;}
+      .result .r .v{font-size:22px;font-weight:800;margin-top:4px;font-variant-numeric:tabular-nums;}
+      .rec-b{background:#d7ebec;}.cost-b{background:#f5ecd6;}.ben-b{background:#e2f0e6;}.ben-neg{background:#f6e0dc;}
+      .foot{margin-top:26px;font-size:11px;color:#4a565a;border-top:1px solid #d8cfba;padding-top:10px;}
+      @media print{body{padding:0;}.noprint{display:none;}}
+      .btns{text-align:center;margin-bottom:18px;}
+      .btns button{font-size:14px;padding:9px 18px;border-radius:8px;border:1px solid #0b7d84;background:#0b7d84;color:#fff;font-weight:700;cursor:pointer;margin:0 4px;}
+      .btns button.sec{background:#fff;color:#232a2c;border-color:#d8cfba;}
+    </style></head><body>
+    <div class="btns noprint"><button onclick="window.print()">🖨️ Imprimer / PDF</button><button class="sec" onclick="window.close()">Fermer</button></div>
+    <div class="head">
+      <div class="co">DEPART TRAVEL SERVICES<small>Agence de voyages · Djerba, Tunisie</small></div>
+      <div class="doc"><b>FICHE DE RENTABILITÉ</b>Document interne${r.date?'<br>Date du départ : '+esc(r.date):''}<br>Édité le ${esc(r.date||'—')}</div>
+    </div>
+    <div class="meta">
+      <div><div class="l">Excursion</div><div class="v" style="font-size:13px">${esc(r.name||'—')}</div></div>
+      <div><div class="l">Nb personnes</div><div class="v">${fmt(r.pax)}</div></div>
+      <div><div class="l">Durée</div><div class="v">${fmt(r.days)} j</div></div>
+      <div><div class="l">Taux EUR/TND</div><div class="v">${fmt(taux)}</div></div>
+    </div>
+    <h2>Recette</h2>
+    <div class="rec"><div class="box">
+      Prix de vente : <b>${fmt(r.pv)} €</b> /pers<br>
+      − commission GYG ${fmt(r.comm)}% : −${fmt(c.commEUR)} €<br>
+      = net reçu : <b>${fmt(c.netEUR)} €</b> /pers
+    </div><div class="box">
+      × taux ${fmt(taux)} = <b>${fmt(c.revPerPaxTND)} TND</b> /pers<br>
+      × ${fmt(r.pax)} personnes<br>
+      = <b style="color:#0b7d84">${money(c.recuTND)}</b> reçus (total)
+    </div></div>
+    <h2>Détail des coûts &amp; TVA</h2>
+    <table><thead><tr><th>Désignation</th><th class="n">Montant TTC</th><th class="n">TVA</th><th class="n">dont TVA récup.</th><th class="n">Montant HT</th></tr></thead>
+    <tbody>${rowsHTML}</tbody>
+    <tfoot><tr><td>TOTAUX</td><td class="n">${money(totTTC)}</td><td class="n"></td><td class="n">${money(totTVA)}</td><td class="n">${money(totHT)}</td></tr></tfoot></table>
+    <p style="font-size:11px;color:#4a565a;margin-top:6px">La colonne « HT » (coût net réel) déduit la TVA récupérable. TVA appliquée par défaut : 19 % là où aucun taux n'est précisé.</p>
+    <h2>Résultat</h2>
+    <div class="result">
+      <div class="r rec-b"><div class="l">Recette reçue</div><div class="v">${money(c.recuTND)}</div></div>
+      <div class="r cost-b"><div class="l">Coût net (HT)</div><div class="v">${money(c.coutNet)}</div></div>
+      <div class="r ${c.benef<0?'ben-neg':'ben-b'}"><div class="l">Bénéfice</div><div class="v">${money(c.benef)}</div></div>
+      <div class="r rec-b"><div class="l">Marge</div><div class="v">${fmt(c.marge)}%</div></div>
+    </div>
+    <div class="foot">Document interne de gestion — ne constitue pas une facture fiscale destinée au client. Établi pour l'analyse de rentabilité et la justification des prix pratiqués (absence de revente à perte).</div>
+    <script>window.onload=function(){setTimeout(function(){window.print();},300);}<\/script>
+    </body></html>`;
+    const w=window.open('','_blank');
+    if(w){ w.document.open(); w.document.write(html); w.document.close(); }
+    else { alert("Autorise les fenêtres pop-up pour imprimer la facture, ou télécharge le fichier .html pour l'utiliser en local."); }
   }
 
   function save(){ try{ localStorage.setItem('djerba_v8',JSON.stringify({cfg,cat,reel,tab})); }catch(e){} }
