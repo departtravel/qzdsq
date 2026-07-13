@@ -1,0 +1,370 @@
+<style>
+  :root {
+    --sand:        #f4efe4;
+    --sand-2:      #ece4d2;
+    --ink:         #232a2c;
+    --ink-soft:    #4a565a;
+    --sea:         #0b7d84;
+    --sea-deep:    #075a60;
+    --sea-tint:    #d7ebec;
+    --line:        #d8cfba;
+    --good:        #1f7a4d;
+    --good-bg:     #e2f0e6;
+    --bad:         #a3362b;
+    --bad-bg:      #f6e0dc;
+    --warn:        #9a6a12;
+    --card:        #fbf8f1;
+    --shadow:      0 1px 2px rgba(35,42,44,.06), 0 8px 24px rgba(35,42,44,.06);
+    --radius:      12px;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --sand:      #12181a;
+      --sand-2:    #0d1214;
+      --ink:       #eef2f0;
+      --ink-soft:  #a3b0b2;
+      --sea:       #38b6bd;
+      --sea-deep:  #6fd0d6;
+      --sea-tint:  #12312f;
+      --line:      #26332f;
+      --good:      #6ed69a;
+      --good-bg:   #102a1d;
+      --bad:       #f0917f;
+      --bad-bg:    #331714;
+      --warn:      #d6a642;
+      --card:      #161d1f;
+      --shadow:    0 1px 2px rgba(0,0,0,.4), 0 8px 24px rgba(0,0,0,.35);
+    }
+  }
+  :root[data-theme="light"] {
+    --sand:#f4efe4; --sand-2:#ece4d2; --ink:#232a2c; --ink-soft:#4a565a;
+    --sea:#0b7d84; --sea-deep:#075a60; --sea-tint:#d7ebec; --line:#d8cfba;
+    --good:#1f7a4d; --good-bg:#e2f0e6; --bad:#a3362b; --bad-bg:#f6e0dc;
+    --warn:#9a6a12; --card:#fbf8f1; --shadow:0 1px 2px rgba(35,42,44,.06),0 8px 24px rgba(35,42,44,.06);
+  }
+  :root[data-theme="dark"] {
+    --sand:#12181a; --sand-2:#0d1214; --ink:#eef2f0; --ink-soft:#a3b0b2;
+    --sea:#38b6bd; --sea-deep:#6fd0d6; --sea-tint:#12312f; --line:#26332f;
+    --good:#6ed69a; --good-bg:#102a1d; --bad:#f0917f; --bad-bg:#331714;
+    --warn:#d6a642; --card:#161d1f; --shadow:0 1px 2px rgba(0,0,0,.4),0 8px 24px rgba(0,0,0,.35);
+  }
+
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    background: var(--sand);
+    color: var(--ink);
+    font-family: "Segoe UI", system-ui, -apple-system, sans-serif;
+    line-height: 1.5;
+    -webkit-font-smoothing: antialiased;
+  }
+  .wrap { max-width: 1120px; margin: 0 auto; padding: 28px 20px 80px; }
+
+  header.top {
+    display: flex; flex-wrap: wrap; align-items: flex-end; justify-content: space-between;
+    gap: 16px; margin-bottom: 26px;
+    padding-bottom: 20px; border-bottom: 2px solid var(--line);
+  }
+  .brand-eyebrow {
+    font-size: 12px; letter-spacing: .16em; text-transform: uppercase;
+    color: var(--sea); font-weight: 700; margin: 0 0 6px;
+  }
+  h1 {
+    font-family: Georgia, "Times New Roman", serif;
+    font-size: clamp(26px, 4vw, 38px); line-height: 1.1; margin: 0;
+    text-wrap: balance; font-weight: 600;
+  }
+  .sub { color: var(--ink-soft); margin: 8px 0 0; max-width: 60ch; font-size: 15px; }
+  .toolbar { display: flex; gap: 8px; flex-wrap: wrap; }
+
+  button {
+    font: inherit; cursor: pointer; border-radius: 9px; border: 1px solid var(--line);
+    background: var(--card); color: var(--ink); padding: 9px 14px; font-size: 14px;
+    font-weight: 600; transition: transform .05s, background .15s, border-color .15s;
+  }
+  button:hover { border-color: var(--sea); }
+  button:active { transform: translateY(1px); }
+  button:focus-visible { outline: 2px solid var(--sea); outline-offset: 2px; }
+  button.primary { background: var(--sea); border-color: var(--sea); color: #fff; }
+  button.primary:hover { background: var(--sea-deep); border-color: var(--sea-deep); }
+  :root[data-theme="dark"] button.primary,
+  @media (prefers-color-scheme: dark) { button.primary { color: #05191a; } }
+
+  /* KPI row */
+  .kpis { display: grid; grid-template-columns: repeat(4, 1fr); gap: 14px; margin-bottom: 26px; }
+  @media (max-width: 760px) { .kpis { grid-template-columns: repeat(2, 1fr); } }
+  .kpi {
+    background: var(--card); border: 1px solid var(--line); border-radius: var(--radius);
+    padding: 16px 18px; box-shadow: var(--shadow); position: relative; overflow: hidden;
+  }
+  .kpi::before { content:""; position:absolute; left:0; top:0; bottom:0; width:4px; background: var(--sea); }
+  .kpi.k-cost::before { background: var(--warn); }
+  .kpi.k-profit::before { background: var(--good); }
+  .kpi.k-margin::before { background: var(--sea-deep); }
+  .kpi .label { font-size: 12px; letter-spacing: .06em; text-transform: uppercase; color: var(--ink-soft); font-weight: 600; }
+  .kpi .val { font-size: clamp(22px, 3vw, 30px); font-weight: 700; margin-top: 6px; font-variant-numeric: tabular-nums; }
+  .kpi .val small { font-size: 14px; font-weight: 600; color: var(--ink-soft); }
+
+  .panel {
+    background: var(--card); border: 1px solid var(--line); border-radius: var(--radius);
+    box-shadow: var(--shadow); overflow: hidden; margin-bottom: 22px;
+  }
+  .panel-head {
+    display: flex; align-items: center; justify-content: space-between; gap: 10px;
+    padding: 14px 18px; background: var(--sand-2); border-bottom: 1px solid var(--line);
+  }
+  .panel-head h2 { margin: 0; font-size: 16px; font-family: Georgia, serif; font-weight: 600; }
+  .panel-head .hint { font-size: 13px; color: var(--ink-soft); }
+
+  .table-scroll { overflow-x: auto; }
+  table { width: 100%; border-collapse: collapse; min-width: 860px; }
+  thead th {
+    text-align: left; font-size: 11px; letter-spacing: .05em; text-transform: uppercase;
+    color: var(--ink-soft); font-weight: 700; padding: 11px 12px; border-bottom: 1px solid var(--line);
+    white-space: nowrap;
+  }
+  thead th.num, tbody td.num { text-align: right; }
+  tbody td { padding: 7px 12px; border-bottom: 1px solid var(--line); vertical-align: middle; }
+  tbody tr:last-child td { border-bottom: none; }
+  tbody input {
+    width: 100%; font: inherit; font-size: 14px; padding: 7px 9px; border-radius: 7px;
+    border: 1px solid transparent; background: transparent; color: var(--ink);
+  }
+  tbody input:hover { border-color: var(--line); }
+  tbody input:focus { border-color: var(--sea); background: var(--sand); outline: none; }
+  td.num input { text-align: right; font-variant-numeric: tabular-nums; }
+  td.calc { text-align: right; font-variant-numeric: tabular-nums; font-weight: 600; white-space: nowrap; }
+
+  .badge { display: inline-block; padding: 3px 9px; border-radius: 999px; font-size: 12px; font-weight: 700; white-space: nowrap; }
+  .badge.ok  { background: var(--good-bg); color: var(--good); }
+  .badge.loss{ background: var(--bad-bg);  color: var(--bad); }
+  .badge.thin{ background: var(--sea-tint);color: var(--warn); }
+
+  td.act { text-align: center; }
+  .icon-btn { border: none; background: transparent; color: var(--ink-soft); font-size: 17px; padding: 4px 8px; border-radius: 6px; }
+  .icon-btn:hover { background: var(--bad-bg); color: var(--bad); border: none; }
+
+  .panel-foot { padding: 12px 18px; display: flex; gap: 10px; flex-wrap: wrap; background: var(--sand-2); border-top: 1px solid var(--line); }
+
+  /* Alert / verdict banner */
+  .verdict { border-radius: var(--radius); padding: 16px 20px; margin-bottom: 24px; display: flex; gap: 14px; align-items: flex-start; font-size: 15px; box-shadow: var(--shadow); }
+  .verdict.clean { background: var(--good-bg); border: 1px solid color-mix(in srgb, var(--good) 40%, transparent); }
+  .verdict.alert { background: var(--bad-bg);  border: 1px solid color-mix(in srgb, var(--bad) 40%, transparent); }
+  .verdict .big { font-size: 22px; line-height: 1; }
+  .verdict strong { display: block; margin-bottom: 3px; }
+  .verdict .clean-t { color: var(--good); }
+  .verdict .alert-t { color: var(--bad); }
+
+  .legal {
+    font-size: 13px; color: var(--ink-soft); background: var(--card); border: 1px dashed var(--line);
+    border-radius: var(--radius); padding: 16px 18px; line-height: 1.6;
+  }
+  .legal b { color: var(--ink); }
+  .foot-note { margin-top: 26px; font-size: 12px; color: var(--ink-soft); text-align: center; }
+
+  @media print {
+    body { background: #fff; }
+    .toolbar, .panel-foot, .icon-btn, button { display: none !important; }
+  }
+</style>
+
+<div class="wrap">
+  <header class="top">
+    <div>
+      <p class="brand-eyebrow">Agence de voyages · Djerba, Tunisie</p>
+      <h1>Calcul des ventes, coûts &amp; bénéfices</h1>
+      <p class="sub">Saisis chaque prestation vendue. L'outil calcule la marge ligne par ligne et démontre, chiffres à l'appui, que chaque vente est faite <b>au-dessus du coût d'achat</b> — la preuve directe qu'il n'y a pas de revente à perte.</p>
+    </div>
+    <div class="toolbar">
+      <button onclick="addRow()">+ Ajouter une ligne</button>
+      <button onclick="loadDemo()">Exemple</button>
+      <button onclick="resetAll()">Vider</button>
+      <button class="primary" onclick="window.print()">Imprimer / PDF</button>
+    </div>
+  </header>
+
+  <section class="kpis">
+    <div class="kpi k-ca">
+      <div class="label">Chiffre d'affaires (ventes)</div>
+      <div class="val"><span id="kCA">0</span> <small>TND</small></div>
+    </div>
+    <div class="kpi k-cost">
+      <div class="label">Coûts d'achat totaux</div>
+      <div class="val"><span id="kCost">0</span> <small>TND</small></div>
+    </div>
+    <div class="kpi k-profit">
+      <div class="label">Bénéfice net</div>
+      <div class="val"><span id="kProfit">0</span> <small>TND</small></div>
+    </div>
+    <div class="kpi k-margin">
+      <div class="label">Marge globale</div>
+      <div class="val"><span id="kMargin">0</span><small>%</small></div>
+    </div>
+  </section>
+
+  <div id="verdict" class="verdict clean">
+    <span class="big">✓</span>
+    <div id="verdictText"><strong class="clean-t">Aucune revente à perte détectée</strong>
+      Toutes les prestations sont vendues au-dessus de leur coût d'achat.</div>
+  </div>
+
+  <section class="panel">
+    <div class="panel-head">
+      <h2>Détail des prestations</h2>
+      <span class="hint">Prix &amp; coûts unitaires · en TND</span>
+    </div>
+    <div class="table-scroll">
+      <table>
+        <thead>
+          <tr>
+            <th style="width:22%">Prestation / Excursion</th>
+            <th style="width:14%">Canal</th>
+            <th class="num">Prix vente unit.</th>
+            <th class="num">Coût achat unit.</th>
+            <th class="num">Frais annexes unit.</th>
+            <th class="num">Qté</th>
+            <th class="num">CA ligne</th>
+            <th class="num">Coût ligne</th>
+            <th class="num">Bénéfice</th>
+            <th class="num">Marge</th>
+            <th>État</th>
+            <th></th>
+          </tr>
+        </thead>
+        <tbody id="rows"></tbody>
+        <tfoot>
+          <tr style="font-weight:700; background:var(--sand-2)">
+            <td colspan="6" style="padding:11px 12px">TOTAL</td>
+            <td class="calc" id="tCA">0</td>
+            <td class="calc" id="tCost">0</td>
+            <td class="calc" id="tProfit">0</td>
+            <td class="calc" id="tMargin">0%</td>
+            <td colspan="2"></td>
+          </tr>
+        </tfoot>
+      </table>
+    </div>
+    <div class="panel-foot">
+      <button onclick="addRow()">+ Ajouter une ligne</button>
+      <span class="hint" style="align-self:center">« Frais annexes » = commission plateforme, transport, guide, entrées, taxes… tout ce qui s'ajoute au coût d'achat.</span>
+    </div>
+  </section>
+
+  <div class="legal">
+    <b>Pourquoi ce document compte juridiquement.</b> La revente à perte se caractérise par un prix de vente <b>inférieur au coût d'achat effectif</b>. Tant que la colonne « Bénéfice » reste positive sur chaque ligne, tu démontres l'inverse : des prix bas <b>mais rentables</b>, ce qui est parfaitement licite et relève de ta liberté commerciale. Vendre moins cher qu'un concurrent n'est pas une infraction. Conserve ce tableau avec les <b>justificatifs</b> (factures d'achat, contrats GYG, relevés bancaires) : c'est la pièce n°1 de ton dossier de défense.
+  </div>
+
+  <p class="foot-note">Outil de gestion interne — données enregistrées uniquement dans ce navigateur (localStorage). Ne remplace pas un conseil comptable ou juridique.</p>
+</div>
+
+<script>
+  const fmt = n => (isFinite(n) ? n : 0).toLocaleString('fr-FR', {minimumFractionDigits: 0, maximumFractionDigits: 2});
+  const $ = id => document.getElementById(id);
+  let data = [];
+
+  const DEMO = [
+    { name: "Excursion Sahara 2 jours", chan: "GetYourGuide", pv: 180, ca: 110, fee: 22, qte: 4 },
+    { name: "Tour de l'île de Djerba", chan: "GetYourGuide", pv: 55, ca: 30, fee: 8, qte: 12 },
+    { name: "Sortie plongée Flamant Rose", chan: "Direct agence", pv: 90, ca: 60, fee: 6, qte: 3 },
+    { name: "Transfert aéroport privé", chan: "Direct agence", pv: 40, ca: 28, fee: 3, qte: 8 },
+  ];
+
+  function blank() { return { name: "", chan: "", pv: 0, ca: 0, fee: 0, qte: 1 }; }
+
+  function addRow(row) {
+    data.push(row || blank());
+    render(); save();
+  }
+  function removeRow(i) { data.splice(i, 1); if (!data.length) data.push(blank()); render(); save(); }
+  function loadDemo() { data = DEMO.map(d => ({...d})); render(); save(); }
+  function resetAll() { data = [blank()]; render(); save(); }
+
+  function update(i, field, val) {
+    if (field === 'name' || field === 'chan') data[i][field] = val;
+    else data[i][field] = parseFloat(String(val).replace(',', '.')) || 0;
+    computeTotals(); save();
+  }
+
+  function lineCalc(r) {
+    const caL = r.pv * r.qte;
+    const costL = (r.ca + r.fee) * r.qte;
+    const prof = caL - costL;
+    const marg = caL > 0 ? (prof / caL) * 100 : 0;
+    const unitProfit = r.pv - (r.ca + r.fee);
+    return { caL, costL, prof, marg, unitProfit };
+  }
+
+  function render() {
+    const tb = $('rows');
+    tb.innerHTML = '';
+    data.forEach((r, i) => {
+      const tr = document.createElement('tr');
+      tr.innerHTML = `
+        <td><input value="${r.name.replace(/"/g,'&quot;')}" placeholder="Nom de la prestation" oninput="update(${i},'name',this.value)"></td>
+        <td><input value="${r.chan.replace(/"/g,'&quot;')}" placeholder="GYG / Direct…" oninput="update(${i},'chan',this.value)"></td>
+        <td class="num"><input class="n" inputmode="decimal" value="${r.pv||''}" placeholder="0" oninput="update(${i},'pv',this.value);refresh(${i})"></td>
+        <td class="num"><input class="n" inputmode="decimal" value="${r.ca||''}" placeholder="0" oninput="update(${i},'ca',this.value);refresh(${i})"></td>
+        <td class="num"><input class="n" inputmode="decimal" value="${r.fee||''}" placeholder="0" oninput="update(${i},'fee',this.value);refresh(${i})"></td>
+        <td class="num"><input class="n" inputmode="decimal" value="${r.qte||''}" placeholder="1" oninput="update(${i},'qte',this.value);refresh(${i})"></td>
+        <td class="calc" id="caL${i}"></td>
+        <td class="calc" id="costL${i}"></td>
+        <td class="calc" id="profL${i}"></td>
+        <td class="calc" id="margL${i}"></td>
+        <td id="stL${i}"></td>
+        <td class="act"><button class="icon-btn" title="Supprimer" onclick="removeRow(${i})">✕</button></td>`;
+      tb.appendChild(tr);
+      refresh(i);
+    });
+    computeTotals();
+  }
+
+  function refresh(i) {
+    const r = data[i]; if (!r) return;
+    const c = lineCalc(r);
+    $('caL'+i).textContent = fmt(c.caL);
+    $('costL'+i).textContent = fmt(c.costL);
+    $('profL'+i).textContent = fmt(c.prof);
+    $('margL'+i).textContent = fmt(c.marg) + '%';
+    const st = $('stL'+i);
+    if (r.pv === 0 && r.ca === 0) { st.innerHTML = ''; }
+    else if (c.unitProfit < 0) st.innerHTML = '<span class="badge loss">Revente à perte</span>';
+    else if (c.marg < 10) st.innerHTML = '<span class="badge thin">Marge faible</span>';
+    else st.innerHTML = '<span class="badge ok">Rentable</span>';
+    const prof = $('profL'+i);
+    prof.style.color = c.prof < 0 ? 'var(--bad)' : c.prof > 0 ? 'var(--good)' : 'inherit';
+  }
+
+  function computeTotals() {
+    let CA = 0, COST = 0, losses = 0;
+    data.forEach(r => { const c = lineCalc(r); CA += c.caL; COST += c.costL; if (c.unitProfit < 0 && (r.pv||r.ca)) losses++; });
+    const PROFIT = CA - COST;
+    const MARGIN = CA > 0 ? (PROFIT / CA) * 100 : 0;
+    $('kCA').textContent = fmt(CA);
+    $('kCost').textContent = fmt(COST);
+    $('kProfit').textContent = fmt(PROFIT);
+    $('kMargin').textContent = fmt(MARGIN);
+    $('tCA').textContent = fmt(CA);
+    $('tCost').textContent = fmt(COST);
+    $('tProfit').textContent = fmt(PROFIT);
+    $('tMargin').textContent = fmt(MARGIN) + '%';
+
+    const v = $('verdict'), t = $('verdictText');
+    if (losses > 0) {
+      v.className = 'verdict alert';
+      v.querySelector('.big').textContent = '⚠';
+      t.innerHTML = `<strong class="alert-t">${losses} ligne(s) en revente à perte</strong>Le prix de vente est inférieur au coût d'achat + frais. Corrige le prix ou vérifie le coût saisi — une vente sous le coût est juridiquement attaquable.`;
+    } else {
+      v.className = 'verdict clean';
+      v.querySelector('.big').textContent = '✓';
+      t.innerHTML = `<strong class="clean-t">Aucune revente à perte détectée</strong>Toutes les prestations sont vendues au-dessus de leur coût d'achat. Marge globale de ${fmt(MARGIN)} %.`;
+    }
+  }
+
+  function save() { try { localStorage.setItem('djerba_calc', JSON.stringify(data)); } catch(e){} }
+  function load() {
+    try { const s = localStorage.getItem('djerba_calc'); if (s) data = JSON.parse(s); } catch(e){}
+    if (!data || !data.length) data = [blank()];
+  }
+
+  load(); render();
+</script>
