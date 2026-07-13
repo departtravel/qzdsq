@@ -175,7 +175,8 @@
     gMode:"aucun", gIdx:0, gJour:0,
     repasOn:false, repas:0, tRepas:13,
     entreeOn:false, entree:0, tEntree:19,
-    hebOn:false, heb:0, tHeb:7
+    hebOn:false, heb:0, tHeb:7,
+    extras:[]   // {n, type:'pers'|'veh'|'grp', amount, tva, cap}
   };}
 
   /* ---------- CALCUL ---------- */
@@ -199,16 +200,25 @@
     const repasVAT=r.repasOn?recVAT(r.repas,r.tRepas):0;
     const entreeVAT=r.entreeOn?recVAT(r.entree,r.tEntree):0;
     const hebVAT=r.hebOn?recVAT(r.heb,r.tHeb):0;
-    const varPerPax=(r.repasOn?r.repas:0)+(r.entreeOn?r.entree:0)+(r.hebOn?r.heb:0)-repasVAT-entreeVAT-hebVAT;
+    let varPerPax=(r.repasOn?r.repas:0)+(r.entreeOn?r.entree:0)+(r.hebOn?r.heb:0)-repasVAT-entreeVAT-hebVAT;
+    // Autres charges (extras)
+    let extraFixe=0, extraVATtotal=0;
+    (r.extras||[]).forEach(x=>{
+      const amt=num(x.amount), tva=num(x.tva);
+      if(x.type==='pers'){ const net=amt-recVAT(amt,tva); varPerPax+=net; extraVATtotal+=recVAT(amt,tva)*r.pax; }
+      else if(x.type==='veh'){ const nb=Math.ceil(r.pax/Math.max(1,num(x.cap)||1)); const tot=amt*nb; extraFixe+=tot-recVAT(tot,tva); extraVATtotal+=recVAT(tot,tva); }
+      else { extraFixe+=amt-recVAT(amt,tva); extraVATtotal+=recVAT(amt,tva); } // grp
+    });
+    const fixeTot = fixe + extraFixe;
     // totaux
-    const tvaRec = vehVAT + (repasVAT+entreeVAT+hebVAT)*r.pax;
-    const coutNet = fixe + varPerPax*r.pax;
+    const tvaRec = vehVAT + (repasVAT+entreeVAT+hebVAT)*r.pax + extraVATtotal;
+    const coutNet = fixeTot + varPerPax*r.pax;
     const benef = recuTND - coutNet;
     const marge = recuTND>0?benef/recuTND*100:0;
     // seuil
     const contrib = revPerPaxTND - varPerPax;         // marge sur coûts variables /pers
-    const seuil = contrib>0 ? Math.ceil(fixe/contrib) : Infinity;
-    return {recuTND,coutNet,tvaRec,benef,marge,fixe,varPerPax,contrib,seuil,revPerPaxTND};
+    const seuil = contrib>0 ? Math.ceil(fixeTot/contrib) : Infinity;
+    return {recuTND,coutNet,tvaRec,benef,marge,fixe:fixeTot,varPerPax,contrib,seuil,revPerPaxTND};
   }
 
   /* ---------- RENDER RESSOURCES ---------- */
@@ -297,6 +307,11 @@
             <div class="fld"><label>TVA %</label><input type="number" value="${r.tHeb}" oninput="upd(${i},'tHeb',this.value)"></div>
           </div></div>
         </div>
+        <div class="block" style="grid-column:1/-1;">
+          <h3>➕ Autres charges (quad, 4x4, bateau, billets multiples…)</h3>
+          <div id="extras${i}"></div>
+          <button class="addmini" onclick="addExtra(${i})">+ Ajouter une charge</button>
+        </div>
         <div class="block stat-block">
           <div class="res-item"><div class="l">Recette</div><div class="v" id="oRec${i}">0</div></div>
           <div class="res-item"><div class="l">Coûts nets</div><div class="v" id="oCost${i}">0</div></div>
@@ -307,9 +322,27 @@
         </div>
       </div>`;
       L.appendChild(el);
+      renderExtras(i);
       refresh(i);
     });
     totals();
+  }
+
+  function renderExtras(i){
+    const box=$('extras'+i); if(!box) return; const r=exc[i];
+    box.innerHTML=(r.extras||[]).map((x,j)=>`
+      <div class="res-line" style="grid-template-columns:1.4fr 130px 90px 70px 60px 30px;">
+        <input value="${esc(x.n)}" placeholder="Libellé (quad, 4x4, bateau…)" oninput="updExtra(${i},${j},'n',this.value)">
+        <select onchange="updExtra(${i},${j},'type',this.value)">
+          <option value="pers" ${x.type=='pers'?'selected':''}>par personne</option>
+          <option value="veh" ${x.type=='veh'?'selected':''}>par véhicule</option>
+          <option value="grp" ${x.type=='grp'?'selected':''}>par groupe</option>
+        </select>
+        <input type="number" value="${x.amount||''}" placeholder="TND" title="Montant TTC" oninput="updExtra(${i},${j},'amount',this.value)">
+        <input type="number" value="${x.tva}" placeholder="TVA%" title="TVA %" oninput="updExtra(${i},${j},'tva',this.value)">
+        <input type="number" value="${x.type=='veh'?(x.cap||1):''}" placeholder="cap." title="Capacité/véhicule" ${x.type=='veh'?'':'disabled style=opacity:.3'} oninput="updExtra(${i},${j},'cap',this.value)">
+        <button class="x" onclick="delExtra(${i},${j})">✕</button>
+      </div>`).join('') || `<div class="res-note">Aucune charge supplémentaire. Utilise ce bloc pour les coûts par véhicule (quad, 4x4, location bateau) ou par groupe.</div>`;
   }
 
   function refresh(i){
@@ -363,6 +396,9 @@
   function delF(i){ if(cfg.fleet.length>1){cfg.fleet.splice(i,1); exc.forEach(r=>{if(r.vIdx>=cfg.fleet.length)r.vIdx=0;}); save(); renderRes(); renderExc();} }
   function delG(i){ if(cfg.guides.length>1){cfg.guides.splice(i,1); exc.forEach(r=>{if(r.gIdx>=cfg.guides.length)r.gIdx=0;}); save(); renderRes(); renderExc();} }
   function delD(i){ if(cfg.drivers.length>1){cfg.drivers.splice(i,1); exc.forEach(r=>{if(r.dIdx>=cfg.drivers.length)r.dIdx=0;}); save(); renderRes(); renderExc();} }
+  function addExtra(i){ if(!exc[i].extras) exc[i].extras=[]; exc[i].extras.push({n:"",type:"veh",amount:0,tva:19,cap:1}); save(); renderExtras(i); refresh(i); }
+  function updExtra(i,j,f,v){ const x=exc[i].extras[j]; if(f==='n') x.n=v; else if(f==='type'){ x.type=v; renderExtras(i);} else x[f]=num(v); save(); refresh(i); if(f!=='type') return; }
+  function delExtra(i,j){ exc[i].extras.splice(j,1); save(); renderExtras(i); refresh(i); }
   function addExc(){ exc.push(blankExc()); save(); renderExc(); }
   function delExc(i){ exc.splice(i,1); if(!exc.length)exc.push(blankExc()); save(); renderExc(); }
   function refreshAll(){ exc.forEach((_,i)=>refresh(i)); }
@@ -375,7 +411,8 @@
     exc=[
       // GYG-TDE-003 — Djerba cheval / dromadaire / quad (journée)
       {...blankExc(),name:"Djerba fun : cheval, dromadaire & quad",pax:8,days:1,pv:110,comm:30,vIdx:2,dIdx:0,gMode:"salarie",gIdx:0,
-        repasOn:true,repas:30,tRepas:13,entreeOn:true,entree:40,tEntree:19},
+        repasOn:true,repas:30,tRepas:13,
+        extras:[{n:"Caravane Djerba",type:"pers",amount:40,tva:19,cap:1},{n:"Quad",type:"veh",amount:60,tva:19,cap:2}]},
       // GYG-TDE-006 — coucher de soleil désert (journée, 4x4)
       {...blankExc(),name:"Coucher de soleil désert & soirée bédouine",pax:5,days:1,pv:140,comm:30,vIdx:4,dIdx:0,gMode:"salarie",gIdx:0,
         repasOn:true,repas:15,tRepas:13},
@@ -384,21 +421,24 @@
         repasOn:true,repas:15,tRepas:13,entreeOn:true,entree:3,tEntree:19},
       // GYG-TT-012 — Ksar Ghilane & Tataouine (journée)
       {...blankExc(),name:"Ksar Ghilane & Tataouine Chenini 1 journée",pax:10,days:1,pv:69,comm:30,vIdx:1,dIdx:0,gMode:"salarie",gIdx:0,
-        repasOn:true,repas:15,tRepas:13,entreeOn:true,entree:20,tEntree:19},
+        repasOn:true,repas:15,tRepas:13,
+        extras:[{n:"Camel Ride",type:"pers",amount:20,tva:19,cap:1},{n:"Quad",type:"veh",amount:45,tva:19,cap:1}]},
       // GYG-TDE-002 — Ksar Ghilane / Tataouine 2 jours
       {...blankExc(),name:"Ksar Ghilane & Tataouine — 2 jours",pax:12,days:2,pv:125,comm:30,vIdx:2,dIdx:0,gMode:"salarie",gIdx:0,
-        repasOn:true,repas:20,tRepas:13,entreeOn:true,entree:23,tEntree:19,hebOn:true,heb:55,tHeb:7},
+        repasOn:true,repas:40,tRepas:13,entreeOn:true,entree:23,tEntree:19,hebOn:true,heb:55,tHeb:7,
+        extras:[{n:"Guide local Chenini",type:"grp",amount:20,tva:0,cap:1}]},
       // GYG-TDE-005 — Tunis Medina, Bardo, Carthage, Sidi Bou Saïd (journée)
       {...blankExc(),name:"Tunis Médina, Bardo, Carthage & Sidi Bou Saïd",pax:12,days:1,pv:75,comm:30,vIdx:0,dIdx:0,gMode:"salarie",gIdx:0,
         repasOn:true,repas:30,tRepas:13,entreeOn:true,entree:50,tEntree:19},
-      // GYG-TT-005 — Bateau pirate Flamingo Island (petit prix, bateau externe)
-      {...blankExc(),name:"Bateau pirate → Flamingo Island",pax:20,days:1,pv:20,comm:30,vIdx:3,dIdx:0,gMode:"aucun",gIdx:0}
+      // GYG-TT-005 — Bateau pirate Flamingo Island (bateau externe : coût à compléter)
+      {...blankExc(),name:"Bateau pirate → Flamingo Island",pax:20,days:1,pv:20,comm:30,vIdx:3,dIdx:0,gMode:"aucun",gIdx:0,
+        extras:[{n:"Location bateau (À COMPLÉTER)",type:"grp",amount:0,tva:19,cap:1}]}
     ];
     save(); renderRes(); renderExc();
   }
   function resetAll(){ defaults(); save(); renderRes(); renderExc(); }
-  function save(){ try{ localStorage.setItem('djerba_v4',JSON.stringify({cfg,exc})); }catch(e){} }
-  function load(){ try{ const s=localStorage.getItem('djerba_v4'); if(s){ const o=JSON.parse(s); cfg=o.cfg; exc=o.exc; } }catch(e){} if(!cfg||!exc){ loadDemo(); return true; } return false; }
+  function save(){ try{ localStorage.setItem('djerba_v5',JSON.stringify({cfg,exc})); }catch(e){} }
+  function load(){ try{ const s=localStorage.getItem('djerba_v5'); if(s){ const o=JSON.parse(s); cfg=o.cfg; exc=o.exc; } }catch(e){} if(!cfg||!exc){ loadDemo(); return true; } return false; }
 
   if(!load()){ renderRes(); renderExc(); }
 </script>
