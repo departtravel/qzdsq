@@ -164,7 +164,7 @@
   // helper dépense : n=libellé, base='pers'|'grp'|'veh', a=montant TTC, tva, cap, j=jour
   const D=(n,base,a,tva,cap,j)=>({n,base,amount:a,tva:tva==null?19:tva,cap:cap||1,jour:j||1});
 
-  function blankExc(){ return {name:"",date:"",pax:2,days:1,pv:0,comm:30,vIdx:0,dIdx:0,gMode:"aucun",gIdx:0,gJour:0,dep:[]}; }
+  function blankExc(){ return {name:"",date:"",pax:2,days:1,pv:0,comm:30,tMode:"flotte",vIdx:0,locPrix:0,locTva:19,dIdx:0,gMode:"aucun",gIdx:0,gJour:0,dep:[]}; }
 
   function defaults(){
     cfg={ taux:3.34,
@@ -218,8 +218,9 @@
     const revPerPaxTND=r.pv*(1-r.comm/100)*taux;
     const recuTND=revPerPaxTND*r.pax;
     // fixe : véhicule + chauffeur + guide
-    const veh=cfg.fleet[r.vIdx]||{lease:0,tva:0};
-    const vehTTC=(veh.lease/30)*r.days, vehVAT=recVAT(vehTTC,veh.tva), vehNet=vehTTC-vehVAT;
+    let vehTTC, vehVAT, vehNet;
+    if(r.tMode==='location'){ vehTTC=num(r.locPrix); vehVAT=recVAT(vehTTC,num(r.locTva)); vehNet=vehTTC-vehVAT; }
+    else { const veh=cfg.fleet[r.vIdx]||{lease:0,tva:0}; vehTTC=(veh.lease/30)*r.days; vehVAT=recVAT(vehTTC,veh.tva); vehNet=vehTTC-vehVAT; }
     const drv=cfg.drivers[r.dIdx]||{sal:0};
     const drvCost=(drv.sal/30)*r.days;
     let guideCost=0;
@@ -237,7 +238,8 @@
     const marge=recuTND>0?benef/recuTND*100:0;
     const contrib=revPerPaxTND-varPerPax;
     const seuil=contrib>0?Math.ceil(fixe/contrib):Infinity;
-    return {recuTND,coutNet,tvaRec,benef,marge,fixe,varPerPax,contrib,seuil,revPerPaxTND};
+    const netEUR=r.pv*(1-r.comm/100), commEUR=r.pv*r.comm/100;
+    return {recuTND,coutNet,tvaRec,benef,marge,fixe,varPerPax,contrib,seuil,revPerPaxTND,netEUR,commEUR,vehNet,drvCost,guideCost,coutPerPax:r.pax>0?coutNet/r.pax:0};
   }
 
   /* ---------- RESSOURCES ---------- */
@@ -255,6 +257,13 @@
     arr.forEach((r,i)=>{
       const el=document.createElement('div'); el.className='exc';
       const dateField = tab==='reel' ? `<span class="mini">📅 <input class="date" type="date" value="${esc(r.date)}" oninput="upd(${i},'date',this.value)"></span>` : '';
+      const picker = tab==='reel' ? `<div class="block" style="grid-column:1/-1;background:var(--sea-tint);border-bottom:1px solid var(--line)">
+          <h3>📥 Charger une excursion depuis le catalogue</h3>
+          <div class="fld" style="margin-bottom:0"><select onchange="loadFromCat(${i},this.value)">
+            <option value="">— choisir une excursion (remplit prix, commission, coûts…) —</option>
+            ${cat.map((c,k)=>`<option value="${k}">${esc(c.name)} · ${c.pv}€</option>`).join('')}
+          </select></div>
+        </div>` : '';
       el.innerHTML=`
       <div class="exc-head">
         <input class="name-in" value="${esc(r.name)}" placeholder="Nom de l'excursion" oninput="upd(${i},'name',this.value)">
@@ -264,15 +273,22 @@
         <button class="del" onclick="delExc(${i})">✕</button>
       </div>
       <div class="exc-body">
+        ${picker}
         <div class="block">
           <h3>💶 Recette (GYG)</h3>
           <div class="fld"><label>Prix de vente / pers (EUR)</label><input type="number" value="${r.pv||''}" oninput="upd(${i},'pv',this.value)"></div>
           <div class="fld"><label>Commission GYG %</label><input type="number" value="${r.comm}" oninput="upd(${i},'comm',this.value)"></div>
-          <div class="sub-cost" id="rec${i}"></div>
+          <div id="recD${i}" style="font-size:12.5px;line-height:1.8;border-top:1px dashed var(--line);padding-top:8px;margin-top:4px;font-variant-numeric:tabular-nums;"></div>
         </div>
         <div class="block">
           <h3>🚐 Véhicule &amp; chauffeur</h3>
-          <div class="fld"><label>Véhicule</label><select onchange="upd(${i},'vIdx',this.value)">${opts(cfg.fleet,r.vIdx)}</select></div>
+          <div style="display:flex;gap:6px;margin-bottom:9px">
+            <button style="flex:1;padding:7px 4px;font-size:13px" class="${r.tMode!=='location'?'primary':''}" onclick="upd(${i},'tMode','flotte')">Ma flotte</button>
+            <button style="flex:1;padding:7px 4px;font-size:13px" class="${r.tMode==='location'?'primary':''}" onclick="upd(${i},'tMode','location')">Location</button>
+          </div>
+          <div class="fld ${r.tMode==='location'?'hide':''}"><label>Véhicule</label><select onchange="upd(${i},'vIdx',this.value)">${opts(cfg.fleet,r.vIdx)}</select></div>
+          <div class="${r.tMode==='location'?'':'hide'}"><div class="fld"><label>Prix location réel (TND, TTC)</label><input type="number" value="${r.locPrix||''}" oninput="upd(${i},'locPrix',this.value)"></div>
+            <div class="fld"><label>TVA location %</label><input type="number" value="${r.locTva}" oninput="upd(${i},'locTva',this.value)"></div></div>
           <div class="fld"><label>Chauffeur</label><select onchange="upd(${i},'dIdx',this.value)">${opts(cfg.drivers,r.dIdx)}</select></div>
           <div class="sub-cost" id="veh${i}"></div>
         </div>
@@ -293,8 +309,10 @@
           <div id="dep${i}"></div>
         </div>
         <div class="block stat-block">
-          <div class="res-item"><div class="l">Recette</div><div class="v" id="oRec${i}">0</div></div>
-          <div class="res-item"><div class="l">Coûts nets</div><div class="v" id="oCost${i}">0</div></div>
+          <div class="res-item"><div class="l">Vente / pers</div><div class="v" id="oVpp${i}">0</div></div>
+          <div class="res-item"><div class="l">Coût / pers</div><div class="v" id="oCpp${i}">0</div></div>
+          <div class="res-item"><div class="l">Recette totale</div><div class="v" id="oRec${i}">0</div></div>
+          <div class="res-item"><div class="l">Coût total</div><div class="v" id="oCost${i}">0</div></div>
           <div class="res-item"><div class="l">Bénéfice</div><div class="v" id="oBen${i}">0</div></div>
           <div class="res-item"><div class="l">Marge</div><div class="v" id="oMarg${i}">0%</div></div>
           <div class="res-item"><div class="l">État</div><div id="oBadge${i}" style="margin-top:4px"></div></div>
@@ -328,8 +346,18 @@
 
   function refresh(i){
     const r=A()[i]; if(!r) return; const c=calc(r);
-    $('rec'+i).textContent=`→ ${fmt(c.revPerPaxTND)} TND/pers · total ${fmt(c.recuTND)}`;
-    $('veh'+i).textContent=`Fixe départ ${fmt(c.fixe)} TND`;
+    const rd=$('recD'+i);
+    if(rd) rd.innerHTML=`
+      Prix de vente : <b>${fmt(r.pv)} €</b> /pers<br>
+      − commission GYG ${fmt(r.comm)}% : <span style="color:var(--bad)">−${fmt(c.commEUR)} €</span><br>
+      = net reçu : <b>${fmt(c.netEUR)} €</b> /pers<br>
+      × taux ${fmt(cfg.taux)} → <b>${fmt(c.revPerPaxTND)} TND</b> /pers<br>
+      × ${fmt(r.pax)} pers = <b style="color:var(--sea)">${fmt(c.recuTND)} TND</b> reçus`;
+    const vd=$('veh'+i);
+    if(vd){ if(r.tMode==='location') vd.textContent=`Location ${fmt(num(r.locPrix))} TTC → ${fmt(c.vehNet)} net + chauffeur ${fmt(c.drvCost)}`;
+      else { const veh=cfg.fleet[r.vIdx]||{lease:0}; vd.textContent=`${fmt(veh.lease)}÷30×${fmt(r.days)}j = ${fmt(c.vehNet)} net + chauffeur ${fmt(c.drvCost)}`; } }
+    $('oVpp'+i).textContent=fmt(c.revPerPaxTND);
+    $('oCpp'+i).textContent=fmt(c.coutPerPax);
     $('oRec'+i).textContent=fmt(c.recuTND);
     $('oCost'+i).textContent=fmt(c.coutNet);
     const ben=$('oBen'+i); ben.textContent=fmt(c.benef); ben.className='v '+(c.benef<0?'neg':'pos');
@@ -350,11 +378,18 @@
   /* ---------- MUTATIONS ---------- */
   function upd(i,f,v){
     const r=A()[i];
-    if(['name','gMode','date'].includes(f)) r[f]=v;
+    if(['name','gMode','date','tMode'].includes(f)) r[f]=v;
     else if(['vIdx','dIdx','gIdx'].includes(f)) r[f]=parseInt(v)||0;
     else r[f]=num(v);
     save();
-    if(['gMode','days'].includes(f)) renderExc(); else refresh(i);
+    if(['gMode','days','tMode'].includes(f)) renderExc(); else refresh(i);
+  }
+  function loadFromCat(i,k){
+    if(k===''||k==null) return; const src=cat[parseInt(k)]; if(!src) return; const r=A()[i];
+    r.name=src.name; r.pv=src.pv; r.comm=src.comm; r.days=src.days;
+    r.tMode='flotte'; r.vIdx=src.vIdx; r.dIdx=src.dIdx; r.gMode=src.gMode; r.gIdx=src.gIdx; r.gJour=src.gJour;
+    r.dep=(src.dep||[]).map(d=>({...d}));   // copie modifiable
+    save(); renderExc();
   }
   function addDep(i){ A()[i].dep.push(D("","pers",0,19,1,1)); save(); renderDep(i); refresh(i); }
   function updDep(i,j,f,v){ const x=A()[i].dep[j]; if(f==='n'||f==='base') x[f]=v; else x[f]=num(v); save(); if(f==='base') renderDep(i); refresh(i); }
@@ -384,8 +419,8 @@
     save(); renderExc();
   }
 
-  function save(){ try{ localStorage.setItem('djerba_v7',JSON.stringify({cfg,cat,reel,tab})); }catch(e){} }
-  function load(){ try{ const s=localStorage.getItem('djerba_v7'); if(s){const o=JSON.parse(s);cfg=o.cfg;cat=o.cat;reel=o.reel;tab=o.tab||'cat';return true;} }catch(e){} return false; }
+  function save(){ try{ localStorage.setItem('djerba_v8',JSON.stringify({cfg,cat,reel,tab})); }catch(e){} }
+  function load(){ try{ const s=localStorage.getItem('djerba_v8'); if(s){const o=JSON.parse(s);cfg=o.cfg;cat=o.cat;reel=o.reel;tab=o.tab||'cat';return true;} }catch(e){} return false; }
 
   if(!load()) defaults();
   renderRes(); setTab(tab);
