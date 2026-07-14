@@ -127,22 +127,32 @@
   <section class="panel">
     <div class="panel-head" onclick="toggleRes()"><h2>⚙️ Mes ressources <span style="font-weight:400;color:var(--ink-soft);font-size:13px">(flotte, guides, chauffeurs — partagées)</span></h2><span class="chev" id="resChev">▶ afficher</span></div>
     <div class="panel-body" id="resBody" style="display:none">
-      <div class="fld" style="max-width:220px"><label>Taux de change EUR → TND (global)</label><input type="number" step="0.01" id="tauxG" oninput="setTaux(this.value)"></div>
+      <div style="display:flex;gap:14px;flex-wrap:wrap;margin-bottom:14px">
+        <div class="fld" style="max-width:180px"><label>Taux de change EUR → TND</label><input type="number" step="0.01" id="tauxG" oninput="setTaux(this.value)"></div>
+        <div class="fld" style="max-width:180px"><label>Charges sociales / CNSS %</label><input type="number" id="cnssG" oninput="setCnss(this.value)"></div>
+        <div class="fld" style="max-width:200px"><label>Nb excursions / mois (répartition frais généraux)</label><input type="number" id="excMoisG" oninput="setExcMois(this.value)"></div>
+      </div>
       <div class="res-grid">
         <div class="res-sec">
-          <h3>🚐 Flotte (leasing mensuel)</h3>
-          <p class="res-note">TVA leasing récupérable. Coût/excursion = leasing ÷ 30 × nb jours.</p>
+          <h3>🚐 Flotte (leasing + charges)</h3>
+          <p class="res-note">Leasing mensuel · taxe/assurance/visite/entretien annuels. TVA récupérable sur leasing + visite + entretien.</p>
           <div id="fleetList"></div>
           <button class="addmini" onclick="addFleet()">+ Véhicule</button>
         </div>
         <div class="res-sec">
           <h3>🎫 Guides &amp; 🧑‍✈️ Chauffeurs (salaire mensuel)</h3>
-          <p class="res-note">Coût/excursion = salaire ÷ 30 × nb jours (mode salarié).</p>
+          <p class="res-note">Coût/excursion = salaire ÷ 30 × nb jours × (1 + CNSS%). Mode salarié.</p>
           <div style="font-size:11px;font-weight:700;color:var(--ink-soft);margin-bottom:5px">GUIDES</div><div id="guideList"></div>
           <button class="addmini" onclick="addGuide()">+ Guide</button>
           <div style="font-size:11px;font-weight:700;color:var(--ink-soft);margin:12px 0 5px">CHAUFFEURS</div><div id="driverList"></div>
           <button class="addmini" onclick="addDriver()">+ Chauffeur</button>
         </div>
+      </div>
+      <div class="res-sec" style="margin-top:18px">
+        <h3>🏢 Frais généraux mensuels (loyer, électricité, internet, logiciels…)</h3>
+        <p class="res-note">Total ÷ nb excursions/mois = quote-part ajoutée à chaque excursion.</p>
+        <div id="fraisList"></div>
+        <button class="addmini" onclick="addFrais()">+ Frais général</button>
       </div>
     </div>
   </section>
@@ -180,10 +190,11 @@
   function blankExc(){ return {name:"",date:"",pax:2,days:1,pv:0,comm:30,tMode:"flotte",vIdx:0,locPrix:0,locTva:19,dIdx:0,gMode:"aucun",gIdx:0,gJour:0,dep:[]}; }
 
   function defaults(){
-    cfg={ taux:3.34,
-      fleet:[{n:"Autocar",lease:5028.104,taxe:0,assur:0,visite:0,tva:19},{n:"Ford Transit",lease:3938,taxe:0,assur:0,visite:0,tva:19},{n:"Toyota Coaster",lease:3660,taxe:0,assur:0,visite:0,tva:19},{n:"Suzuki Ertiga",lease:1250,taxe:0,assur:0,visite:0,tva:19},{n:"4x4",lease:3250,taxe:0,assur:0,visite:0,tva:19}],
+    cfg={ taux:3.34, cnss:23, excMois:60,
+      fleet:[{n:"Autocar",lease:5028.104,taxe:0,assur:0,visite:0,entretien:0,tva:19},{n:"Ford Transit",lease:3938,taxe:0,assur:0,visite:0,entretien:0,tva:19},{n:"Toyota Coaster",lease:3660,taxe:0,assur:0,visite:0,entretien:0,tva:19},{n:"Suzuki Ertiga",lease:1250,taxe:0,assur:0,visite:0,entretien:0,tva:19},{n:"4x4",lease:3250,taxe:0,assur:0,visite:0,entretien:0,tva:19}],
       guides:[{n:"Guide (salarié)",sal:2000}],
-      drivers:[{n:"Chauffeur (salarié)",sal:900}] };
+      drivers:[{n:"Chauffeur (salarié)",sal:900}],
+      fraisGen:[{n:"Loyer agence",montant:0},{n:"Électricité / eau",montant:0},{n:"Internet",montant:0},{n:"Logiciels (ERP, etc.)",montant:0}] };
     cat=buildCatalogue();
     reel=[ {...blankExc(),name:"Départ réel — exemple",date:"2026-07-15",pax:6,days:1,pv:110,comm:30,vIdx:2,dIdx:0,gMode:"extra",gJour:150,
       dep:[D("Restaurant midi /pers","pers",30,13),D("Eau /pers","pers",2,19),D("Péage groupe","grp",18,19),D("Quad","veh",60,19,2)]} ];
@@ -233,22 +244,27 @@
     // fixe : véhicule + chauffeur + guide
     let vehTTC, vehVAT, vehNet;
     if(r.tMode==='location'){ vehTTC=num(r.locPrix); vehVAT=recVAT(vehTTC,num(r.locTva)); vehNet=vehTTC-vehVAT; }
-    else { const veh=cfg.fleet[r.vIdx]||{lease:0,tva:0,taxe:0,assur:0,visite:0};
-      const moisAutres=(num(veh.taxe)+num(veh.assur)+num(veh.visite))/12;         // taxe+assur+visite annuels → mensuel
-      const moisTVA=num(veh.lease)+num(veh.visite)/12;                            // postes soumis à TVA (leasing + visite)
+    else { const veh=cfg.fleet[r.vIdx]||{lease:0,tva:0,taxe:0,assur:0,visite:0,entretien:0};
+      const moisAutres=(num(veh.taxe)+num(veh.assur)+num(veh.visite)+num(veh.entretien))/12;   // annuels → mensuel
+      const moisTVA=num(veh.lease)+(num(veh.visite)+num(veh.entretien))/12;       // postes soumis à TVA (leasing + visite + entretien)
       vehTTC=((num(veh.lease)+moisAutres)/30)*r.days;                             // coût total possession au prorata
-      vehVAT=recVAT((moisTVA/30)*r.days, veh.tva);                                // TVA récupérable (leasing + visite)
+      vehVAT=recVAT((moisTVA/30)*r.days, veh.tva);                                // TVA récupérable
       vehNet=vehTTC-vehVAT; }
+    const cnssMult=1+num(cfg.cnss)/100;                                           // majoration charges sociales
     const drv=cfg.drivers[r.dIdx]||{sal:0};
-    const drvCost=(drv.sal/30)*r.days;
+    const drvCost=(drv.sal/30)*r.days*cnssMult;
     let guideCost=0;
-    if(r.gMode==="salarie"){const g=cfg.guides[r.gIdx]||{sal:0};guideCost=(g.sal/30)*r.days;}
+    if(r.gMode==="salarie"){const g=cfg.guides[r.gIdx]||{sal:0};guideCost=(g.sal/30)*r.days*cnssMult;}
     else if(r.gMode==="extra"){guideCost=r.gJour*r.days;}
-    let fixe=vehNet+drvCost+guideCost, varPerPax=0, tvaRec=vehVAT;
+    // Quote-part frais généraux (loyer, élec, internet, logiciels…) par excursion
+    const fraisMois=(cfg.fraisGen||[]).reduce((s,f)=>s+num(f.montant),0);
+    const overhead=fraisMois/Math.max(1,num(cfg.excMois)||1);
+    let fixe=vehNet+drvCost+guideCost+overhead, varPerPax=0, tvaRec=vehVAT;
     const fixeLines=[], varLines=[];
-    fixeLines.push([r.tMode==='location'?'Location véhicule':`Véhicule (${(cfg.fleet[r.vIdx]||{n:'—'}).n})`, vehNet]);
-    if(drvCost>0) fixeLines.push([`Chauffeur (${(cfg.drivers[r.dIdx]||{n:'—'}).n})`, drvCost]);
-    if(guideCost>0) fixeLines.push([r.gMode==='salarie'?`Guide salarié (${(cfg.guides[r.gIdx]||{n:'—'}).n})`:`Guide extra (${fmt(r.gJour)}/j×${fmt(r.days)}j)`, guideCost]);
+    fixeLines.push([r.tMode==='location'?'Location véhicule':`Véhicule (${(cfg.fleet[r.vIdx]||{n:'—'}).n}, leasing+charges)`, vehNet]);
+    if(drvCost>0) fixeLines.push([`Chauffeur (${(cfg.drivers[r.dIdx]||{n:'—'}).n}, +${fmt(cfg.cnss)}% CNSS)`, drvCost]);
+    if(guideCost>0) fixeLines.push([r.gMode==='salarie'?`Guide salarié (${(cfg.guides[r.gIdx]||{n:'—'}).n}, +${fmt(cfg.cnss)}% CNSS)`:`Guide extra (${fmt(r.gJour)}/j×${fmt(r.days)}j)`, guideCost]);
+    if(overhead>0) fixeLines.push([`Frais généraux (quote-part 1/${fmt(cfg.excMois)} mois)`, overhead]);
     (r.dep||[]).forEach(x=>{
       const amt=num(x.amount),tva=num(x.tva),nm=x.n||'Dépense';
       if(x.base==='pers'){const v=recVAT(amt,tva);varPerPax+=amt-v;tvaRec+=v*r.pax; varLines.push([nm, amt-v]);}
@@ -267,17 +283,21 @@
   /* ---------- RESSOURCES ---------- */
   function renderRes(){
     $('tauxG').value=cfg.taux;
+    if($('cnssG')) $('cnssG').value=cfg.cnss;
+    if($('excMoisG')) $('excMoisG').value=cfg.excMois;
+    if($('fraisList')) $('fraisList').innerHTML=(cfg.fraisGen||[]).map((f,i)=>`<div class="res-line two"><input value="${esc(f.n)}" oninput="setFrais(${i},'n',this.value)"><input type="number" value="${f.montant||''}" placeholder="TND/mois" oninput="setFrais(${i},'montant',this.value)"><button class="x" onclick="delFrais(${i})">✕</button></div>`).join('');
     $('fleetList').innerHTML=cfg.fleet.map((v,i)=>`
       <div style="border:1px solid var(--line);border-radius:9px;padding:9px;margin-bottom:8px;background:var(--field)">
         <div style="display:flex;gap:6px;align-items:center;margin-bottom:6px">
           <input style="flex:1;font:inherit;font-size:13.5px;font-weight:600;padding:6px 8px;border:1px solid var(--line);border-radius:7px;background:var(--field);color:var(--ink)" value="${esc(v.n)}" oninput="setF(${i},'n',this.value)">
           <button class="x" onclick="delF(${i})">✕</button>
         </div>
-        <div style="display:grid;grid-template-columns:repeat(5,1fr);gap:5px">
+        <div style="display:grid;grid-template-columns:repeat(6,1fr);gap:5px">
           <label style="font-size:10px;color:var(--ink-soft);font-weight:700">Leasing/mois<input type="number" value="${v.lease||''}" oninput="setF(${i},'lease',this.value)" style="width:100%;text-align:right;font:inherit;font-size:12.5px;padding:5px;border:1px solid var(--line);border-radius:6px;background:var(--field);color:var(--ink)"></label>
           <label style="font-size:10px;color:var(--ink-soft);font-weight:700">Taxe/an<input type="number" value="${v.taxe||''}" oninput="setF(${i},'taxe',this.value)" style="width:100%;text-align:right;font:inherit;font-size:12.5px;padding:5px;border:1px solid var(--line);border-radius:6px;background:var(--field);color:var(--ink)"></label>
           <label style="font-size:10px;color:var(--ink-soft);font-weight:700">Assurance/an<input type="number" value="${v.assur||''}" oninput="setF(${i},'assur',this.value)" style="width:100%;text-align:right;font:inherit;font-size:12.5px;padding:5px;border:1px solid var(--line);border-radius:6px;background:var(--field);color:var(--ink)"></label>
           <label style="font-size:10px;color:var(--ink-soft);font-weight:700">Visite tech./an<input type="number" value="${v.visite||''}" oninput="setF(${i},'visite',this.value)" style="width:100%;text-align:right;font:inherit;font-size:12.5px;padding:5px;border:1px solid var(--line);border-radius:6px;background:var(--field);color:var(--ink)"></label>
+          <label style="font-size:10px;color:var(--ink-soft);font-weight:700">Entretien/an<input type="number" value="${v.entretien||''}" oninput="setF(${i},'entretien',this.value)" style="width:100%;text-align:right;font:inherit;font-size:12.5px;padding:5px;border:1px solid var(--line);border-radius:6px;background:var(--field);color:var(--ink)"></label>
           <label style="font-size:10px;color:var(--ink-soft);font-weight:700">TVA %<input type="number" value="${v.tva}" oninput="setF(${i},'tva',this.value)" style="width:100%;text-align:right;font:inherit;font-size:12.5px;padding:5px;border:1px solid var(--line);border-radius:6px;background:var(--field);color:var(--ink)"></label>
         </div>
       </div>`).join('')+`<div class="res-note">Coût/excursion = (leasing + (taxe+assurance+visite)/12) ÷ 30 × nb jours</div>`;
@@ -466,10 +486,15 @@
   function delDep(i,j){ A()[i].dep.splice(j,1); save(); renderDep(i); refresh(i); }
 
   function setTaux(v){ cfg.taux=num(v); save(); renderExc(); }
+  function setCnss(v){ cfg.cnss=num(v); save(); refreshAll(); }
+  function setExcMois(v){ cfg.excMois=num(v); save(); refreshAll(); }
+  function setFrais(i,f,v){ cfg.fraisGen[i][f]=f==='n'?v:num(v); save(); refreshAll(); }
+  function addFrais(){ cfg.fraisGen.push({n:"Nouveau frais",montant:0}); save(); renderRes(); refreshAll(); }
+  function delFrais(i){ cfg.fraisGen.splice(i,1); save(); renderRes(); refreshAll(); }
   function setF(i,f,v){ cfg.fleet[i][f]=f==='n'?v:num(v); save(); refreshAll(); }
   function setG(i,f,v){ cfg.guides[i][f]=f==='n'?v:num(v); save(); refreshAll(); }
   function setD(i,f,v){ cfg.drivers[i][f]=f==='n'?v:num(v); save(); refreshAll(); }
-  function addFleet(){ cfg.fleet.push({n:"Nouveau véhicule",lease:0,tva:19}); save(); renderRes(); renderExc(); }
+  function addFleet(){ cfg.fleet.push({n:"Nouveau véhicule",lease:0,taxe:0,assur:0,visite:0,entretien:0,tva:19}); save(); renderRes(); renderExc(); }
   function addGuide(){ cfg.guides.push({n:"Nouveau guide",sal:0}); save(); renderRes(); renderExc(); }
   function addDriver(){ cfg.drivers.push({n:"Nouveau chauffeur",sal:0}); save(); renderRes(); renderExc(); }
   function delF(i){ if(cfg.fleet.length>1){cfg.fleet.splice(i,1);[cat,reel].forEach(a=>a.forEach(r=>{if(r.vIdx>=cfg.fleet.length)r.vIdx=0;}));save();renderRes();renderExc();} }
@@ -498,15 +523,19 @@
     // Véhicule
     if(r.tMode==='location'){ const ttc=num(r.locPrix),tva=num(r.locTva)||0,v=recVAT(ttc,tva);
       rows.push(['Location véhicule',1,ttc,tva,v,ttc-v]); }
-    else { const veh=cfg.fleet[r.vIdx]||{n:'—',lease:0,tva:DEF_TVA,taxe:0,assur:0,visite:0};
-      const moisAutres=(num(veh.taxe)+num(veh.assur)+num(veh.visite))/12, tva=num(veh.tva)||0;
-      const ttc=((num(veh.lease)+moisAutres)/30)*r.days, v=recVAT(((num(veh.lease)+num(veh.visite)/12)/30)*r.days,tva);
-      rows.push([`Véhicule : ${veh.n} (leasing + taxe/assur/visite au prorata, ÷30×${fmt(r.days)}j)`,1,ttc,tva,v,ttc-v]); }
+    else { const veh=cfg.fleet[r.vIdx]||{n:'—',lease:0,tva:DEF_TVA,taxe:0,assur:0,visite:0,entretien:0};
+      const moisAutres=(num(veh.taxe)+num(veh.assur)+num(veh.visite)+num(veh.entretien))/12, tva=num(veh.tva)||0;
+      const ttc=((num(veh.lease)+moisAutres)/30)*r.days, v=recVAT(((num(veh.lease)+(num(veh.visite)+num(veh.entretien))/12)/30)*r.days,tva);
+      rows.push([`Véhicule : ${veh.n} (leasing + taxe/assur/visite/entretien au prorata, ÷30×${fmt(r.days)}j)`,1,ttc,tva,v,ttc-v]); }
+    const cnssM=1+num(cfg.cnss)/100;
     // Chauffeur
-    const drv=cfg.drivers[r.dIdx]||{n:'—',sal:0}; if(r.dIdx!=null){ const ttc=(drv.sal/30)*r.days; rows.push([`Chauffeur : ${drv.n}`,1,ttc,0,0,ttc]); }
+    const drv=cfg.drivers[r.dIdx]||{n:'—',sal:0}; if(r.dIdx!=null){ const ttc=(drv.sal/30)*r.days*cnssM; rows.push([`Chauffeur : ${drv.n} (+${fmt(cfg.cnss)}% CNSS)`,1,ttc,0,0,ttc]); }
     // Guide
-    if(r.gMode==='salarie'){ const g=cfg.guides[r.gIdx]||{n:'—',sal:0}; const ttc=(g.sal/30)*r.days; rows.push([`Guide (salarié) : ${g.n}`,1,ttc,0,0,ttc]); }
+    if(r.gMode==='salarie'){ const g=cfg.guides[r.gIdx]||{n:'—',sal:0}; const ttc=(g.sal/30)*r.days*cnssM; rows.push([`Guide (salarié) : ${g.n} (+${fmt(cfg.cnss)}% CNSS)`,1,ttc,0,0,ttc]); }
     else if(r.gMode==='extra'){ const ttc=r.gJour*r.days; rows.push([`Guide extra (${fmt(r.gJour)}/j × ${fmt(r.days)}j)`,1,ttc,0,0,ttc]); }
+    // Frais généraux (quote-part)
+    const fraisMois=(cfg.fraisGen||[]).reduce((s,f)=>s+num(f.montant),0), oh=fraisMois/Math.max(1,num(cfg.excMois)||1);
+    if(oh>0) rows.push([`Frais généraux (quote-part 1/${fmt(cfg.excMois)} mois)`,1,oh,0,0,oh]);
     // Dépenses
     (r.dep||[]).forEach(x=>{ const amt=num(x.amount); let tva=num(x.tva); if(!tva&&tva!==0) tva=DEF_TVA; let qte,ttc,base;
       if(x.base==='pers'){ qte=r.pax; ttc=amt*r.pax; base=`${fmt(amt)} × ${r.pax} pers`; }
@@ -592,7 +621,13 @@
   }
 
   function save(){ try{ localStorage.setItem('djerba_v8',JSON.stringify({cfg,cat,reel,tab})); }catch(e){} }
-  function load(){ try{ const s=localStorage.getItem('djerba_v8'); if(s){const o=JSON.parse(s);cfg=o.cfg;cat=o.cat;reel=o.reel;tab=o.tab||'cat';return true;} }catch(e){} return false; }
+  function load(){ try{ const s=localStorage.getItem('djerba_v8'); if(s){const o=JSON.parse(s);cfg=o.cfg;cat=o.cat;reel=o.reel;tab=o.tab||'cat';migrate();return true;} }catch(e){} return false; }
+  function migrate(){ // compat anciennes sauvegardes
+    if(cfg.cnss==null) cfg.cnss=23;
+    if(cfg.excMois==null) cfg.excMois=60;
+    if(!Array.isArray(cfg.fraisGen)) cfg.fraisGen=[{n:"Loyer agence",montant:0},{n:"Électricité / eau",montant:0},{n:"Internet",montant:0},{n:"Logiciels (ERP, etc.)",montant:0}];
+    (cfg.fleet||[]).forEach(v=>{['taxe','assur','visite','entretien'].forEach(k=>{if(v[k]==null)v[k]=0;});});
+  }
 
   if(!load()) defaults();
   renderRes(); setTab(tab);
