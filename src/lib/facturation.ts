@@ -102,6 +102,66 @@ export function calculerFacture(lignes: FactureLigne[], fisc: FactureFiscalite):
   return { totaux, baseTva, montantTva, timbre, totalTtc }
 }
 
+// ----- Chiffre d'affaires par plateforme --------------------
+export interface LignePlateforme {
+  plateforme: string
+  pax: number
+  prix_vente: number
+  commission_montant: number
+}
+
+export interface StatPlateforme {
+  plateforme: string
+  reservations: number
+  pax: number
+  caBrut: number       // Σ prix de vente encaissés via la plateforme
+  commissions: number  // Σ commissions retenues par la plateforme
+  caNet: number        // ce qui reste (caBrut − commissions)
+  commissionPct: number // taux moyen de commission (%)
+}
+
+/**
+ * Agrège les réservations par plateforme :
+ *   « combien j'ai fait avec GetYourGuide vs Viator, combien ils ont pris,
+ *     et combien il me reste ». Trié par CA brut décroissant.
+ */
+export function statsParPlateforme(lignes: LignePlateforme[]): StatPlateforme[] {
+  const parNom = new Map<string, StatPlateforme>()
+  for (const l of lignes) {
+    const nom = l.plateforme || '—'
+    const s = parNom.get(nom) ?? {
+      plateforme: nom, reservations: 0, pax: 0, caBrut: 0, commissions: 0, caNet: 0, commissionPct: 0,
+    }
+    s.reservations += 1
+    s.pax += l.pax
+    s.caBrut = round2(s.caBrut + l.prix_vente)
+    s.commissions = round2(s.commissions + l.commission_montant)
+    s.caNet = round2(s.caBrut - s.commissions)
+    parNom.set(nom, s)
+  }
+  const out = [...parNom.values()]
+  for (const s of out) s.commissionPct = s.caBrut > 0 ? round2((s.commissions / s.caBrut) * 100) : 0
+  return out.sort((a, b) => b.caBrut - a.caBrut)
+}
+
+/** Totaux tous-plateformes confondues (ligne de pied de tableau). */
+export function totalPlateformes(stats: StatPlateforme[]): StatPlateforme {
+  const t = stats.reduce<StatPlateforme>(
+    (acc, s) => ({
+      plateforme: 'TOTAL',
+      reservations: acc.reservations + s.reservations,
+      pax: acc.pax + s.pax,
+      caBrut: round2(acc.caBrut + s.caBrut),
+      commissions: round2(acc.commissions + s.commissions),
+      caNet: round2(acc.caNet + s.caNet),
+      commissionPct: 0,
+    }),
+    { plateforme: 'TOTAL', reservations: 0, pax: 0, caBrut: 0, commissions: 0, caNet: 0, commissionPct: 0 },
+  )
+  t.commissionPct = t.caBrut > 0 ? round2((t.commissions / t.caBrut) * 100) : 0
+  return t
+}
+
 /** Arrondi comptable à 2 décimales (évite les 0.1 + 0.2 = 0.300000004). */
 export function round2(n: number): number {
   return Math.round((n + Number.EPSILON) * 100) / 100

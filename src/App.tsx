@@ -20,6 +20,7 @@ import { Utilisateurs } from './components/erp/Utilisateurs'
 import { Parametres } from './components/erp/Parametres'
 import { RelevePartenaire } from './components/erp/RelevePartenaire'
 import { Facturation } from './components/erp/Facturation'
+import { CAPlateformes } from './components/erp/CAPlateformes'
 
 type View = { name: 'dashboard' } | { name: 'detail'; id: string } | { name: 'new' }
 type Section =
@@ -38,6 +39,7 @@ type Section =
   | 'parametres'
   | 'relevepartenaire'
   | 'facturation'
+  | 'caplateformes'
 
 const ERP_SECTIONS: { key: Section; emoji: string; label: string }[] = [
   { key: 'excursions', emoji: '🧭', label: 'Excursions' },
@@ -46,6 +48,7 @@ const ERP_SECTIONS: { key: Section; emoji: string; label: string }[] = [
   { key: 'ordremission', emoji: '📋', label: 'Ordre de mission' },
   { key: 'fichereservation', emoji: '🗒️', label: 'Réservations à effectuer' },
   { key: 'facturation', emoji: '🧾', label: 'Facturation' },
+  { key: 'caplateformes', emoji: '💶', label: 'CA plateformes' },
   { key: 'comptabilite', emoji: '💰', label: 'Comptabilité' },
   { key: 'relevepartenaire', emoji: '📑', label: 'Relevé prestataire' },
   { key: 'dashboard', emoji: '📊', label: 'Direction' },
@@ -71,6 +74,7 @@ const ERP_COMPONENTS: Record<Exclude<Section, 'flotte'>, JSX.Element> = {
   parametres: <Parametres />,
   relevepartenaire: <RelevePartenaire />,
   facturation: <Facturation />,
+  caplateformes: <CAPlateformes />,
 }
 
 export default function App() {

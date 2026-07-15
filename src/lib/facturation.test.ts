@@ -6,6 +6,8 @@ import {
   prixNet,
   prochainNumero,
   round2,
+  statsParPlateforme,
+  totalPlateformes,
   totauxFacture,
   type FactureLigne,
 } from './facturation'
@@ -94,6 +96,28 @@ describe('calculerFacture (TVA + timbre)', () => {
     const r = calculerFacture(lignes, { tvaPct: 0, tvaBase: 'NET', timbre: 2 })
     expect(r.montantTva).toBe(0)
     expect(r.totalTtc).toBe(232)
+  })
+})
+
+describe('statsParPlateforme', () => {
+  const lignes = [
+    { plateforme: 'GetYourGuide', pax: 2, prix_vente: 100, commission_montant: 30 },
+    { plateforme: 'GetYourGuide', pax: 1, prix_vente: 100, commission_montant: 30 },
+    { plateforme: 'Viator', pax: 3, prix_vente: 300, commission_montant: 60 },
+  ]
+  it('agrège CA, commissions et net par plateforme', () => {
+    const stats = statsParPlateforme(lignes)
+    // Trié par CA brut décroissant : Viator (300) avant GetYourGuide (200).
+    expect(stats[0]).toMatchObject({ plateforme: 'Viator', reservations: 1, pax: 3, caBrut: 300, commissions: 60, caNet: 240, commissionPct: 20 })
+    expect(stats[1]).toMatchObject({ plateforme: 'GetYourGuide', reservations: 2, pax: 3, caBrut: 200, commissions: 60, caNet: 140, commissionPct: 30 })
+  })
+  it('regroupe les réservations sans plateforme sous « — »', () => {
+    const stats = statsParPlateforme([{ plateforme: '', pax: 1, prix_vente: 50, commission_montant: 0 }])
+    expect(stats[0].plateforme).toBe('—')
+  })
+  it('calcule les totaux tous-plateformes', () => {
+    const t = totalPlateformes(statsParPlateforme(lignes))
+    expect(t).toMatchObject({ reservations: 3, pax: 6, caBrut: 500, commissions: 120, caNet: 380, commissionPct: 24 })
   })
 })
 

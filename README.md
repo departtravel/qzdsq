@@ -77,6 +77,10 @@ L'application couvre l'ensemble du cahier des charges via des onglets :
 - **🧭 Excursions** — catalogue OTA + simulateur de rentabilité.
 - **📅 Réservations** — création + workflow Hiba→Farah→Hersi→Karima→Amine/Aymen.
 - **📆 Planning** — vue jour/semaine des sorties + affectation guide/véhicule/chauffeur.
+- **💶 CA plateformes** — tableau de bord commercial par plateforme OTA : pour
+  chaque canal (GetYourGuide, Viator…), le **CA brut** encaissé, les **commissions**
+  retenues, le **taux moyen** et le **CA net** restant. Filtrable par période,
+  imprimable, avec cartes de synthèse (brut / commissions / net).
 - **💰 Comptabilité** — fournisseurs, transactions, avances, alerte factures manquantes.
 - **📊 Direction** — dashboard KPI (CA, commissions, marge, top/déficitaires, à payer).
 - **📥 Import OTA** — import CSV de réservations avec mapping et prévisualisation.
