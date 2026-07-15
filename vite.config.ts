@@ -6,4 +6,6 @@ export default defineConfig({
   // qu'ouvert en local (file://) par l'application desktop Electron.
   base: './',
   plugins: [react()],
+  // PGlite (Postgres WASM du mode hors-ligne) ne doit pas être pré-bundlé.
+  optimizeDeps: { exclude: ['@electric-sql/pglite'] },
 })

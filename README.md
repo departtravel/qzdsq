@@ -145,6 +145,18 @@ Voir **[`GUIDE-APP-LOCALE.md`](GUIDE-APP-LOCALE.md)** : `npm run dist:win`
 (ou `:mac` / `:linux`) fabrique un installeur dans `release/`. Test rapide sans
 installeur : `npm run electron`.
 
+Deux modes, choisis via `.env` **avant** de fabriquer l'installeur :
+
+- **100 % hors-ligne** (`VITE_LOCAL_MODE=true`) — base Postgres **embarquée**
+  dans l'app (PGlite), aucune connexion Internet, données sur le poste. Mono-poste
+  (pas de partage entre postes). Aucun mot de passe : tu es seul admin.
+- **En ligne / partagé** (identifiants Supabase) — données partagées avec
+  l'équipe et workflow de rôles ; nécessite Internet.
+
+Le même code gère les deux ; seul `.env` change. L'adaptateur local
+(`src/lib/localdb/`) reproduit l'API de supabase-js au-dessus de PGlite, si bien
+que **tous les écrans fonctionnent à l'identique** dans les deux modes.
+
 ## Installation
 
 1. **Dépendances** — `npm install`
