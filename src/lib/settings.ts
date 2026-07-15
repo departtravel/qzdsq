@@ -5,6 +5,7 @@ import { supabase } from './supabase'
 export interface AppSettings {
   company_name: string
   company_mf: string // Matricule Fiscal (imprimé sur les factures)
+  company_website: string // site web (pied de page des factures)
   company_info: string
   logo: string // data URL de l'image, ou ''
 }
@@ -12,6 +13,7 @@ export interface AppSettings {
 const DEFAULTS: AppSettings = {
   company_name: 'Depart Travel Services',
   company_mf: '1612019Y',
+  company_website: 'www.depart-travel-services.com',
   company_info: '',
   logo: '',
 }

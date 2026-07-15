@@ -20,9 +20,10 @@ alter table public.bookings
   add column if not exists commission_montant numeric not null default 0
     check (commission_montant >= 0);                      -- commission plateforme, EUR
 
--- ----- 2) Paramètre supplémentaire : Matricule Fiscal -------
+-- ----- 2) Paramètres supplémentaires : MF & site web --------
 insert into public.app_settings (key, value) values
-  ('company_mf', '1612019Y')
+  ('company_mf', '1612019Y'),
+  ('company_website', 'www.depart-travel-services.com')
 on conflict (key) do nothing;
 
 -- ----- 3) Factures émises (en-tête + snapshot pour l'historique)
@@ -40,9 +41,21 @@ create table if not exists public.invoices (
   total_vente     numeric not null default 0,
   total_commission numeric not null default 0,
   total_net       numeric not null default 0,
+  -- Fiscalité (Tunisie) : TVA (0 / 7 / 19 %…), base et droit de timbre.
+  tva_pct         numeric not null default 0 check (tva_pct >= 0),
+  tva_base        text not null default 'NET',  -- NET | VENTE
+  montant_tva     numeric not null default 0,
+  timbre_fiscal   numeric not null default 0 check (timbre_fiscal >= 0),
+  total_ttc       numeric not null default 0,
   devise          text not null default 'EUR',
   created_at      timestamptz not null default now()
 );
+-- Colonnes ajoutées après coup (si la table existait déjà) — idempotent.
+alter table public.invoices add column if not exists tva_pct numeric not null default 0;
+alter table public.invoices add column if not exists tva_base text not null default 'NET';
+alter table public.invoices add column if not exists montant_tva numeric not null default 0;
+alter table public.invoices add column if not exists timbre_fiscal numeric not null default 0;
+alter table public.invoices add column if not exists total_ttc numeric not null default 0;
 create index if not exists invoices_date_idx on public.invoices (date_emission);
 create index if not exists invoices_excursion_idx on public.invoices (excursion_id);
 

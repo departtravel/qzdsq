@@ -69,6 +69,39 @@ export function prochainNumero(annee: number, numerosExistants: string[]): strin
   return `${prefixe}${String(maxRang + 1).padStart(4, '0')}`
 }
 
+// ----- Fiscalité (TVA + droit de timbre) --------------------
+export type TvaBase = 'NET' | 'VENTE'
+
+export interface FactureFiscalite {
+  tvaPct: number      // 0, 7, 19…
+  tvaBase: TvaBase    // base sur laquelle s'applique la TVA
+  timbre: number      // droit de timbre fiscal (montant fixe)
+}
+
+export interface FactureResultat {
+  totaux: FactureTotaux
+  baseTva: number     // montant sur lequel la TVA est calculée
+  montantTva: number
+  timbre: number
+  totalTtc: number    // base + TVA + timbre
+}
+
+/** Taux de TVA proposés par défaut (Tunisie). */
+export const TAUX_TVA = [0, 7, 19] as const
+
+/**
+ * Calcul complet d'une facture : totaux + TVA + timbre + TTC.
+ * La base de TVA est le net (vente − commission) ou le prix de vente.
+ */
+export function calculerFacture(lignes: FactureLigne[], fisc: FactureFiscalite): FactureResultat {
+  const totaux = totauxFacture(lignes)
+  const baseTva = fisc.tvaBase === 'VENTE' ? totaux.vente : totaux.net
+  const montantTva = round2((baseTva * fisc.tvaPct) / 100)
+  const timbre = round2(fisc.timbre)
+  const totalTtc = round2(baseTva + montantTva + timbre)
+  return { totaux, baseTva, montantTva, timbre, totalTtc }
+}
+
 /** Arrondi comptable à 2 décimales (évite les 0.1 + 0.2 = 0.300000004). */
 export function round2(n: number): number {
   return Math.round((n + Number.EPSILON) * 100) / 100

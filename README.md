@@ -87,8 +87,11 @@ L'application couvre l'ensemble du cahier des charges via des onglets :
   réservations de la sortie, même issues de plateformes différentes (tarifs et
   commissions propres à chaque réservation). Colonnes : date · N° réservation ·
   client · plateforme · nb personnes · prix de vente · commission plateforme ·
-  prix net (vente − commission). En-tête avec raison sociale, **Matricule Fiscal**
-  et logo. Numérotation séquentielle `FAC-AAAA-NNNN` et historique des factures émises.
+  prix net (vente − commission). **TVA paramétrable (0 / 7 / 19 %)** sur le net ou
+  le prix de vente, **droit de timbre** et **devise** (EUR / TND / USD) au choix,
+  avec un total **Net à payer TTC**. En-tête avec raison sociale, **Matricule
+  Fiscal** et logo ; pied de page avec MF et **site web**. Numérotation
+  séquentielle `FAC-AAAA-NNNN` et historique des factures émises.
 - **🗒️ Réservations à effectuer** — fiche logistique par excursion + date : transport,
   guide, repas par jour (restaurant + effectifs + régimes), hébergement, extras — tout
   ce qui doit être réservé auprès des partenaires.
@@ -130,6 +133,13 @@ Dans le **SQL Editor** de Supabase, exécute dans l'ordre :
 `supabase/missions.sql` → `supabase/settings.sql` → `supabase/seed.sql` →
 `supabase/seed_dts.sql` → `supabase/compta_partenaires.sql` →
 `supabase/facturation.sql`.
+
+## Application desktop (à télécharger / installer)
+
+Besoin d'une app installable (Windows / macOS / Linux) plutôt qu'un site web ?
+Voir **[`GUIDE-APP-LOCALE.md`](GUIDE-APP-LOCALE.md)** : `npm run dist:win`
+(ou `:mac` / `:linux`) fabrique un installeur dans `release/`. Test rapide sans
+installeur : `npm run electron`.
 
 ## Installation
 

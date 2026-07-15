@@ -1,5 +1,6 @@
 import { describe, expect, it } from 'vitest'
 import {
+  calculerFacture,
   commissionDepuisPct,
   pctCommission,
   prixNet,
@@ -68,6 +69,31 @@ describe('prochainNumero', () => {
   })
   it('ignore les autres années pour le rang', () => {
     expect(prochainNumero(2026, ['FAC-2025-0042'])).toBe('FAC-2026-0001')
+  })
+})
+
+describe('calculerFacture (TVA + timbre)', () => {
+  const lignes = [
+    ligne({ prix_vente: 100, commission_montant: 30, prix_net: 70, pax: 2 }),
+    ligne({ prix_vente: 200, commission_montant: 40, prix_net: 160, pax: 3 }),
+  ]
+  it('applique 19% de TVA sur le net + timbre', () => {
+    const r = calculerFacture(lignes, { tvaPct: 19, tvaBase: 'NET', timbre: 1 })
+    expect(r.baseTva).toBe(230)
+    expect(r.montantTva).toBe(43.7) // 230 * 19%
+    expect(r.timbre).toBe(1)
+    expect(r.totalTtc).toBe(274.7) // 230 + 43.7 + 1
+  })
+  it('applique 7% sur le prix de vente si base = VENTE', () => {
+    const r = calculerFacture(lignes, { tvaPct: 7, tvaBase: 'VENTE', timbre: 0 })
+    expect(r.baseTva).toBe(300)
+    expect(r.montantTva).toBe(21) // 300 * 7%
+    expect(r.totalTtc).toBe(321)
+  })
+  it('TVA 0% => TTC = base + timbre', () => {
+    const r = calculerFacture(lignes, { tvaPct: 0, tvaBase: 'NET', timbre: 2 })
+    expect(r.montantTva).toBe(0)
+    expect(r.totalTtc).toBe(232)
   })
 })
 

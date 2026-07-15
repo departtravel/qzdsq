@@ -3,12 +3,16 @@ import { supabase } from '../../lib/supabase'
 import { useSettings } from '../../lib/settings'
 import { peutEcrire, useErpRole } from '../../lib/roles'
 import {
+  calculerFacture,
   pctCommission,
   prixNet,
   prochainNumero,
-  totauxFacture,
+  TAUX_TVA,
   type FactureLigne,
+  type TvaBase,
 } from '../../lib/facturation'
+
+const DEVISES = ['EUR', 'TND', 'USD'] as const
 
 // ============================================================
 //  FACTURATION — une facture PAR EXCURSION (à une date donnée).
@@ -45,6 +49,11 @@ interface Invoice {
   total_vente: number
   total_commission: number
   total_net: number
+  tva_pct: number
+  tva_base: TvaBase
+  montant_tva: number
+  timbre_fiscal: number
+  total_ttc: number
   devise: string
 }
 
@@ -62,6 +71,11 @@ export function Facturation() {
 
   const [excId, setExcId] = useState('')
   const [date, setDate] = useState('')
+  // Fiscalité & devise (aperçu live ; figées dans la facture émise).
+  const [deviseSel, setDeviseSel] = useState<string>('')
+  const [tvaPct, setTvaPct] = useState(0)
+  const [tvaBase, setTvaBase] = useState<TvaBase>('NET')
+  const [timbre, setTimbre] = useState(0)
   const [loading, setLoading] = useState(true)
   const [busy, setBusy] = useState(false)
   const [error, setError] = useState<string | null>(null)
@@ -114,7 +128,8 @@ export function Facturation() {
   useEffect(() => { setEmise(null); loadBookings() }, [loadBookings])
 
   const exc = excursions.find((e) => e.id === excId) ?? null
-  const devise = exc?.devise ?? 'EUR'
+  // Devise : choix explicite, sinon celle de l'excursion, sinon EUR.
+  const devise = deviseSel || exc?.devise || 'EUR'
 
   // ----- Édition inline d'une réservation --------------------
   async function patchBooking(id: string, patch: Partial<Booking>) {
@@ -141,8 +156,13 @@ export function Facturation() {
 
   // Facture montrée : historique sélectionné OU aperçu live.
   const lignes = emise ? emise.lignes : lignesLive
-  const totaux = useMemo(() => totauxFacture(lignes), [lignes])
   const devFacture = emise ? emise.devise : devise
+  // Fiscalité affichée (figée si facture émise).
+  const fisc = emise
+    ? { tvaPct: emise.tva_pct, tvaBase: emise.tva_base, timbre: emise.timbre_fiscal }
+    : { tvaPct, tvaBase, timbre }
+  const calc = useMemo(() => calculerFacture(lignes, fisc), [lignes, fisc.tvaPct, fisc.tvaBase, fisc.timbre])
+  const totaux = calc.totaux
 
   // ----- Génération & enregistrement de la facture -----------
   async function genererFacture() {
@@ -151,7 +171,7 @@ export function Facturation() {
     // Numéro séquentiel basé sur les factures déjà émises.
     const annee = new Date().getFullYear()
     const numero = prochainNumero(annee, invoices.map((i) => i.numero))
-    const t = totauxFacture(lignesLive)
+    const c = calculerFacture(lignesLive, { tvaPct, tvaBase, timbre })
     const row = {
       numero,
       date_emission: new Date().toISOString().slice(0, 10),
@@ -159,9 +179,14 @@ export function Facturation() {
       excursion_nom: exc.nom,
       date_excursion: date || null,
       lignes: lignesLive,
-      total_vente: t.vente,
-      total_commission: t.commission,
-      total_net: t.net,
+      total_vente: c.totaux.vente,
+      total_commission: c.totaux.commission,
+      total_net: c.totaux.net,
+      tva_pct: tvaPct,
+      tva_base: tvaBase,
+      montant_tva: c.montantTva,
+      timbre_fiscal: c.timbre,
+      total_ttc: c.totalTtc,
       devise,
     }
     const { data, error: e } = await supabase.from('invoices').insert(row).select('*').single()
@@ -192,6 +217,35 @@ export function Facturation() {
           <span className="mb-1 block text-slate-500">Date de sortie (optionnel)</span>
           <input type="date" value={date} onChange={(e) => setDate(e.target.value)}
             className="rounded border border-slate-300 px-2 py-1" />
+        </label>
+        <label className="text-sm">
+          <span className="mb-1 block text-slate-500">Devise</span>
+          <select value={deviseSel} onChange={(e) => setDeviseSel(e.target.value)}
+            className="rounded border border-slate-300 px-2 py-1" disabled={!!emise}>
+            <option value="">Auto ({exc?.devise || 'EUR'})</option>
+            {DEVISES.map((d) => <option key={d} value={d}>{d}</option>)}
+          </select>
+        </label>
+        <label className="text-sm">
+          <span className="mb-1 block text-slate-500">TVA</span>
+          <select value={tvaPct} onChange={(e) => setTvaPct(Number(e.target.value))}
+            className="rounded border border-slate-300 px-2 py-1" disabled={!!emise}>
+            {TAUX_TVA.map((t) => <option key={t} value={t}>{t}%</option>)}
+          </select>
+        </label>
+        <label className="text-sm">
+          <span className="mb-1 block text-slate-500">Base TVA</span>
+          <select value={tvaBase} onChange={(e) => setTvaBase(e.target.value as TvaBase)}
+            className="rounded border border-slate-300 px-2 py-1" disabled={!!emise}>
+            <option value="NET">Net</option>
+            <option value="VENTE">Prix de vente</option>
+          </select>
+        </label>
+        <label className="text-sm">
+          <span className="mb-1 block text-slate-500">Timbre fiscal</span>
+          <input type="number" min={0} step="0.01" value={timbre}
+            onChange={(e) => setTimbre(parseFloat(e.target.value) || 0)}
+            className="w-24 rounded border border-slate-300 px-2 py-1" disabled={!!emise} />
         </label>
         {exc && lignesLive.length > 0 && (
           <>
@@ -328,9 +382,41 @@ export function Facturation() {
               </table>
             )}
 
-            <p className="mt-6 text-center text-xs text-slate-400">
-              {settings.company_name}{settings.company_mf ? ` — MF : ${settings.company_mf}` : ''}
-            </p>
+            {/* Récapitulatif fiscal : Net → TVA → Timbre → Net à payer TTC */}
+            {lignes.length > 0 && (
+              <div className="mt-4 flex justify-end">
+                <table className="text-sm">
+                  <tbody>
+                    <tr>
+                      <td className="py-0.5 pr-6 text-slate-500">Total net (base {fisc.tvaBase === 'VENTE' ? 'vente' : 'net'})</td>
+                      <td className="py-0.5 text-right font-medium">{calc.baseTva.toFixed(2)} {devFacture}</td>
+                    </tr>
+                    <tr>
+                      <td className="py-0.5 pr-6 text-slate-500">TVA ({fisc.tvaPct}%)</td>
+                      <td className="py-0.5 text-right">{calc.montantTva.toFixed(2)} {devFacture}</td>
+                    </tr>
+                    {calc.timbre > 0 && (
+                      <tr>
+                        <td className="py-0.5 pr-6 text-slate-500">Droit de timbre</td>
+                        <td className="py-0.5 text-right">{calc.timbre.toFixed(2)} {devFacture}</td>
+                      </tr>
+                    )}
+                    <tr className="border-t">
+                      <td className="py-1 pr-6 font-semibold">Net à payer (TTC)</td>
+                      <td className="py-1 text-right text-base font-bold">{calc.totalTtc.toFixed(2)} {devFacture}</td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+            )}
+
+            <div className="mt-8 border-t pt-3 text-center text-xs text-slate-400">
+              <p>
+                {settings.company_name}
+                {settings.company_mf ? ` — MF : ${settings.company_mf}` : ''}
+              </p>
+              {settings.company_website && <p>{settings.company_website}</p>}
+            </div>
           </div>
 
           {/* ----- Historique des factures émises (non imprimé) ----- */}
