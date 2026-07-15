@@ -4,12 +4,14 @@ import { supabase } from './supabase'
 // Paramètres généraux (logo, nom, coordonnées) stockés dans app_settings.
 export interface AppSettings {
   company_name: string
+  company_mf: string // Matricule Fiscal (imprimé sur les factures)
   company_info: string
   logo: string // data URL de l'image, ou ''
 }
 
 const DEFAULTS: AppSettings = {
   company_name: 'Depart Travel Services',
+  company_mf: '1612019Y',
   company_info: '',
   logo: '',
 }

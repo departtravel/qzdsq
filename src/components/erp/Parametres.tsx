@@ -97,6 +97,16 @@ export function Parametres() {
         </label>
 
         <label className="block text-sm">
+          <span className="mb-1 block text-slate-500">Matricule Fiscal (MF — imprimé sur les factures)</span>
+          <input
+            type="text"
+            defaultValue={settings.company_mf}
+            onBlur={(e) => save('company_mf', e.target.value)}
+            className="w-full rounded border border-slate-300 px-2 py-1"
+          />
+        </label>
+
+        <label className="block text-sm">
           <span className="mb-1 block text-slate-500">Coordonnées (adresse, téléphone, e-mail — sur les documents)</span>
           <textarea
             defaultValue={settings.company_info}

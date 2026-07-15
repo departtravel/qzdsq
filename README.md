@@ -83,6 +83,12 @@ L'application couvre l'ensemble du cahier des charges via des onglets :
 - **📋 Ordre de mission** — document imprimable par excursion + date (guide + infos,
   chauffeur + infos, liste des participants avec noms, pax, hôtel, heure de prise en
   charge, remarques, extras) + **signature et cachet** enregistrés en base.
+- **🧾 Facturation** — facture imprimable **par excursion** regroupant toutes les
+  réservations de la sortie, même issues de plateformes différentes (tarifs et
+  commissions propres à chaque réservation). Colonnes : date · N° réservation ·
+  client · plateforme · nb personnes · prix de vente · commission plateforme ·
+  prix net (vente − commission). En-tête avec raison sociale, **Matricule Fiscal**
+  et logo. Numérotation séquentielle `FAC-AAAA-NNNN` et historique des factures émises.
 - **🗒️ Réservations à effectuer** — fiche logistique par excursion + date : transport,
   guide, repas par jour (restaurant + effectifs + régimes), hébergement, extras — tout
   ce qui doit être réservé auprès des partenaires.
@@ -122,7 +128,8 @@ update public.profiles set erp_role = 'LOGISTIQUE'   where email = 'karima@...';
 Dans le **SQL Editor** de Supabase, exécute dans l'ordre :
 `supabase/schema.sql` → `supabase/erp.sql` → `supabase/rbac.sql` →
 `supabase/missions.sql` → `supabase/settings.sql` → `supabase/seed.sql` →
-`supabase/seed_dts.sql` → `supabase/compta_partenaires.sql`.
+`supabase/seed_dts.sql` → `supabase/compta_partenaires.sql` →
+`supabase/facturation.sql`.
 
 ## Installation
 

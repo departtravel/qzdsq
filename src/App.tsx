@@ -19,6 +19,7 @@ import { FicheReservation } from './components/erp/FicheReservation'
 import { Utilisateurs } from './components/erp/Utilisateurs'
 import { Parametres } from './components/erp/Parametres'
 import { RelevePartenaire } from './components/erp/RelevePartenaire'
+import { Facturation } from './components/erp/Facturation'
 
 type View = { name: 'dashboard' } | { name: 'detail'; id: string } | { name: 'new' }
 type Section =
@@ -36,6 +37,7 @@ type Section =
   | 'utilisateurs'
   | 'parametres'
   | 'relevepartenaire'
+  | 'facturation'
 
 const ERP_SECTIONS: { key: Section; emoji: string; label: string }[] = [
   { key: 'excursions', emoji: '🧭', label: 'Excursions' },
@@ -43,8 +45,9 @@ const ERP_SECTIONS: { key: Section; emoji: string; label: string }[] = [
   { key: 'planning', emoji: '📆', label: 'Planning' },
   { key: 'ordremission', emoji: '📋', label: 'Ordre de mission' },
   { key: 'fichereservation', emoji: '🗒️', label: 'Réservations à effectuer' },
+  { key: 'facturation', emoji: '🧾', label: 'Facturation' },
   { key: 'comptabilite', emoji: '💰', label: 'Comptabilité' },
-  { key: 'relevepartenaire', emoji: '🧾', label: 'Relevé prestataire' },
+  { key: 'relevepartenaire', emoji: '📑', label: 'Relevé prestataire' },
   { key: 'dashboard', emoji: '📊', label: 'Direction' },
   { key: 'importota', emoji: '📥', label: 'Import OTA' },
   { key: 'ia', emoji: '🧠', label: 'IA Analytique' },
@@ -67,6 +70,7 @@ const ERP_COMPONENTS: Record<Exclude<Section, 'flotte'>, JSX.Element> = {
   utilisateurs: <Utilisateurs />,
   parametres: <Parametres />,
   relevepartenaire: <RelevePartenaire />,
+  facturation: <Facturation />,
 }
 
 export default function App() {
