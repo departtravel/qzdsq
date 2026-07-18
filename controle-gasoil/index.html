@@ -1,0 +1,624 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<meta name="theme-color" content="#1e3a8a" />
+<title>⛽ Contrôle Gasoil</title>
+<style>
+  :root{
+    --blue:#2563eb; --blue-d:#1d4ed8;
+    --green:#16a34a; --green-bg:#dcfce7;
+    --amber:#d97706; --amber-bg:#fef3c7;
+    --red:#dc2626; --red-bg:#fee2e2;
+    --line:#e2e8f0; --muted:#64748b; --slate:#f1f5f9;
+  }
+  *{box-sizing:border-box; font-family:system-ui,-apple-system,"Segoe UI",Roboto,Arial,sans-serif;}
+  body{margin:0; background:#f8fafc; color:#1e293b;}
+  button{font:inherit; cursor:pointer;}
+  a{color:var(--blue);}
+
+  header.top{background:linear-gradient(90deg,#1e3a8a,#2563eb); color:#fff; padding:12px 20px;
+    display:flex; align-items:center; justify-content:space-between; gap:12px; flex-wrap:wrap;}
+  header.top h1{font-size:19px; margin:0; display:flex; align-items:center; gap:8px;}
+  header.top .actions{display:flex; gap:8px; flex-wrap:wrap;}
+  .btn{border:0; border-radius:8px; padding:9px 14px; font-size:14px; font-weight:600;}
+  .btn-primary{background:#fff; color:var(--blue-d);}
+  .btn-ghost{background:rgba(255,255,255,.16); color:#fff;}
+  .btn-ghost:hover{background:rgba(255,255,255,.3);}
+  .btn-solid{background:var(--blue); color:#fff;}
+  .btn-solid:hover{background:var(--blue-d);}
+  .btn-sm{padding:6px 10px; font-size:13px; border-radius:7px;}
+  .btn-danger{background:var(--red-bg); color:#991b1b;}
+
+  nav.tabs{background:#fff; border-bottom:1px solid var(--line); display:flex; gap:2px; padding:0 12px; overflow-x:auto;}
+  nav.tabs button{background:none; border:0; padding:14px 16px; font-size:15px; font-weight:700; color:var(--muted); border-bottom:3px solid transparent; white-space:nowrap;}
+  nav.tabs button.active{color:var(--blue); border-bottom-color:var(--blue);}
+  nav.tabs .count{display:inline-block; min-width:18px; padding:0 5px; margin-left:6px; border-radius:999px; background:var(--red); color:#fff; font-size:11px; line-height:18px; text-align:center; vertical-align:middle;}
+
+  main{max-width:1180px; margin:0 auto; padding:20px;}
+  h2.section{font-size:22px; margin:0 0 4px;}
+  .section-sub{color:var(--muted); font-size:14px; margin:0 0 16px;}
+  .muted{color:var(--muted);}
+
+  .kpis{display:grid; grid-template-columns:repeat(auto-fit,minmax(160px,1fr)); gap:12px; margin-bottom:18px;}
+  .kpi{background:#fff; border:1px solid var(--line); border-radius:12px; padding:14px 16px;}
+  .kpi .n{font-size:24px; font-weight:800; line-height:1.1;}
+  .kpi .l{color:var(--muted); font-size:13px; margin-top:6px;}
+  .kpi.alert .n{color:var(--red);} .kpi.good .n{color:var(--green);} .kpi.warn .n{color:var(--amber);}
+
+  .panel{background:#fff; border:1px solid var(--line); border-radius:14px; padding:16px; margin-bottom:16px; box-shadow:0 1px 2px rgba(0,0,0,.04);}
+  .panel h3{margin:0 0 12px; font-size:16px;}
+  .alertbar{border-left:4px solid var(--red);}
+
+  .toolbar{display:flex; gap:10px; align-items:center; flex-wrap:wrap; margin-bottom:14px;}
+  .toolbar input[type=search], .toolbar select{border:1px solid var(--line); border-radius:8px; padding:9px 12px; font-size:14px; background:#fff;}
+  .toolbar input[type=search]{flex:1; min-width:180px;}
+  .spacer{flex:1;}
+
+  table{width:100%; border-collapse:collapse; font-size:14px;}
+  th,td{padding:9px 10px; text-align:left; border-bottom:1px solid var(--line); white-space:nowrap;}
+  th{font-size:12px; text-transform:uppercase; letter-spacing:.03em; color:var(--muted); background:var(--slate); position:sticky; top:0;}
+  td.num,th.num{text-align:right;}
+  tr.row-red{background:var(--red-bg);}
+  tr.row-amber{background:var(--amber-bg);}
+  .table-wrap{overflow-x:auto; border:1px solid var(--line); border-radius:12px;}
+
+  .pill{display:inline-flex; align-items:center; gap:6px; border-radius:999px; padding:3px 9px; font-size:12px; font-weight:700; border:0;}
+  .p-ok{background:var(--green-bg); color:#166534;}
+  .p-amber{background:var(--amber-bg); color:#92400e;}
+  .p-red{background:var(--red-bg); color:#991b1b;}
+  .p-info{background:#e0e7ff; color:#3730a3;}
+  .badge{font-size:11px; font-weight:600; border-radius:7px; padding:2px 7px; border:1px solid; display:inline-block; margin:2px 2px 0 0;}
+  .b-red{color:var(--red); border-color:#fca5a5; background:#fef2f2;}
+  .b-amber{color:var(--amber); border-color:#fcd34d; background:#fffbeb;}
+
+  .grid{display:grid; grid-template-columns:repeat(auto-fill,minmax(300px,1fr)); gap:14px;}
+  .card{background:#fff; border:1px solid var(--line); border-radius:14px; padding:16px; box-shadow:0 1px 2px rgba(0,0,0,.04);}
+  .card .head{display:flex; align-items:flex-start; justify-content:space-between; gap:8px;}
+  .card .title{font-size:18px; font-weight:800;}
+  .card .sub{color:var(--muted); font-size:13px;}
+  .card .stats{display:grid; grid-template-columns:1fr 1fr; gap:8px; margin-top:12px;}
+  .card .stat{background:var(--slate); border-radius:9px; padding:8px 10px;}
+  .card .stat .v{font-weight:800; font-size:16px;}
+  .card .stat .k{color:var(--muted); font-size:12px;}
+
+  .empty{text-align:center; color:var(--muted); padding:50px 20px; border:2px dashed var(--line); border-radius:14px; background:#fff;}
+  .empty h3{margin:0 0 8px; color:#334155;}
+
+  /* Modal / forms */
+  .backdrop{position:fixed; inset:0; background:rgba(15,23,42,.45); display:flex; align-items:flex-start; justify-content:center; padding:24px; overflow:auto; z-index:50;}
+  .modal{background:#fff; border-radius:16px; width:100%; max-width:560px; padding:22px; box-shadow:0 20px 50px rgba(0,0,0,.25);}
+  .modal h3{margin:0 0 4px; font-size:20px;}
+  .modal .hint{color:var(--muted); font-size:13px; margin:0 0 16px;}
+  .form-grid{display:grid; grid-template-columns:1fr 1fr; gap:12px;}
+  .field{display:flex; flex-direction:column; gap:4px;}
+  .field.full{grid-column:1 / -1;}
+  .field label{font-size:13px; font-weight:600; color:#334155;}
+  .field input, .field select, .field textarea{border:1px solid var(--line); border-radius:8px; padding:9px 11px; font-size:14px; background:#fff;}
+  .field .help{font-size:11px; color:var(--muted);}
+  .modal-actions{display:flex; justify-content:flex-end; gap:8px; margin-top:18px;}
+  .live{background:var(--slate); border-radius:10px; padding:10px 12px; font-size:13px; margin-top:14px;}
+  .live .row{display:flex; justify-content:space-between; padding:2px 0;}
+  .live .verdict{margin-top:8px; font-weight:800; text-align:center; border-radius:8px; padding:7px;}
+
+  footer{max-width:1180px; margin:0 auto; padding:10px 20px 40px; color:var(--muted); font-size:12px;}
+
+  @media print{
+    header.top .actions, nav.tabs, .toolbar, .btn{display:none !important;}
+    body{background:#fff;}
+  }
+</style>
+</head>
+<body>
+<header class="top">
+  <h1>⛽ Contrôle Gasoil <span style="font-weight:400;font-size:13px;opacity:.8">— suivi & détection de fraude</span></h1>
+  <div class="actions">
+    <button class="btn btn-ghost" onclick="exportCSV()">⬇︎ Export CSV</button>
+    <button class="btn btn-ghost" onclick="backup()">💾 Sauvegarde</button>
+    <button class="btn btn-ghost" onclick="document.getElementById('restoreFile').click()">↺ Restaurer</button>
+    <input type="file" id="restoreFile" accept="application/json" style="display:none" onchange="restore(event)">
+    <button class="btn btn-primary" onclick="openPlein()">+ Nouveau plein</button>
+  </div>
+</header>
+
+<nav class="tabs" id="tabs"></nav>
+<main id="app"></main>
+<footer>
+  Données stockées <b>uniquement sur cet appareil</b> (localStorage) — aucune connexion internet requise.
+  Pensez à faire une <b>Sauvegarde</b> régulière. Devise : dinar tunisien (dt).
+</footer>
+
+<script>
+/* ============================ Stockage ============================ */
+const KV = "cg_vehicles", KP = "cg_pleins", KS = "cg_settings";
+function loadJSON(k, def){ try{ return JSON.parse(localStorage.getItem(k)) ?? def; }catch{ return def; } }
+let vehicles = loadJSON(KV, []);
+let pleins   = loadJSON(KP, []);
+let settings = Object.assign({ seuil:0.15, seuilGrave:0.30 }, loadJSON(KS, {}));
+function saveAll(){ localStorage.setItem(KV, JSON.stringify(vehicles)); localStorage.setItem(KP, JSON.stringify(pleins)); localStorage.setItem(KS, JSON.stringify(settings)); }
+
+/* ============================ Utilitaires ============================ */
+function uid(){ return Date.now().toString(36) + Math.random().toString(36).slice(2,7); }
+function num(v){ return v===""||v==null ? null : Number(v); }
+function esc(s){ return String(s==null?"":s).replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c])); }
+function fdt(v){ return v==null||isNaN(v) ? "—" : Math.round(v).toLocaleString("fr-FR")+" dt"; }
+function fdt2(v){ return v==null||isNaN(v) ? "—" : v.toLocaleString("fr-FR",{minimumFractionDigits:2,maximumFractionDigits:2})+" dt"; }
+function fL(v){ return v==null||isNaN(v) ? "—" : v.toLocaleString("fr-FR",{minimumFractionDigits:1,maximumFractionDigits:1})+" L"; }
+function fConso(v){ return v==null||isNaN(v) ? "—" : v.toLocaleString("fr-FR",{minimumFractionDigits:1,maximumFractionDigits:1})+" L/100"; }
+function fKm(v){ return v==null||isNaN(v) ? "—" : Math.round(v).toLocaleString("fr-FR")+" km"; }
+function fDate(s){ return s ? new Date(s+"T00:00:00").toLocaleDateString("fr-FR") : "—"; }
+function todayStr(){ const d=new Date(); return d.toISOString().slice(0,10); }
+function vget(id){ return vehicles.find(v=>v.id===id); }
+function vlabel(id){ const v=vget(id); return v ? (v.plaque||"?") : "— supprimé —"; }
+
+/* ============================ Calculs & détection de fraude ============================ */
+/* Pour chaque plein : distance depuis le plein précédent du même véhicule,
+   consommation L/100km, prix/L, et une liste d'anomalies. */
+function computed(){
+  // grouper par véhicule, trier par km puis date
+  const byVeh = {};
+  pleins.forEach(p=>{ (byVeh[p.vehicleId] ??= []).push(p); });
+  const out = {};
+  for(const vid in byVeh){
+    const veh = vget(vid);
+    const list = byVeh[vid].slice().sort((a,b)=>{
+      const ka=num(a.km), kb=num(b.km);
+      if(ka!=null && kb!=null && ka!==kb) return ka-kb;
+      return (a.date||"").localeCompare(b.date||"");
+    });
+    let prev = null;
+    // repérer les doublons de date (même véhicule, même jour)
+    const dateCount = {};
+    list.forEach(p=>{ dateCount[p.date]=(dateCount[p.date]||0)+1; });
+    list.forEach(p=>{
+      const km = num(p.km), litres = num(p.litres), montant = num(p.montant);
+      let distance = null, conso = null;
+      if(prev && km!=null && num(prev.km)!=null) distance = km - num(prev.km);
+      if(distance!=null && distance>0 && litres!=null) conso = litres/distance*100;
+      const prixL = (litres!=null && montant!=null && litres>0) ? montant/litres : null;
+      const ref = veh ? num(veh.consoRef) : null;
+      const reservoir = veh ? num(veh.reservoir) : null;
+
+      const flags = [];
+      // 1. km incohérent (compteur qui recule ou n'avance pas)
+      if(prev && km!=null && num(prev.km)!=null && km <= num(prev.km))
+        flags.push({sev:"red", code:"KM", msg:"Compteur incohérent (km ≤ plein précédent)"});
+      // 2. surconsommation vs référence
+      if(conso!=null && ref){
+        const ecart = (conso-ref)/ref;
+        if(ecart > settings.seuilGrave) flags.push({sev:"red", code:"CONSO", msg:`Surconsommation +${Math.round(ecart*100)}%`});
+        else if(ecart > settings.seuil) flags.push({sev:"amber", code:"CONSO", msg:`Consommation élevée +${Math.round(ecart*100)}%`});
+      }
+      // 3. plein supérieur à la capacité du réservoir
+      if(litres!=null && reservoir && litres > reservoir*1.02)
+        flags.push({sev:"red", code:"CUVE", msg:`Plein > réservoir (${fL(litres)} > ${fL(reservoir)})`});
+      // 4. deux pleins le même jour pour le même véhicule
+      if(p.date && dateCount[p.date] > 1)
+        flags.push({sev:"amber", code:"2X", msg:"Plusieurs pleins le même jour"});
+      // 5. carburant sans distance parcourue
+      if(distance===0 && litres) flags.push({sev:"amber", code:"0KM", msg:"Plein sans km parcouru"});
+
+      const sev = flags.some(f=>f.sev==="red") ? "red" : (flags.length ? "amber" : "ok");
+      out[p.id] = { distance, conso, prixL, ref, ecart:(conso!=null&&ref)?(conso-ref)/ref:null, flags, sev };
+      prev = p;
+    });
+  }
+  return out;
+}
+
+/* Statistiques globales / par période */
+function periodPleins(period){
+  if(period==="all") return pleins.slice();
+  const now = new Date();
+  return pleins.filter(p=>{
+    if(!p.date) return false;
+    const d = new Date(p.date+"T00:00:00");
+    if(period==="month") return d.getFullYear()===now.getFullYear() && d.getMonth()===now.getMonth();
+    if(period==="prev"){ const m=new Date(now.getFullYear(),now.getMonth()-1,1); return d.getFullYear()===m.getFullYear() && d.getMonth()===m.getMonth(); }
+    return true;
+  });
+}
+
+/* ============================ Navigation ============================ */
+let view = { tab:"dash" };
+let filterVeh = "", search = "", period = "month";
+function go(tab){ view={tab}; render(); }
+
+function render(){
+  const comp = computed();
+  const nbAlerts = pleins.filter(p=>comp[p.id] && comp[p.id].sev!=="ok").length;
+  document.getElementById("tabs").innerHTML = [
+    ["dash","Tableau de bord"],
+    ["pleins","Pleins"],
+    ["veh","Véhicules"],
+    ["alerts","Alertes"+(nbAlerts?`<span class="count">${nbAlerts}</span>`:"")],
+    ["settings","Réglages"],
+  ].map(([k,l])=>`<button class="${view.tab===k?'active':''}" onclick="go('${k}')">${l}</button>`).join("");
+  const app = document.getElementById("app");
+  if(view.tab==="dash") app.innerHTML = renderDash(comp);
+  else if(view.tab==="pleins") app.innerHTML = renderPleins(comp);
+  else if(view.tab==="veh") app.innerHTML = renderVehicles(comp);
+  else if(view.tab==="alerts") app.innerHTML = renderAlerts(comp);
+  else if(view.tab==="settings") app.innerHTML = renderSettings();
+}
+
+/* ============================ Tableau de bord ============================ */
+function renderDash(comp){
+  if(pleins.length===0 && vehicles.length===0) return emptyState();
+  const sel = periodPleins(period);
+  const litres = sel.reduce((s,p)=>s+(num(p.litres)||0),0);
+  const montant = sel.reduce((s,p)=>s+(num(p.montant)||0),0);
+  // distance & conso moyenne pondérée sur la période
+  let dist=0, litForConso=0;
+  sel.forEach(p=>{ const c=comp[p.id]; if(c && c.distance>0){ dist+=c.distance; litForConso+=(num(p.litres)||0); } });
+  const consoMoy = dist>0 ? litForConso/dist*100 : null;
+  const coutKm = dist>0 ? montant/dist : null;
+  const alerts = sel.filter(p=>comp[p.id] && comp[p.id].sev!=="ok");
+  const alertsRed = alerts.filter(p=>comp[p.id].sev==="red");
+  const periodLabel = {all:"Depuis le début", month:"Ce mois-ci", prev:"Mois dernier"}[period];
+
+  const kpis = `
+  <div class="kpis">
+    <div class="kpi"><div class="n">${fdt(montant)}</div><div class="l">Dépense gasoil — ${periodLabel.toLowerCase()}</div></div>
+    <div class="kpi"><div class="n">${fL(litres)}</div><div class="l">Litres consommés</div></div>
+    <div class="kpi ${consoMoy&&flotteRef()&&consoMoy>flotteRef()*(1+settings.seuil)?'warn':'good'}"><div class="n">${fConso(consoMoy)}</div><div class="l">Conso moyenne flotte</div></div>
+    <div class="kpi"><div class="n">${coutKm!=null?fdt2(coutKm):'—'}</div><div class="l">Coût par km</div></div>
+    <div class="kpi ${alerts.length?'alert':'good'}"><div class="n">${alerts.length}</div><div class="l">Anomalies (${alertsRed.length} graves)</div></div>
+  </div>`;
+
+  const alertBox = alerts.length ? `
+   <div class="panel alertbar">
+     <h3>🚨 Anomalies à vérifier (${periodLabel.toLowerCase()})</h3>
+     <div class="table-wrap"><table>
+       <tr><th>Date</th><th>Véhicule</th><th>Chauffeur</th><th class="num">Conso</th><th>Signalement</th></tr>
+       ${alerts.slice(0,12).map(p=>{const c=comp[p.id];return `<tr class="row-${c.sev}">
+         <td>${fDate(p.date)}</td><td><b>${esc(vlabel(p.vehicleId))}</b></td><td>${esc(p.chauffeur||"—")}</td>
+         <td class="num">${fConso(c.conso)}</td>
+         <td>${c.flags.map(f=>`<span class="badge b-${f.sev}">${esc(f.msg)}</span>`).join("")}</td></tr>`;}).join("")}
+     </table></div>
+     ${alerts.length>12?`<p class="muted" style="margin:8px 0 0">+ ${alerts.length-12} autres — voir l'onglet Alertes.</p>`:""}
+   </div>` : `<div class="panel"><h3>✅ Aucune anomalie sur la période</h3><p class="muted" style="margin:0">Tous les pleins enregistrés sont cohérents avec la consommation de référence des véhicules.</p></div>`;
+
+  // classement des véhicules par surconsommation
+  const vehRows = vehicles.map(v=>{
+    const ps = sel.filter(p=>p.vehicleId===v.id);
+    let d=0,l=0,m=0; ps.forEach(p=>{const c=comp[p.id]; m+=num(p.montant)||0; if(c&&c.distance>0){d+=c.distance; l+=num(p.litres)||0;}});
+    const cm = d>0? l/d*100 : null;
+    const ref = num(v.consoRef);
+    const ec = (cm!=null&&ref)?(cm-ref)/ref:null;
+    return {v, montant:m, conso:cm, ref, ecart:ec, nb:ps.length};
+  }).filter(r=>r.nb>0).sort((a,b)=>(b.ecart??-9)-(a.ecart??-9));
+
+  const rank = vehRows.length ? `
+   <div class="panel">
+     <h3>Classement par consommation (${periodLabel.toLowerCase()})</h3>
+     <div class="table-wrap"><table>
+       <tr><th>Véhicule</th><th class="num">Pleins</th><th class="num">Dépense</th><th class="num">Conso réelle</th><th class="num">Référence</th><th class="num">Écart</th></tr>
+       ${vehRows.map(r=>`<tr class="${r.ecart!=null&&r.ecart>settings.seuilGrave?'row-red':(r.ecart!=null&&r.ecart>settings.seuil?'row-amber':'')}">
+         <td><b>${esc(r.v.plaque)}</b> <span class="muted">${esc(r.v.nom||"")}</span></td>
+         <td class="num">${r.nb}</td><td class="num">${fdt(r.montant)}</td>
+         <td class="num">${fConso(r.conso)}</td><td class="num">${r.ref?fConso(r.ref):'<span class="muted">à définir</span>'}</td>
+         <td class="num">${r.ecart!=null?(r.ecart>0?"+":"")+Math.round(r.ecart*100)+"%":"—"}</td></tr>`).join("")}
+     </table></div>
+   </div>` : "";
+
+  return `
+    <h2 class="section">Tableau de bord</h2>
+    <p class="section-sub">Vue d'ensemble de la consommation et des alertes de fraude.</p>
+    <div class="toolbar">
+      <label class="muted">Période :</label>
+      <select onchange="period=this.value; render()">
+        <option value="month" ${period==="month"?"selected":""}>Ce mois-ci</option>
+        <option value="prev" ${period==="prev"?"selected":""}>Mois dernier</option>
+        <option value="all" ${period==="all"?"selected":""}>Depuis le début</option>
+      </select>
+      <div class="spacer"></div>
+      <button class="btn btn-solid btn-sm" onclick="openPlein()">+ Nouveau plein</button>
+    </div>
+    ${kpis}
+    ${alertBox}
+    ${rank}
+  `;
+}
+function flotteRef(){ const refs=vehicles.map(v=>num(v.consoRef)).filter(x=>x); return refs.length? refs.reduce((a,b)=>a+b,0)/refs.length : null; }
+
+function emptyState(){
+  return `<div class="empty">
+    <div style="font-size:48px">⛽</div>
+    <h3>Bienvenue dans votre contrôle gasoil</h3>
+    <p>Commencez par ajouter vos véhicules, puis enregistrez chaque plein.<br>L'application calcule la consommation et repère automatiquement les anomalies.</p>
+    <div style="display:flex;gap:8px;justify-content:center;flex-wrap:wrap;margin-top:14px">
+      <button class="btn btn-solid" onclick="openVehicle()">+ Ajouter un véhicule</button>
+      <button class="btn btn-sm" style="background:var(--slate)" onclick="loadDemo()">Charger un exemple</button>
+    </div>
+  </div>`;
+}
+
+/* ============================ Pleins ============================ */
+function renderPleins(comp){
+  const rows = pleins.slice()
+    .filter(p=>!filterVeh || p.vehicleId===filterVeh)
+    .filter(p=>{ if(!search) return true; const q=search.toLowerCase(); return (vlabel(p.vehicleId)+" "+(p.chauffeur||"")+" "+(p.station||"")).toLowerCase().includes(q); })
+    .sort((a,b)=>(b.date||"").localeCompare(a.date||"") || (num(b.km)||0)-(num(a.km)||0));
+  const opts = `<option value="">Tous les véhicules</option>`+vehicles.map(v=>`<option value="${v.id}" ${filterVeh===v.id?"selected":""}>${esc(v.plaque)}</option>`).join("");
+  const body = rows.length ? rows.map(p=>{
+    const c = comp[p.id]||{flags:[]};
+    return `<tr class="row-${c.sev||'ok'}">
+      <td>${fDate(p.date)}</td>
+      <td><b>${esc(vlabel(p.vehicleId))}</b></td>
+      <td>${esc(p.chauffeur||"—")}</td>
+      <td class="num">${fKm(num(p.km))}</td>
+      <td class="num">${c.distance!=null?fKm(c.distance):"—"}</td>
+      <td class="num">${fL(num(p.litres))}</td>
+      <td class="num">${fdt(num(p.montant))}</td>
+      <td class="num">${c.prixL!=null?fdt2(c.prixL):"—"}</td>
+      <td class="num">${fConso(c.conso)}</td>
+      <td>${(c.flags||[]).length? c.flags.map(f=>`<span class="badge b-${f.sev}">${esc(f.msg)}</span>`).join("") : '<span class="pill p-ok">OK</span>'}</td>
+      <td class="num"><button class="btn btn-sm" style="background:var(--slate)" onclick="openPlein('${p.id}')">✎</button>
+        <button class="btn btn-sm btn-danger" onclick="delPlein('${p.id}')">🗑</button></td>
+    </tr>`;
+  }).join("") : `<tr><td colspan="11" class="muted" style="text-align:center;padding:30px">Aucun plein enregistré.</td></tr>`;
+  return `
+    <h2 class="section">Pleins</h2>
+    <p class="section-sub">Un plein par ligne. Les lignes en couleur signalent une anomalie.</p>
+    <div class="toolbar">
+      <input type="search" placeholder="Rechercher (véhicule, chauffeur, station)…" value="${esc(search)}" oninput="search=this.value; render()">
+      <select onchange="filterVeh=this.value; render()">${opts}</select>
+      <div class="spacer"></div>
+      <button class="btn btn-solid btn-sm" onclick="openPlein()">+ Nouveau plein</button>
+    </div>
+    <div class="table-wrap"><table>
+      <tr><th>Date</th><th>Véhicule</th><th>Chauffeur</th><th class="num">Km compteur</th><th class="num">Distance</th><th class="num">Litres</th><th class="num">Montant</th><th class="num">Prix/L</th><th class="num">Conso</th><th>Contrôle</th><th></th></tr>
+      ${body}
+    </table></div>`;
+}
+
+/* ============================ Véhicules ============================ */
+function renderVehicles(comp){
+  if(vehicles.length===0) return `<h2 class="section">Véhicules</h2>
+    <div class="empty"><h3>Aucun véhicule</h3><p>Ajoutez vos véhicules pour suivre leur consommation.</p>
+    <button class="btn btn-solid" onclick="openVehicle()">+ Ajouter un véhicule</button></div>`;
+  const cards = vehicles.map(v=>{
+    const ps = pleins.filter(p=>p.vehicleId===v.id);
+    let d=0,l=0,m=0; ps.forEach(p=>{const c=comp[p.id]; m+=num(p.montant)||0; if(c&&c.distance>0){d+=c.distance;l+=num(p.litres)||0;}});
+    const cm=d>0?l/d*100:null; const ref=num(v.consoRef); const ec=(cm!=null&&ref)?(cm-ref)/ref:null;
+    const nbAl = ps.filter(p=>comp[p.id]&&comp[p.id].sev!=="ok").length;
+    return `<div class="card">
+      <div class="head">
+        <div><div class="title">${esc(v.plaque)}</div><div class="sub">${esc(v.nom||"—")}${v.chauffeur?" · "+esc(v.chauffeur):""}</div></div>
+        <div>${nbAl?`<span class="pill p-red">${nbAl} alerte${nbAl>1?"s":""}</span>`:`<span class="pill p-ok">OK</span>`}</div>
+      </div>
+      <div class="stats">
+        <div class="stat"><div class="v">${fConso(cm)}</div><div class="k">Conso réelle</div></div>
+        <div class="stat"><div class="v">${ref?fConso(ref):'<span class="muted">à définir</span>'}</div><div class="k">Référence</div></div>
+        <div class="stat"><div class="v" style="color:${ec!=null&&ec>settings.seuil?'var(--red)':'inherit'}">${ec!=null?(ec>0?"+":"")+Math.round(ec*100)+"%":"—"}</div><div class="k">Écart</div></div>
+        <div class="stat"><div class="v">${fdt(m)}</div><div class="k">Dépense totale</div></div>
+        <div class="stat"><div class="v">${ps.length}</div><div class="k">Pleins</div></div>
+        <div class="stat"><div class="v">${v.reservoir?fL(num(v.reservoir)):"—"}</div><div class="k">Réservoir</div></div>
+      </div>
+      <div style="display:flex;gap:8px;margin-top:12px">
+        <button class="btn btn-sm" style="background:var(--slate)" onclick="openVehicle('${v.id}')">✎ Modifier</button>
+        <button class="btn btn-sm" style="background:var(--slate)" onclick="filterVeh='${v.id}';go('pleins')">Voir les pleins</button>
+        <button class="btn btn-sm btn-danger" onclick="delVehicle('${v.id}')">🗑</button>
+      </div>
+    </div>`;
+  }).join("");
+  return `<h2 class="section">Véhicules</h2>
+    <p class="section-sub">La <b>consommation de référence</b> et la <b>capacité du réservoir</b> servent à détecter les anomalies. Définissez la référence après 2–3 semaines d'observation.</p>
+    <div class="toolbar"><div class="spacer"></div><button class="btn btn-solid btn-sm" onclick="openVehicle()">+ Ajouter un véhicule</button></div>
+    <div class="grid">${cards}</div>`;
+}
+
+/* ============================ Alertes ============================ */
+function renderAlerts(comp){
+  const alerts = pleins.filter(p=>comp[p.id]&&comp[p.id].sev!=="ok")
+    .sort((a,b)=>{ const sa=comp[a.id].sev==="red"?0:1, sb=comp[b.id].sev==="red"?0:1; return sa-sb || (b.date||"").localeCompare(a.date||""); });
+  if(alerts.length===0) return `<h2 class="section">Alertes</h2>
+    <div class="empty"><div style="font-size:40px">✅</div><h3>Aucune anomalie détectée</h3><p>Tous les pleins sont cohérents.</p></div>`;
+  return `<h2 class="section">Alertes <span class="muted" style="font-size:16px">(${alerts.length})</span></h2>
+   <p class="section-sub">Chaque anomalie mérite une vérification. Croisez avec le carnet de mission et le relevé de la station.</p>
+   <div class="panel" style="padding:8px">
+   <div class="table-wrap"><table>
+     <tr><th>Gravité</th><th>Date</th><th>Véhicule</th><th>Chauffeur</th><th class="num">Litres</th><th class="num">Conso</th><th>Signalement</th><th></th></tr>
+     ${alerts.map(p=>{const c=comp[p.id];return `<tr class="row-${c.sev}">
+       <td>${c.sev==="red"?'<span class="pill p-red">Grave</span>':'<span class="pill p-amber">À vérifier</span>'}</td>
+       <td>${fDate(p.date)}</td><td><b>${esc(vlabel(p.vehicleId))}</b></td><td>${esc(p.chauffeur||"—")}</td>
+       <td class="num">${fL(num(p.litres))}</td><td class="num">${fConso(c.conso)}</td>
+       <td>${c.flags.map(f=>`<span class="badge b-${f.sev}">${esc(f.msg)}</span>`).join("")}</td>
+       <td class="num"><button class="btn btn-sm" style="background:var(--slate)" onclick="openPlein('${p.id}')">✎</button></td></tr>`;}).join("")}
+   </table></div></div>
+   <div class="panel"><h3>Que faire face à une anomalie ?</h3>
+     <ul class="muted" style="margin:0;padding-left:18px;line-height:1.7">
+       <li><b>Surconsommation</b> → fuite mécanique, style de conduite, ou carburant siphonné/revendu.</li>
+       <li><b>Plein &gt; réservoir</b> → un plein qui dépasse la capacité = carburant mis dans un bidon ou un autre véhicule.</li>
+       <li><b>Compteur incohérent</b> → relevé km faux ou compteur trafiqué : recouper avec le GPS si disponible.</li>
+       <li><b>Plusieurs pleins le même jour</b> → vérifier les tickets et l'usage réel du véhicule.</li>
+     </ul></div>`;
+}
+
+/* ============================ Réglages ============================ */
+function renderSettings(){
+  return `<h2 class="section">Réglages</h2>
+   <div class="panel" style="max-width:520px">
+     <h3>Seuils d'alerte</h3>
+     <div class="field"><label>Écart « à vérifier » (jaune)</label>
+       <input type="number" step="1" value="${Math.round(settings.seuil*100)}" oninput="settings.seuil=Number(this.value)/100; saveAll()">
+       <span class="help">Écart de consommation, en %, au-dessus de la référence. Défaut : 15 %.</span></div>
+     <div class="field" style="margin-top:12px"><label>Écart « grave » (rouge)</label>
+       <input type="number" step="1" value="${Math.round(settings.seuilGrave*100)}" oninput="settings.seuilGrave=Number(this.value)/100; saveAll()">
+       <span class="help">Au-dessus, l'anomalie est signalée comme grave. Défaut : 30 %.</span></div>
+   </div>
+   <div class="panel" style="max-width:520px">
+     <h3>Données</h3>
+     <p class="muted" style="margin:0 0 12px">${pleins.length} plein(s), ${vehicles.length} véhicule(s). Stockées sur cet appareil uniquement.</p>
+     <div style="display:flex;gap:8px;flex-wrap:wrap">
+       <button class="btn btn-sm btn-solid" onclick="backup()">💾 Sauvegarder (fichier)</button>
+       <button class="btn btn-sm" style="background:var(--slate)" onclick="exportCSV()">⬇︎ Export CSV (Excel)</button>
+       <button class="btn btn-sm" style="background:var(--slate)" onclick="document.getElementById('restoreFile').click()">↺ Restaurer</button>
+       <button class="btn btn-sm btn-danger" onclick="wipe()">Tout effacer</button>
+     </div>
+   </div>`;
+}
+
+/* ============================ Modales : Plein ============================ */
+function openPlein(id){
+  const p = id ? pleins.find(x=>x.id===id) : null;
+  if(vehicles.length===0){ alert("Ajoutez d'abord un véhicule (onglet Véhicules)."); go("veh"); return; }
+  const vopts = vehicles.map(v=>`<option value="${v.id}" ${p&&p.vehicleId===v.id?"selected":""}>${esc(v.plaque)}${v.nom?" — "+esc(v.nom):""}</option>`).join("");
+  modal(`
+    <h3>${id?"Modifier le plein":"Nouveau plein"}</h3>
+    <p class="hint">Renseignez le km au compteur : la distance et la consommation se calculent avec le plein précédent.</p>
+    <form id="f" onsubmit="return savePlein(event,'${id||""}')">
+      <div class="form-grid">
+        <div class="field"><label>Date</label><input name="date" type="date" value="${p?p.date:todayStr()}" required></div>
+        <div class="field"><label>Véhicule</label><select name="vehicleId" required onchange="liveCalc()">${vopts}</select></div>
+        <div class="field"><label>Chauffeur</label><input name="chauffeur" value="${p?esc(p.chauffeur||""):""}" placeholder="Nom du chauffeur"></div>
+        <div class="field"><label>Station</label><input name="station" value="${p?esc(p.station||""):""}" placeholder="Station-service"></div>
+        <div class="field"><label>Km au compteur</label><input name="km" type="number" step="1" value="${p&&p.km!=null?p.km:""}" oninput="liveCalc()" placeholder="ex : 120520"></div>
+        <div class="field"><label>Litres</label><input name="litres" type="number" step="0.1" value="${p&&p.litres!=null?p.litres:""}" oninput="liveCalc()" required placeholder="ex : 78"></div>
+        <div class="field"><label>Montant payé (dt)</label><input name="montant" type="number" step="0.001" value="${p&&p.montant!=null?p.montant:""}" oninput="liveCalc()" placeholder="ex : 195"></div>
+        <div class="field full"><label>Note</label><input name="note" value="${p?esc(p.note||""):""}" placeholder="Optionnel"></div>
+      </div>
+      <div class="live" id="live"></div>
+      <div class="modal-actions">
+        <button type="button" class="btn btn-sm" style="background:var(--slate)" onclick="closeModal()">Annuler</button>
+        <button type="submit" class="btn btn-sm btn-solid">${id?"Enregistrer":"Ajouter le plein"}</button>
+      </div>
+    </form>`);
+  liveCalc();
+}
+function liveCalc(){
+  const f = document.getElementById("f"); if(!f) return;
+  const vid = f.vehicleId.value, km = num(f.km.value), litres = num(f.litres.value), montant = num(f.montant.value);
+  const veh = vget(vid);
+  // dernier plein connu du véhicule (km inférieur le plus proche)
+  const prevs = pleins.filter(p=>p.vehicleId===vid && num(p.km)!=null && (km==null || num(p.km)<km)).sort((a,b)=>num(b.km)-num(a.km));
+  const prev = prevs[0];
+  let distance=null, conso=null;
+  if(prev && km!=null) distance = km - num(prev.km);
+  if(distance!=null && distance>0 && litres!=null) conso = litres/distance*100;
+  const prixL = (litres&&montant)? montant/litres : null;
+  const ref = veh? num(veh.consoRef) : null;
+  const ecart = (conso!=null&&ref)?(conso-ref)/ref:null;
+  let verdict="", vclass="";
+  if(conso!=null && ref){
+    if(ecart>settings.seuilGrave){ verdict="⚠️ Surconsommation grave (+"+Math.round(ecart*100)+"%)"; vclass="p-red"; }
+    else if(ecart>settings.seuil){ verdict="⚠ Consommation élevée (+"+Math.round(ecart*100)+"%)"; vclass="p-amber"; }
+    else { verdict="✅ Consommation normale"; vclass="p-ok"; }
+  }
+  let warn="";
+  if(veh && litres && num(veh.reservoir) && litres>num(veh.reservoir)*1.02) warn+=`<div class="row" style="color:var(--red)"><span>Plein &gt; réservoir</span><span>${fL(litres)} / ${fL(num(veh.reservoir))}</span></div>`;
+  if(prev && km!=null && km<=num(prev.km)) warn+=`<div class="row" style="color:var(--red)"><span>Compteur incohérent</span><span>≤ ${fKm(num(prev.km))}</span></div>`;
+  document.getElementById("live").innerHTML = `
+    <div class="row"><span>Plein précédent</span><span>${prev?fKm(num(prev.km))+" ("+fDate(prev.date)+")":"aucun"}</span></div>
+    <div class="row"><span>Distance parcourue</span><span>${distance!=null?fKm(distance):"—"}</span></div>
+    <div class="row"><span>Consommation</span><span>${fConso(conso)}${ref?` (réf ${fConso(ref)})`:""}</span></div>
+    <div class="row"><span>Prix / litre</span><span>${prixL!=null?fdt2(prixL):"—"}</span></div>
+    ${warn}
+    ${verdict?`<div class="verdict ${vclass}">${verdict}</div>`:`<div class="row muted"><span>Définissez la conso de référence du véhicule pour activer le verdict.</span></div>`}`;
+}
+function savePlein(e,id){
+  e.preventDefault();
+  const f=e.target; const d=Object.fromEntries(new FormData(f).entries());
+  const rec={ id:id||uid(), vehicleId:d.vehicleId, date:d.date, chauffeur:d.chauffeur.trim(), station:d.station.trim(),
+    km:num(d.km), litres:num(d.litres), montant:num(d.montant), note:d.note.trim() };
+  if(id){ const i=pleins.findIndex(x=>x.id===id); pleins[i]=rec; } else pleins.push(rec);
+  saveAll(); closeModal(); render(); return false;
+}
+function delPlein(id){ if(confirm("Supprimer ce plein ?")){ pleins=pleins.filter(p=>p.id!==id); saveAll(); render(); } }
+
+/* ============================ Modales : Véhicule ============================ */
+function openVehicle(id){
+  const v = id? vget(id) : null;
+  modal(`
+    <h3>${id?"Modifier le véhicule":"Nouveau véhicule"}</h3>
+    <p class="hint">La consommation de référence est la conso « normale » du véhicule (L/100km). Tout dépassement anormal déclenchera une alerte.</p>
+    <form id="fv" onsubmit="return saveVehicle(event,'${id||""}')">
+      <div class="form-grid">
+        <div class="field"><label>Immatriculation</label><input name="plaque" value="${v?esc(v.plaque):""}" required placeholder="ex : TU 1234"></div>
+        <div class="field"><label>Nom / modèle</label><input name="nom" value="${v?esc(v.nom||""):""}" placeholder="ex : Minibus Toyota"></div>
+        <div class="field"><label>Chauffeur habituel</label><input name="chauffeur" value="${v?esc(v.chauffeur||""):""}" placeholder="Optionnel"></div>
+        <div class="field"><label>Conso de référence (L/100km)</label><input name="consoRef" type="number" step="0.1" value="${v&&v.consoRef!=null?v.consoRef:""}" placeholder="ex : 13">
+          <span class="help">À définir après 2–3 semaines d'observation.</span></div>
+        <div class="field"><label>Capacité réservoir (L)</label><input name="reservoir" type="number" step="1" value="${v&&v.reservoir!=null?v.reservoir:""}" placeholder="ex : 80">
+          <span class="help">Sert à détecter un plein impossible.</span></div>
+      </div>
+      <div class="modal-actions">
+        <button type="button" class="btn btn-sm" style="background:var(--slate)" onclick="closeModal()">Annuler</button>
+        <button type="submit" class="btn btn-sm btn-solid">${id?"Enregistrer":"Ajouter"}</button>
+      </div>
+    </form>`);
+}
+function saveVehicle(e,id){
+  e.preventDefault();
+  const d=Object.fromEntries(new FormData(e.target).entries());
+  const rec={ id:id||uid(), plaque:d.plaque.trim(), nom:d.nom.trim(), chauffeur:d.chauffeur.trim(), consoRef:num(d.consoRef), reservoir:num(d.reservoir) };
+  if(id){ const i=vehicles.findIndex(x=>x.id===id); vehicles[i]=rec; } else vehicles.push(rec);
+  saveAll(); closeModal(); render(); return false;
+}
+function delVehicle(id){
+  const n = pleins.filter(p=>p.vehicleId===id).length;
+  if(confirm(`Supprimer ce véhicule${n?` et ses ${n} plein(s)`:""} ?`)){ vehicles=vehicles.filter(v=>v.id!==id); pleins=pleins.filter(p=>p.vehicleId!==id); saveAll(); render(); }
+}
+
+/* ============================ Modale générique ============================ */
+function modal(html){ let b=document.getElementById("bk"); if(!b){ b=document.createElement("div"); b.id="bk"; b.className="backdrop"; b.onclick=e=>{if(e.target===b)closeModal();}; document.body.appendChild(b);} b.innerHTML=`<div class="modal">${html}</div>`; }
+function closeModal(){ const b=document.getElementById("bk"); if(b) b.remove(); }
+
+/* ============================ Import / Export ============================ */
+function backup(){
+  const data={ version:1, exportedAt:new Date().toISOString(), vehicles, pleins, settings };
+  dl("controle-gasoil-sauvegarde-"+todayStr()+".json", JSON.stringify(data,null,2), "application/json");
+}
+function restore(ev){
+  const file=ev.target.files[0]; if(!file) return;
+  const r=new FileReader();
+  r.onload=()=>{ try{
+    const d=JSON.parse(r.result);
+    if(!confirm("Remplacer toutes les données actuelles par cette sauvegarde ?")) return;
+    vehicles=d.vehicles||[]; pleins=d.pleins||[]; settings=Object.assign(settings,d.settings||{});
+    saveAll(); render(); alert("Sauvegarde restaurée.");
+  }catch{ alert("Fichier invalide."); } };
+  r.readAsText(file); ev.target.value="";
+}
+function exportCSV(){
+  const comp=computed();
+  const head=["Date","Vehicule","Chauffeur","Station","Km","Distance","Litres","Montant(dt)","Prix/L","Conso(L/100)","Conso ref","Ecart %","Anomalies"];
+  const lines=[head.join(";")];
+  pleins.slice().sort((a,b)=>(a.date||"").localeCompare(b.date||"")).forEach(p=>{
+    const c=comp[p.id]||{flags:[]};
+    const row=[fDate(p.date), vlabel(p.vehicleId), p.chauffeur||"", p.station||"", num(p.km)??"", c.distance??"", num(p.litres)??"", num(p.montant)??"",
+      c.prixL!=null?c.prixL.toFixed(3):"", c.conso!=null?c.conso.toFixed(1):"", c.ref??"", c.ecart!=null?Math.round(c.ecart*100):"", (c.flags||[]).map(f=>f.msg).join(" | ")];
+    lines.push(row.map(x=>`"${String(x).replace(/"/g,'""')}"`).join(";"));
+  });
+  dl("controle-gasoil-"+todayStr()+".csv", "﻿"+lines.join("\n"), "text/csv");
+}
+function dl(name, content, type){
+  const blob=new Blob([content],{type}); const url=URL.createObjectURL(blob);
+  const a=document.createElement("a"); a.href=url; a.download=name; a.click(); setTimeout(()=>URL.revokeObjectURL(url),2000);
+}
+function wipe(){ if(confirm("Effacer TOUTES les données (véhicules et pleins) ? Cette action est irréversible.")){ vehicles=[]; pleins=[]; saveAll(); render(); } }
+
+/* ============================ Démo ============================ */
+function loadDemo(){
+  const v1=uid(), v2=uid();
+  vehicles=[
+    {id:v1, plaque:"TU 1234", nom:"Minibus Toyota", chauffeur:"Ali", consoRef:13, reservoir:80},
+    {id:v2, plaque:"TU 5678", nom:"Berline", chauffeur:"Sami", consoRef:8, reservoir:60},
+  ];
+  const d=todayStr(); const y=new Date(); const mk=(off)=>{const t=new Date(); t.setDate(t.getDate()-off); return t.toISOString().slice(0,10);};
+  pleins=[
+    {id:uid(), vehicleId:v1, date:mk(20), chauffeur:"Ali", station:"Agil", km:120000, litres:70, montant:175},
+    {id:uid(), vehicleId:v1, date:mk(13), chauffeur:"Ali", station:"Agil", km:120520, litres:78, montant:195}, // ~15 L/100 -> alerte légère
+    {id:uid(), vehicleId:v1, date:mk(6),  chauffeur:"Ali", station:"Total", km:121000, litres:95, montant:238}, // plein > réservoir + surconso -> grave
+    {id:uid(), vehicleId:v2, date:mk(15), chauffeur:"Sami", station:"Shell", km:80000, litres:45, montant:112},
+    {id:uid(), vehicleId:v2, date:mk(5),  chauffeur:"Sami", station:"Shell", km:80600, litres:48, montant:120}, // 8 L/100 -> OK
+  ];
+  saveAll(); render();
+}
+
+render();
+</script>
+</body>
+</html>
