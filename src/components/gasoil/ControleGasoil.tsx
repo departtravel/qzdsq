@@ -16,9 +16,12 @@ import {
   aggregate,
   comparerExcursions,
   computeTrips,
+  coutMoyenParSortie,
   filtrerPeriode,
+  kmMoyenParSortie,
   latestKm,
   parChauffeur,
+  parExcursion,
   parPeriode,
   type Periode,
 } from '../../lib/gasoil'
@@ -136,6 +139,7 @@ export function ControleGasoil() {
     () => comparerExcursions(computed, { excursionNom, excursionKmRef, matricule: matriculeById }),
     [computed, excursionNom, excursionKmRef, matriculeById],
   )
+  const coutExcursions = useMemo(() => parExcursion(computed, excursionNom), [computed, excursionNom])
 
   const adblueParVehicule = useMemo(
     () =>
@@ -304,6 +308,7 @@ export function ControleGasoil() {
           isAdmin={isAdmin}
           excursions={excursions}
           comparaisons={compExcursions}
+          couts={coutExcursions}
           onAdd={addExcursion}
           onDelete={deleteExcursion}
         />
@@ -422,7 +427,12 @@ function SortiesTab(props: {
                         <span className="block text-xs text-red-500">{c.anomalies.join(' · ')}</span>
                       )}
                     </td>
-                    <td className="py-2 pr-3">{c.costPerKm != null ? c.costPerKm.toFixed(3) : '—'}</td>
+                    <td className="py-2 pr-3">
+                      {c.costPerKm != null ? c.costPerKm.toFixed(3) : '—'}
+                      {c.trip.ticket_url && (
+                        <a href={c.trip.ticket_url} target="_blank" rel="noreferrer" className="ml-2 text-blue-600 hover:underline" title="Voir le ticket">📎</a>
+                      )}
+                    </td>
                     {props.isAdmin && (
                       <td className="py-2 text-right">
                         <button onClick={() => props.onDelete(c.trip.id)} className="text-xs text-slate-400 hover:text-red-600">Suppr.</button>
@@ -590,6 +600,7 @@ function ExcursionsTab(props: {
   isAdmin: boolean
   excursions: GasoilExcursion[]
   comparaisons: ReturnType<typeof comparerExcursions>
+  couts: ReturnType<typeof parExcursion>
   onAdd: (nom: string, kmRef: string) => Promise<void>
   onDelete: (id: string) => Promise<void>
 }) {
@@ -634,6 +645,53 @@ function ExcursionsTab(props: {
           )}
         </div>
       )}
+
+      <div className="rounded-lg bg-white p-4 shadow">
+        <div className="mb-3 flex items-center justify-between">
+          <h3 className="font-semibold">Coût gasoil par excursion (rentabilité)</h3>
+          {props.couts.length > 0 && (
+            <button onClick={() => exportStatsCsv('gasoil_par_excursion', 'Excursion', props.couts)} className="text-sm text-blue-600 hover:underline">
+              Exporter CSV
+            </button>
+          )}
+        </div>
+        {props.couts.length === 0 ? (
+          <p className="text-slate-500">Associe des sorties à des excursions pour voir leur coût carburant.</p>
+        ) : (
+          <div className="overflow-x-auto">
+            <table className="w-full text-sm">
+              <thead>
+                <tr className="border-b text-left text-xs uppercase text-slate-500">
+                  <th className="py-2 pr-3">Excursion</th>
+                  <th className="py-2 pr-3">Sorties</th>
+                  <th className="py-2 pr-3">Km moy.</th>
+                  <th className="py-2 pr-3">Conso moy.</th>
+                  <th className="py-2 pr-3">Coût gasoil moy./sortie</th>
+                  <th className="py-2 pr-3">Coût/km</th>
+                  <th className="py-2 pr-3">Total gasoil</th>
+                </tr>
+              </thead>
+              <tbody>
+                {props.couts.map((s) => (
+                  <tr key={s.key} className="border-b">
+                    <td className="py-2 pr-3 font-medium">{s.key}</td>
+                    <td className="py-2 pr-3">{s.sorties}</td>
+                    <td className="py-2 pr-3">{kmMoyenParSortie(s) != null ? `${Math.round(kmMoyenParSortie(s)!).toLocaleString('fr-FR')} km` : '—'}</td>
+                    <td className="py-2 pr-3">{s.conso != null ? `${s.conso.toFixed(1)}` : '—'}</td>
+                    <td className="py-2 pr-3 font-semibold">{dt(coutMoyenParSortie(s))}</td>
+                    <td className="py-2 pr-3">{s.costPerKm != null ? `${s.costPerKm.toFixed(3)} DT` : '—'}</td>
+                    <td className="py-2 pr-3">{dt(s.cost)}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+            <p className="mt-3 text-xs text-slate-400">
+              Coût carburant réel constaté par excursion — à rapprocher du prix de vente pour affiner
+              la marge. Se met à jour avec les filtres véhicule / période ci-dessus.
+            </p>
+          </div>
+        )}
+      </div>
 
       <div className="rounded-lg bg-white p-4 shadow">
         <h3 className="mb-3 font-semibold">Comparaison des km sur une même excursion</h3>

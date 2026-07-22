@@ -20,6 +20,7 @@ import { Utilisateurs } from './components/erp/Utilisateurs'
 import { Parametres } from './components/erp/Parametres'
 import { RelevePartenaire } from './components/erp/RelevePartenaire'
 import { ControleGasoil } from './components/gasoil/ControleGasoil'
+import { InstallButton } from './components/InstallButton'
 
 type View = { name: 'dashboard' } | { name: 'detail'; id: string } | { name: 'new' }
 type Section =
@@ -171,6 +172,7 @@ function FleetApp({ userId, email }: { userId: string; email: string }) {
             </nav>
           </div>
           <div className="flex items-center gap-3 text-sm text-slate-500">
+            <InstallButton />
             <span className="hidden items-center gap-2 sm:flex">
               {email}
               <span

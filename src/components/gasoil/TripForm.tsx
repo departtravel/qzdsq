@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react'
+import { supabase } from '../../lib/supabase'
 import type { Carburant, Chauffeur, GasoilExcursion, TripInput, Vehicle } from '../../lib/types'
 
 interface Props {
@@ -25,6 +26,7 @@ export function TripForm({ vehicles, chauffeurs, excursions, defaultKmByVehicle,
   const [montant, setMontant] = useState('')
   const [lieux, setLieux] = useState('')
   const [note, setNote] = useState('')
+  const [ticket, setTicket] = useState<File | null>(null)
   const [saving, setSaving] = useState(false)
   const [error, setError] = useState<string | null>(null)
 
@@ -62,6 +64,15 @@ export function TripForm({ vehicles, chauffeurs, excursions, defaultKmByVehicle,
     setSaving(true)
     setError(null)
     try {
+      // Upload éventuel de la photo du ticket de carburant.
+      let ticketUrl: string | null = null
+      if (ticket) {
+        const ext = ticket.name.split('.').pop() || 'jpg'
+        const path = `${vehicleId}/${Date.now()}-${Math.random().toString(36).slice(2, 8)}.${ext}`
+        const up = await supabase.storage.from('tickets').upload(path, ticket, { upsert: false })
+        if (up.error) throw new Error(`Ticket : ${up.error.message}`)
+        ticketUrl = supabase.storage.from('tickets').getPublicUrl(path).data.publicUrl
+      }
       const chauffeur = chauffeurs.find((c) => c.id === chauffeurId)
       const excursion = excursions.find((e) => e.id === excursionId)
       await onSave({
@@ -78,6 +89,7 @@ export function TripForm({ vehicles, chauffeurs, excursions, defaultKmByVehicle,
         prix_litre: prix ? Number(prix) : null,
         montant: montant ? Number(montant) : null,
         lieux_prise_en_charge: lieux || null,
+        ticket_url: ticketUrl,
         note: note || null,
       })
       setKmArrivee('')
@@ -85,6 +97,7 @@ export function TripForm({ vehicles, chauffeurs, excursions, defaultKmByVehicle,
       setMontant('')
       setLieux('')
       setNote('')
+      setTicket(null)
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Erreur')
     } finally {
@@ -167,6 +180,16 @@ export function TripForm({ vehicles, chauffeurs, excursions, defaultKmByVehicle,
             value={lieux}
             onChange={(e) => setLieux(e.target.value)}
             placeholder="Ex : prises en charge à plusieurs hôtels, détour aéroport…"
+          />
+        </div>
+        <div className="col-span-2">
+          <label className={label}>Photo du ticket de carburant (justificatif)</label>
+          <input
+            type="file"
+            accept="image/*"
+            capture="environment"
+            className={`${input} py-1`}
+            onChange={(e) => setTicket(e.target.files?.[0] ?? null)}
           />
         </div>
         <div className="col-span-2 sm:col-span-4">

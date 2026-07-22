@@ -52,6 +52,7 @@ create table if not exists public.trips (
   -- Justification d'une distance/conso supérieure : prises en charge
   -- à des endroits différents, détours clients, etc.
   lieux_prise_en_charge text,
+  ticket_url     text,                        -- photo du reçu de carburant (justificatif)
   note           text,
   created_at     timestamptz not null default now(),
   constraint trips_km_coherent check (km_arrivee >= km_depart)
@@ -61,6 +62,7 @@ create table if not exists public.trips (
 alter table public.trips add column if not exists chauffeur_id uuid references public.chauffeurs(id) on delete set null;
 alter table public.trips add column if not exists excursion_id uuid references public.gasoil_excursions(id) on delete set null;
 alter table public.trips add column if not exists lieux_prise_en_charge text;
+alter table public.trips add column if not exists ticket_url text;
 
 create index if not exists trips_vehicle_date_idx
   on public.trips (vehicle_id, date);
@@ -108,3 +110,22 @@ begin
       'create policy "write %1$s" on public.%1$s for all to authenticated using (public.is_admin()) with check (public.is_admin())', t);
   end loop;
 end $$;
+
+-- ============================================================
+--  Stockage des photos de tickets de carburant (justificatifs)
+--  Bucket public en lecture ; écriture/suppression réservées aux
+--  administrateurs connectés.
+-- ============================================================
+insert into storage.buckets (id, name, public)
+values ('tickets', 'tickets', true)
+on conflict (id) do nothing;
+
+drop policy if exists "tickets read"   on storage.objects;
+drop policy if exists "tickets write"  on storage.objects;
+drop policy if exists "tickets delete" on storage.objects;
+create policy "tickets read" on storage.objects
+  for select to authenticated using (bucket_id = 'tickets');
+create policy "tickets write" on storage.objects
+  for insert to authenticated with check (bucket_id = 'tickets' and public.is_admin());
+create policy "tickets delete" on storage.objects
+  for delete to authenticated using (bucket_id = 'tickets' and public.is_admin());

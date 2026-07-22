@@ -93,6 +93,7 @@ export interface Trip {
   prix_litre: number | null
   montant: number | null
   lieux_prise_en_charge: string | null
+  ticket_url: string | null
   note: string | null
   created_at: string
 }

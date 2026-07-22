@@ -6,9 +6,11 @@ import {
   comparerExcursions,
   computeTrip,
   computeTrips,
+  coutMoyenParSortie,
   filtrerPeriode,
   latestKm,
   parChauffeur,
+  parExcursion,
   periodeKey,
   semaineIso,
   tripCost,
@@ -52,6 +54,7 @@ const trip = (over: Partial<Trip> = {}): Trip => ({
   prix_litre: null,
   montant: null,
   lieux_prise_en_charge: null,
+  ticket_url: null,
   note: null,
   created_at: '',
   ...over,
@@ -219,5 +222,21 @@ describe('comparerExcursions', () => {
     const trips = [trip({ excursion: 'Solo', km_arrivee: 1200 })]
     const computed = computeTrips(trips, new Map([['v1', vehicle()]]))
     expect(comparerExcursions(computed)).toHaveLength(0)
+  })
+})
+
+describe('parExcursion / rentabilité', () => {
+  it('consolide le coût gasoil par excursion', () => {
+    const trips = [
+      trip({ id: 't1', excursion: 'Matmata', km_depart: 0, km_arrivee: 200, litres: 20, montant: 60 }),
+      trip({ id: 't2', excursion: 'Matmata', km_depart: 0, km_arrivee: 220, litres: 22, montant: 66 }),
+      trip({ id: 't3', excursion: 'Douz', km_depart: 0, km_arrivee: 400, litres: 40, montant: 120 }),
+    ]
+    const computed = computeTrips(trips, new Map([['v1', vehicle()]]))
+    const stats = parExcursion(computed)
+    const matmata = stats.find((s) => s.key === 'Matmata')!
+    expect(matmata.sorties).toBe(2)
+    expect(matmata.cost).toBe(126) // 60 + 66
+    expect(coutMoyenParSortie(matmata)).toBe(63) // 126 / 2
   })
 })

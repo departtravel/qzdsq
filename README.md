@@ -113,10 +113,29 @@ logique testée : `src/lib/gasoil.ts` + `gasoil.test.ts`).
   km faits par les **différents chauffeurs** et signale les écarts (ex. +30 % de
   km), avec un **champ « lieux de prise en charge / détours »** pour justifier une
   distance/conso plus élevée (prises en charge à plusieurs hôtels, etc.).
+- **Coût gasoil par excursion (rentabilité)** — coût carburant réel consolidé par
+  excursion (moyenne par sortie, coût/km, total) à rapprocher du prix de vente.
+- **Photo du ticket de carburant** — justificatif joint à chaque sortie (depuis
+  l'appareil photo du téléphone), stocké dans Supabase Storage (bucket `tickets`).
 - **Classement chauffeurs** — tableau trié du plus gros consommateur au plus sobre
   (conso moyenne, coût, coût/km, nombre d'anomalies).
 - **Rapport** — agrégats **par semaine / mois**, par véhicule et par chauffeur,
   **export CSV** (Excel FR) et **rapport PDF** imprimable.
+
+## 📱 Application installable (PWA)
+
+L'app est une **PWA** : installable comme une vraie application, sans passer par
+un store, sur **Android, iPhone et ordinateur**.
+
+- **Android / Chrome / Edge** : un bouton **« ⬇️ Installer l'app »** apparaît dans
+  l'en-tête ; sinon menu ⋮ → *Installer l'application*.
+- **iPhone / Safari** : bouton **Partager** → *Sur l'écran d'accueil*.
+- **PC** : icône d'installation dans la barre d'adresse.
+
+Une fois installée : icône dédiée, ouverture en plein écran, et la **coquille de
+l'app fonctionne hors-ligne** (les données restent synchronisées avec Supabase
+dès que la connexion revient). Techniquement : `vite-plugin-pwa` (manifeste +
+service worker), icônes dans `public/icons/`.
 
 ### Rôles & workflow (cloisonnement)
 

@@ -227,6 +227,26 @@ export const parChauffeur = (c: TripComputed[]) => aggregate(c, (x) => x.trip.ch
 export const parPeriode = (c: TripComputed[], p: Periode) =>
   aggregate(c, (x) => periodeKey(x.trip.date, p)).sort((a, b) => (a.key < b.key ? 1 : -1))
 
+/**
+ * Coût gasoil consolidé PAR EXCURSION — alimente la rentabilité :
+ * combien coûte réellement le carburant d'une excursion, en moyenne
+ * par sortie et au km. Regroupe par excursion (id → nom, sinon libellé).
+ */
+export const parExcursion = (c: TripComputed[], excursionNom?: Map<string, string>) =>
+  aggregate(c, (x) => {
+    const t = x.trip
+    if (t.excursion_id) return excursionNom?.get(t.excursion_id) ?? t.excursion
+    return t.excursion
+  })
+
+/** Coût gasoil moyen par sortie d'un agrégat (rentabilité). */
+export const coutMoyenParSortie = (s: FuelStat): number | null =>
+  s.sorties > 0 && s.cost > 0 ? s.cost / s.sorties : null
+
+/** Km moyen par sortie d'un agrégat. */
+export const kmMoyenParSortie = (s: FuelStat): number | null =>
+  s.sorties > 0 ? s.km / s.sorties : null
+
 /** Filtre les sorties sur une plage de dates (bornes incluses, vides = ouvertes). */
 export function filtrerPeriode(trips: Trip[], du: string, au: string): Trip[] {
   return trips.filter((t) => (!du || t.date >= du) && (!au || t.date <= au))

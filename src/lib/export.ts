@@ -70,7 +70,7 @@ export function exportCarnetCsv(
   const header = [
     'Date', 'Véhicule', 'Chauffeur', 'Excursion', 'Km départ', 'Km arrivée',
     'Distance', 'Carburant', 'Litres', 'Conso (L/100)', 'Coût (DT)',
-    'Coût/km (DT)', 'Écart %', 'Anomalies', 'Lieux prise en charge', 'Note',
+    'Coût/km (DT)', 'Écart %', 'Anomalies', 'Lieux prise en charge', 'Ticket', 'Note',
   ]
   const rows = computed.map((c) => [
     c.trip.date,
@@ -79,7 +79,7 @@ export function exportCarnetCsv(
     c.trip.km_depart, c.trip.km_arrivee, c.distance, c.trip.carburant,
     c.trip.litres, num(c.conso), num(c.cost, 2), num(c.costPerKm, 3),
     c.ecartPct != null ? num(c.ecartPct, 0) : '',
-    c.anomalies.join(' | '), c.trip.lieux_prise_en_charge, c.trip.note,
+    c.anomalies.join(' | '), c.trip.lieux_prise_en_charge, c.trip.ticket_url, c.trip.note,
   ])
   const date = new Date().toISOString().slice(0, 10)
   download(`carnet_gasoil_${date}.csv`, toCsv([header, ...rows]))
