@@ -1,5 +1,6 @@
 import type { FuelLog, Vehicle } from './types'
 import { consumptionSummary, currentKm } from './fleet'
+import type { FuelStat, TripComputed } from './gasoil'
 
 function escapeCsv(value: unknown): string {
   const s = value == null ? '' : String(value)
@@ -52,4 +53,49 @@ export function exportFuelLogsCsv(vehicle: Vehicle, logs: FuelLog[]) {
       l.plein_complet ? 'oui' : 'non', l.note,
     ])
   download(`pleins_${vehicle.matricule}.csv`, toCsv([header, ...rows]))
+}
+
+// ----------------------------------------------------------------
+//  Contrôle Gasoil — carnet de bord + rapport mensuel
+// ----------------------------------------------------------------
+
+const num = (n: number | null | undefined, d = 1) =>
+  n == null ? '' : n.toFixed(d)
+
+/** Carnet de bord détaillé (une ligne par sortie). */
+export function exportCarnetCsv(
+  computed: TripComputed[],
+  matriculeById: Map<string, string>,
+) {
+  const header = [
+    'Date', 'Véhicule', 'Chauffeur', 'Excursion', 'Km départ', 'Km arrivée',
+    'Distance', 'Carburant', 'Litres', 'Conso (L/100)', 'Coût (DT)',
+    'Coût/km (DT)', 'Écart %', 'Anomalies', 'Lieux prise en charge', 'Note',
+  ]
+  const rows = computed.map((c) => [
+    c.trip.date,
+    matriculeById.get(c.trip.vehicle_id) ?? '',
+    c.trip.chauffeur, c.trip.excursion,
+    c.trip.km_depart, c.trip.km_arrivee, c.distance, c.trip.carburant,
+    c.trip.litres, num(c.conso), num(c.cost, 2), num(c.costPerKm, 3),
+    c.ecartPct != null ? num(c.ecartPct, 0) : '',
+    c.anomalies.join(' | '), c.trip.lieux_prise_en_charge, c.trip.note,
+  ])
+  const date = new Date().toISOString().slice(0, 10)
+  download(`carnet_gasoil_${date}.csv`, toCsv([header, ...rows]))
+}
+
+/** Rapport agrégé (par chauffeur, véhicule ou période) — colonne 1 nommée. */
+export function exportStatsCsv(
+  filename: string,
+  colonne: string,
+  stats: FuelStat[],
+) {
+  const header = [colonne, 'Sorties', 'Km', 'Litres', 'Conso (L/100)', 'Coût (DT)', 'Coût/km (DT)', 'Anomalies']
+  const rows = stats.map((s) => [
+    s.key, s.sorties, s.km, num(s.litres, 1), num(s.conso),
+    num(s.cost, 2), num(s.costPerKm, 3), s.anomalies,
+  ])
+  const date = new Date().toISOString().slice(0, 10)
+  download(`${filename}_${date}.csv`, toCsv([header, ...rows]))
 }

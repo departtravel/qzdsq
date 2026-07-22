@@ -53,7 +53,67 @@ export interface MaintenanceLog {
   created_at: string
 }
 
+export type Carburant = 'gasoil' | 'essence'
+
+/** Chauffeur (référentiel partagé avec l'ERP). */
+export interface Chauffeur {
+  id: string
+  nom: string
+  prenom: string | null
+  telephone: string | null
+  cin: string | null
+  permis: string | null
+  type_chauffeur: string
+  actif: boolean
+  created_at: string
+}
+
+/** Excursion / circuit type, avec distance de référence pour comparer. */
+export interface GasoilExcursion {
+  id: string
+  nom: string
+  km_reference: number | null
+  actif: boolean
+  created_at: string
+}
+
+/** Carnet de bord : une sortie / excursion (chauffeur + km + carburant). */
+export interface Trip {
+  id: string
+  vehicle_id: string
+  date: string
+  chauffeur: string | null
+  chauffeur_id: string | null
+  excursion: string | null
+  excursion_id: string | null
+  km_depart: number
+  km_arrivee: number
+  carburant: Carburant
+  litres: number
+  prix_litre: number | null
+  montant: number | null
+  lieux_prise_en_charge: string | null
+  note: string | null
+  created_at: string
+}
+
+/** Plein d'AdBlue avec autonomie habituelle attendue (saisie manuelle). */
+export interface AdblueLog {
+  id: string
+  vehicle_id: string
+  date: string
+  litres: number
+  km_compteur: number
+  autonomie_km: number
+  note: string | null
+  created_at: string
+}
+
 // Champs éditables (sans id / created_at)
 export type VehicleInput = Omit<Vehicle, 'id' | 'created_at'>
 export type FuelLogInput = Omit<FuelLog, 'id' | 'created_at'>
 export type MaintenanceLogInput = Omit<MaintenanceLog, 'id' | 'created_at'>
+export type TripInput = Omit<Trip, 'id' | 'created_at'>
+export type AdblueLogInput = Omit<AdblueLog, 'id' | 'created_at'>
+export type ChauffeurInput = Omit<Chauffeur, 'id' | 'created_at'>
+export type GasoilExcursionInput = Omit<GasoilExcursion, 'id' | 'created_at'>

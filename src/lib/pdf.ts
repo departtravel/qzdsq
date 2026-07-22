@@ -1,4 +1,6 @@
 import type { FuelLog, MaintenanceLog, Vehicle } from './types'
+import type { ExcursionCompare, FuelStat } from './gasoil'
+import type { DeadlineStatus as DStatus } from './fleet'
 import {
   assuranceStatus,
   computeConsumption,
@@ -176,4 +178,94 @@ export function printFleetReport(
     </table>`
 
   openPrint('Rapport de flotte', body)
+}
+
+// ----------------------------------------------------------------
+//  Rapport mensuel Contrôle Gasoil
+// ----------------------------------------------------------------
+
+const n1 = (x: number | null) => (x == null ? '—' : x.toFixed(1))
+const n0 = (x: number) => Math.round(x).toLocaleString('fr-FR')
+
+function statsTable(titre: string, colonne: string, stats: FuelStat[]): string {
+  if (stats.length === 0) return ''
+  const rows = stats
+    .map(
+      (s) => `<tr>
+        <td>${esc(s.key)}</td>
+        <td>${s.sorties}</td>
+        <td>${n0(s.km)}</td>
+        <td>${n1(s.litres)}</td>
+        <td style="color:${COLOR[s.worst]}"><b>${n1(s.conso)}</b></td>
+        <td>${n1(s.cost)}</td>
+        <td>${s.costPerKm != null ? s.costPerKm.toFixed(3) : '—'}</td>
+        <td class="${s.anomalies ? 'danger' : ''}">${s.anomalies || '—'}</td>
+      </tr>`,
+    )
+    .join('')
+  return `<h2>${esc(titre)}</h2>
+    <table><thead><tr>
+      <th>${esc(colonne)}</th><th>Sorties</th><th>Km</th><th>Litres</th>
+      <th>Conso L/100</th><th>Coût DT</th><th>Coût/km</th><th>Anomalies</th>
+    </tr></thead><tbody>${rows}</tbody></table>`
+}
+
+export function printGasoilReport(opts: {
+  titre: string
+  periode: string
+  parChauffeur: FuelStat[]
+  parVehicule: FuelStat[]
+  adblue: { matricule: string; status: DStatus }[]
+  excursions: ExcursionCompare[]
+}) {
+  const adblueRows = opts.adblue
+    .map(
+      (a) => `<tr>
+        <td><b>${esc(a.matricule)}</b></td>
+        <td style="color:${COLOR[a.status.severity]}">${esc(a.status.detail)}</td>
+      </tr>`,
+    )
+    .join('')
+
+  const excRows = opts.excursions
+    .filter((e) => e.anomalie)
+    .map(
+      (e) => `<tr>
+        <td><b>${esc(e.nom)}</b></td>
+        <td>${n0(e.minKm)}–${n0(e.maxKm)} km</td>
+        <td class="danger">+${e.ecartMaxPct.toFixed(0)} %</td>
+        <td>${esc(
+          e.rows
+            .filter((r) => r.flag)
+            .map((r) => `${r.chauffeur} (${n0(r.distance)} km${r.justification ? ' — ' + r.justification : ''})`)
+            .join(' · ') || '—',
+        )}</td>
+      </tr>`,
+    )
+    .join('')
+
+  const body = `
+    <h1>Contrôle Gasoil — rapport</h1>
+    <p class="muted">${esc(opts.periode)} · Édité le ${esc(new Date().toLocaleDateString('fr-FR'))}</p>
+
+    ${statsTable('Par chauffeur', 'Chauffeur', opts.parChauffeur)}
+    ${statsTable('Par véhicule', 'Véhicule', opts.parVehicule)}
+
+    ${
+      adblueRows
+        ? `<h2>AdBlue</h2><table><thead><tr><th>Véhicule</th><th>État</th></tr></thead>
+           <tbody>${adblueRows}</tbody></table>`
+        : ''
+    }
+
+    ${
+      excRows
+        ? `<h2>Écarts de km sur une même excursion</h2>
+           <table><thead><tr><th>Excursion</th><th>Km min–max</th><th>Écart</th>
+           <th>Chauffeurs au-dessus (justification)</th></tr></thead>
+           <tbody>${excRows}</tbody></table>`
+        : ''
+    }`
+
+  openPrint(opts.titre, body)
 }

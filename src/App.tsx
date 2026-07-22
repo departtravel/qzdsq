@@ -19,10 +19,12 @@ import { FicheReservation } from './components/erp/FicheReservation'
 import { Utilisateurs } from './components/erp/Utilisateurs'
 import { Parametres } from './components/erp/Parametres'
 import { RelevePartenaire } from './components/erp/RelevePartenaire'
+import { ControleGasoil } from './components/gasoil/ControleGasoil'
 
 type View = { name: 'dashboard' } | { name: 'detail'; id: string } | { name: 'new' }
 type Section =
   | 'flotte'
+  | 'gasoil'
   | 'excursions'
   | 'reservations'
   | 'planning'
@@ -38,6 +40,7 @@ type Section =
   | 'relevepartenaire'
 
 const ERP_SECTIONS: { key: Section; emoji: string; label: string }[] = [
+  { key: 'gasoil', emoji: '⛽', label: 'Contrôle Gasoil' },
   { key: 'excursions', emoji: '🧭', label: 'Excursions' },
   { key: 'reservations', emoji: '📅', label: 'Réservations' },
   { key: 'planning', emoji: '📆', label: 'Planning' },
@@ -54,6 +57,7 @@ const ERP_SECTIONS: { key: Section; emoji: string; label: string }[] = [
 ]
 
 const ERP_COMPONENTS: Record<Exclude<Section, 'flotte'>, JSX.Element> = {
+  gasoil: <ControleGasoil />,
   excursions: <Excursions />,
   reservations: <Reservations />,
   planning: <Planning />,

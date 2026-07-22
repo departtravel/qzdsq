@@ -89,6 +89,34 @@ L'application couvre l'ensemble du cahier des charges via des onglets :
 - **🧠 IA Analytique** — « pourquoi la marge baisse ? », simulations, longue durée vs ponctuelle.
 - **📇 Référentiels** — guides, chauffeurs, restaurants, hébergements, extras, transports, véhicules
   (création automatique du fournisseur associé).
+- **⛽ Contrôle Gasoil** — carnet de bord par sortie + suivi AdBlue (voir ci-dessous).
+
+## ⛽ Contrôle Gasoil (carnet de bord + AdBlue)
+
+Module de suivi carburant **par sortie / excursion** (SQL : `supabase/gasoil.sql`,
+logique testée : `src/lib/gasoil.ts` + `gasoil.test.ts`).
+
+- **Carnet de bord** — une ligne = une sortie : véhicule, **chauffeur** (variable
+  d'une sortie à l'autre), **excursion**, **km départ / km arrivée** (→ distance
+  auto), carburant **gasoil ou essence**, **litres mis par le chauffeur**, prix,
+  montant. Consommation, **coût en dinar** et **coût au km** calculés automatiquement.
+- **Alerte surconsommation** — chaque sortie est comparée à la conso de référence
+  du véhicule ; au-delà du seuil (déf. +15 %) la ligne passe en rouge. Détecte
+  aussi les incohérences (carburant mis sans distance = siphonnage probable,
+  conso anormalement basse = saisie douteuse).
+- **Suivi AdBlue** — à chaque plein : litres, km compteur et **autonomie habituelle
+  saisie manuellement** ; l'app compte les km parcourus et **alerte quand il reste
+  ~500 km** avant le prochain plein (dosage réel L/1000 km affiché en bonus).
+- **Base chauffeurs & liste d'excursions** — gérées dans le module (chauffeurs
+  partagés avec l'ERP), pour les menus déroulants et les comparaisons.
+- **Comparaison par excursion** — pour une **même excursion**, l'app compare les
+  km faits par les **différents chauffeurs** et signale les écarts (ex. +30 % de
+  km), avec un **champ « lieux de prise en charge / détours »** pour justifier une
+  distance/conso plus élevée (prises en charge à plusieurs hôtels, etc.).
+- **Classement chauffeurs** — tableau trié du plus gros consommateur au plus sobre
+  (conso moyenne, coût, coût/km, nombre d'anomalies).
+- **Rapport** — agrégats **par semaine / mois**, par véhicule et par chauffeur,
+  **export CSV** (Excel FR) et **rapport PDF** imprimable.
 
 ### Rôles & workflow (cloisonnement)
 
@@ -121,8 +149,8 @@ update public.profiles set erp_role = 'LOGISTIQUE'   where email = 'karima@...';
 
 Dans le **SQL Editor** de Supabase, exécute dans l'ordre :
 `supabase/schema.sql` → `supabase/erp.sql` → `supabase/rbac.sql` →
-`supabase/missions.sql` → `supabase/settings.sql` → `supabase/seed.sql` →
-`supabase/seed_dts.sql` → `supabase/compta_partenaires.sql`.
+`supabase/missions.sql` → `supabase/settings.sql` → `supabase/gasoil.sql` →
+`supabase/seed.sql` → `supabase/seed_dts.sql` → `supabase/compta_partenaires.sql`.
 
 ## Installation
 
