@@ -21,6 +21,7 @@ import { Parametres } from './components/erp/Parametres'
 import { RelevePartenaire } from './components/erp/RelevePartenaire'
 import { ControleGasoil } from './components/gasoil/ControleGasoil'
 import { InstallButton } from './components/InstallButton'
+import { SupabaseSetup } from './components/SupabaseSetup'
 
 type View = { name: 'dashboard' } | { name: 'detail'; id: string } | { name: 'new' }
 type Section =
@@ -88,7 +89,7 @@ export default function App() {
     return () => sub.subscription.unsubscribe()
   }, [])
 
-  if (!isSupabaseConfigured) return <ConfigNotice />
+  if (!isSupabaseConfigured) return <SupabaseSetup />
   if (!authReady) return <Centered>Chargement…</Centered>
   if (!session) return <Login />
   return <FleetApp userId={session.user.id} email={session.user.email ?? ''} />
@@ -231,40 +232,3 @@ function Centered({ children }: { children: React.ReactNode }) {
   return <div className="flex min-h-screen items-center justify-center text-slate-500">{children}</div>
 }
 
-function ConfigNotice() {
-  return (
-    <div className="mx-auto max-w-2xl px-4 py-16">
-      <div className="rounded-lg border border-amber-200 bg-amber-50 p-6">
-        <h1 className="mb-2 text-xl font-bold text-amber-900">Configuration requise</h1>
-        <p className="mb-4 text-amber-800">
-          L'application n'est pas encore connectée à Supabase. Pour démarrer :
-        </p>
-        <ol className="list-decimal space-y-2 pl-5 text-sm text-amber-900">
-          <li>
-            Crée un projet sur{' '}
-            <a className="underline" href="https://supabase.com" target="_blank" rel="noreferrer">
-              supabase.com
-            </a>
-            .
-          </li>
-          <li>
-            Dans <strong>SQL Editor</strong>, exécute le contenu de{' '}
-            <code className="rounded bg-amber-100 px-1">supabase/schema.sql</code>.
-          </li>
-          <li>
-            Dans <strong>Authentication → Users</strong>, crée au moins un compte.
-          </li>
-          <li>
-            Copie <code className="rounded bg-amber-100 px-1">.env.example</code> en{' '}
-            <code className="rounded bg-amber-100 px-1">.env</code> et renseigne{' '}
-            <code className="rounded bg-amber-100 px-1">VITE_SUPABASE_URL</code> et{' '}
-            <code className="rounded bg-amber-100 px-1">VITE_SUPABASE_ANON_KEY</code> (Settings → API).
-          </li>
-          <li>
-            Relance <code className="rounded bg-amber-100 px-1">npm run dev</code>.
-          </li>
-        </ol>
-      </div>
-    </div>
-  )
-}

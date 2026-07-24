@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { supabase } from '../lib/supabase'
+import { isRuntimeConfig, resetSupabaseConfig, supabase } from '../lib/supabase'
 
 export function Login() {
   const [email, setEmail] = useState('')
@@ -81,6 +81,15 @@ export function Login() {
         <p className="mt-4 text-center text-xs text-slate-400">
           Les comptes sont créés dans Supabase → Authentication → Users.
         </p>
+        {isRuntimeConfig && (
+          <button
+            type="button"
+            onClick={resetSupabaseConfig}
+            className="mt-2 w-full text-center text-xs text-slate-400 hover:underline"
+          >
+            Changer de projet Supabase
+          </button>
+        )}
       </form>
     </div>
   )
