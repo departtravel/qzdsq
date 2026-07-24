@@ -10,6 +10,7 @@ create table if not exists public.vehicles (
   matricule       text not null unique,
   marque          text,
   modele          text,
+  annee           integer check (annee is null or annee between 1950 and 2100),
   chauffeur       text,
   actif           boolean not null default true,
 
@@ -17,6 +18,10 @@ create table if not exists public.vehicles (
   conso_normale    numeric not null default 8 check (conso_normale > 0),
   -- Surconsommation si la conso réelle dépasse la normale de + de X %
   seuil_alerte_pct numeric not null default 15 check (seuil_alerte_pct >= 0),
+
+  -- Préavis d'alerte configurable (« prévenir X km / X jours en avance »)
+  preavis_km       integer not null default 4000 check (preavis_km >= 0),
+  preavis_jours    integer not null default 30   check (preavis_jours >= 0),
 
   -- Vidange
   date_vidange          date,
@@ -42,6 +47,9 @@ alter table public.vehicles add column if not exists chauffeur text;
 alter table public.vehicles add column if not exists actif boolean not null default true;
 alter table public.vehicles add column if not exists date_visite_technique date;
 alter table public.vehicles add column if not exists date_vignette date;
+alter table public.vehicles add column if not exists annee integer;
+alter table public.vehicles add column if not exists preavis_km integer not null default 4000;
+alter table public.vehicles add column if not exists preavis_jours integer not null default 30;
 
 -- ----- Journal des pleins de gasoil -------------------------
 create table if not exists public.fuel_logs (

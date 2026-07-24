@@ -114,6 +114,8 @@ export function vidangeStatus(v: Vehicle, km: number | null): DeadlineStatus {
     v.km_vidange,
     v.vidange_interval_km,
     km,
+    v.preavis_jours,
+    v.preavis_km,
   )
 }
 
@@ -125,21 +127,21 @@ export function distributionStatus(v: Vehicle, km: number | null): DeadlineStatu
     v.km_distribution,
     v.distribution_interval_km,
     km,
-    0,
-    5000,
+    v.preavis_jours,
+    v.preavis_km,
   )
 }
 
 export function assuranceStatus(v: Vehicle): DeadlineStatus {
-  return dateStatus('Assurance', v.date_assurance)
+  return dateStatus('Assurance', v.date_assurance, v.preavis_jours)
 }
 
 export function visiteTechniqueStatus(v: Vehicle): DeadlineStatus {
-  return dateStatus('Visite technique', v.date_visite_technique)
+  return dateStatus('Visite technique', v.date_visite_technique, v.preavis_jours)
 }
 
 export function vignetteStatus(v: Vehicle): DeadlineStatus {
-  return dateStatus('Vignette', v.date_vignette)
+  return dateStatus('Vignette', v.date_vignette, v.preavis_jours)
 }
 
 // ----------------------------------------------------------------

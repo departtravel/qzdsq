@@ -12,10 +12,13 @@ export interface Vehicle {
   matricule: string
   marque: string | null
   modele: string | null
+  annee: number | null
   chauffeur: string | null
   actif: boolean
   conso_normale: number
   seuil_alerte_pct: number
+  preavis_km: number
+  preavis_jours: number
   date_vidange: string | null
   km_vidange: number | null
   vidange_interval_km: number | null

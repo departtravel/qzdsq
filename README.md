@@ -15,12 +15,15 @@ Stack : **React + Vite + TypeScript + Tailwind**, backend **Supabase**
   pour les comptes en lecture seule, et l'écriture est bloquée côté base (RLS).
 - **Notifications e-mail** des échéances proches (Supabase Edge Function + cron).
 - **Export PDF** (rapport de flotte + fiche véhicule imprimable).
-- **Fiche véhicule** : matricule, marque/modèle, chauffeur, conso de référence,
-  statut actif/archivé.
+- **Fiche véhicule** : matricule, marque/modèle, **année**, chauffeur, conso de
+  référence, statut actif/archivé.
 - **Échéances** avec badges de couleur : 🟢 OK · 🟠 bientôt · 🔴 dépassé pour
   vidange, distribution, assurance, visite technique et vignette.
   - Vidange & distribution gérées par **date *et* kilométrage** (la plus proche
     des deux l'emporte).
+  - **Préavis configurable par véhicule** : « prévenir X km à l'avance » (déf.
+    4000 km, pour vidange/distribution) et « X jours à l'avance » (déf. 30 j,
+    pour assurance/visite technique/vignette).
 - **Journal des pleins** : date, km, litres, prix/montant, plein complet ou non.
 - **Contrôle de consommation** : conso réelle par plein **et** moyenne globale
   robuste, comparées à la conso normale ; alerte au-delà du seuil (déf. +15 %).
@@ -136,6 +139,40 @@ Une fois installée : icône dédiée, ouverture en plein écran, et la **coquil
 l'app fonctionne hors-ligne** (les données restent synchronisées avec Supabase
 dès que la connexion revient). Techniquement : `vite-plugin-pwa` (manifeste +
 service worker), icônes dans `public/icons/`.
+
+## 💻 Application de bureau téléchargeable (Windows / Mac / Linux)
+
+En plus de la PWA, l'app se package en **vraie application de bureau** (Electron)
+avec un **installeur téléchargeable** — tout en restant **connectée à Supabase**
+(les données restent en ligne, rien n'est enfermé sur le poste).
+
+### Télécharger l'installeur (recommandé)
+
+Les installeurs sont générés automatiquement par **GitHub Actions**
+(`.github/workflows/desktop.yml`) et attachés à une **Release** :
+
+1. Dans le dépôt GitHub → **Settings → Secrets and variables → Actions**, ajoute
+   `VITE_SUPABASE_URL` et `VITE_SUPABASE_ANON_KEY`.
+2. Crée une version : `git tag v0.1.0 && git push origin v0.1.0`
+   (ou onglet **Actions → Build desktop app → Run workflow**).
+3. Récupère l'installeur dans **Releases** : `Controle Gasoil-x.y.z.exe` (Windows),
+   `.dmg` (Mac) ou `.AppImage` (Linux).
+
+### Construire en local
+
+```bash
+cp .env.example .env      # renseigne les 2 variables Supabase
+npm install
+npm run dist:win          # → release/Controle Gasoil-x.y.z.exe   (sur Windows)
+npm run dist:mac          # → .dmg                                 (sur Mac)
+npm run dist:linux        # → .AppImage                            (sur Linux)
+```
+
+> Chaque OS se construit sur la machine correspondante (un `.exe` se génère sous
+> Windows). Le workflow GitHub Actions couvre les trois d'un coup.
+
+Développement desktop en direct : `npm run electron:dev` (fenêtre native +
+rechargement à chaud).
 
 ### Rôles & workflow (cloisonnement)
 

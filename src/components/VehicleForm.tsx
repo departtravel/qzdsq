@@ -12,10 +12,13 @@ function emptyInput(): VehicleInput {
     matricule: '',
     marque: '',
     modele: '',
+    annee: null,
     chauffeur: '',
     actif: true,
     conso_normale: 8,
     seuil_alerte_pct: 15,
+    preavis_km: 4000,
+    preavis_jours: 30,
     date_vidange: null,
     km_vidange: null,
     vidange_interval_km: 10000,
@@ -97,6 +100,10 @@ export function VehicleForm({ initial, onSave, onCancel }: Props) {
             <label className={label}>Modèle</label>
             <input className={input} value={form.modele ?? ''} onChange={(e) => set('modele', e.target.value)} />
           </div>
+          <div>
+            <label className={label}>Année</label>
+            <input type="number" className={input} value={form.annee ?? ''} onChange={(e) => set('annee', num(e.target.value))} placeholder="2019" />
+          </div>
         </div>
         <label className="mt-3 flex items-center gap-2 text-sm text-slate-700">
           <input type="checkbox" checked={form.actif} onChange={(e) => set('actif', e.target.checked)} />
@@ -114,6 +121,23 @@ export function VehicleForm({ initial, onSave, onCancel }: Props) {
           <div>
             <label className={label}>Seuil d'alerte (% au-dessus du normal)</label>
             <input type="number" step="1" className={input} value={form.seuil_alerte_pct} onChange={(e) => set('seuil_alerte_pct', Number(e.target.value))} />
+          </div>
+        </div>
+      </section>
+
+      <section>
+        <h3 className="mb-2 font-semibold text-slate-700">Préavis d'alerte</h3>
+        <p className="mb-2 text-xs text-slate-500">
+          À combien de temps / de kilomètres avant l'échéance l'app doit-elle prévenir ?
+        </p>
+        <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+          <div>
+            <label className={label}>Prévenir … km à l'avance (vidange, distribution)</label>
+            <input type="number" step="100" className={input} value={form.preavis_km} onChange={(e) => set('preavis_km', Number(e.target.value))} placeholder="4000" />
+          </div>
+          <div>
+            <label className={label}>Prévenir … jours à l'avance (assurance, visite…)</label>
+            <input type="number" step="1" className={input} value={form.preavis_jours} onChange={(e) => set('preavis_jours', Number(e.target.value))} placeholder="30" />
           </div>
         </div>
       </section>

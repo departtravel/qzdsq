@@ -2,10 +2,17 @@ import { defineConfig } from 'vite'
 import react from '@vitejs/plugin-react'
 import { VitePWA } from 'vite-plugin-pwa'
 
+// Build desktop (Electron) : chemins relatifs pour file:// et pas de PWA.
+const isElectron = process.env.ELECTRON === '1'
+
 // https://vite.dev/config/
 export default defineConfig({
+  base: isElectron ? './' : '/',
   plugins: [
     react(),
+    ...(isElectron
+      ? []
+      : [
     VitePWA({
       registerType: 'autoUpdate',
       includeAssets: ['icons/favicon-64.png', 'icons/apple-touch-icon.png'],
@@ -38,5 +45,6 @@ export default defineConfig({
         navigateFallbackDenylist: [/^\/rest\//, /^\/auth\//, /^\/storage\//],
       },
     }),
+        ]),
   ],
 })

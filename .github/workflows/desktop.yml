@@ -1,0 +1,72 @@
+name: Build desktop app
+
+# Produit les installeurs de bureau (Windows .exe, macOS .dmg, Linux AppImage)
+# de « Contrôle Gasoil ». L'app reste connectée à Supabase (données en ligne).
+#
+# Déclenchement :
+#   - en poussant un tag de version, ex.  git tag v0.1.0 && git push origin v0.1.0
+#     → les installeurs sont attachés à une Release GitHub (téléchargeables).
+#   - manuellement (onglet Actions → Run workflow) → installeurs en artefacts.
+#
+# Prérequis : définir dans Settings → Secrets and variables → Actions :
+#   VITE_SUPABASE_URL        (Project URL Supabase)
+#   VITE_SUPABASE_ANON_KEY   (clé anon public)
+
+on:
+  push:
+    tags: ['v*']
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  build:
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - os: windows-latest
+            script: dist:win
+          - os: macos-latest
+            script: dist:mac
+          - os: ubuntu-latest
+            script: dist:linux
+    runs-on: ${{ matrix.os }}
+    env:
+      VITE_SUPABASE_URL: ${{ secrets.VITE_SUPABASE_URL }}
+      VITE_SUPABASE_ANON_KEY: ${{ secrets.VITE_SUPABASE_ANON_KEY }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Build installer (${{ matrix.os }})
+        run: npm run ${{ matrix.script }}
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Upload installers as artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: controle-gasoil-${{ matrix.os }}
+          path: |
+            release/*.exe
+            release/*.dmg
+            release/*.AppImage
+          if-no-files-found: ignore
+
+      - name: Attach installers to the Release
+        if: startsWith(github.ref, 'refs/tags/')
+        uses: softprops/action-gh-release@v2
+        with:
+          files: |
+            release/*.exe
+            release/*.dmg
+            release/*.AppImage
