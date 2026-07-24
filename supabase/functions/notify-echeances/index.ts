@@ -16,6 +16,8 @@ import { createClient } from 'https://esm.sh/@supabase/supabase-js@2'
 interface Vehicle {
   id: string
   matricule: string
+  preavis_km: number | null
+  preavis_jours: number | null
   date_vidange: string | null
   vidange_interval_mois: number | null
   km_vidange: number | null
@@ -51,7 +53,9 @@ Deno.serve(async (req: Request) => {
       Deno.env.get('SUPABASE_URL')!,
       Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!,
     )
-    const warnDays = Number(Deno.env.get('NOTIFY_DAYS_AHEAD') ?? '30')
+    // Préavis par défaut si non renseigné sur le véhicule.
+    const defautJours = Number(Deno.env.get('NOTIFY_DAYS_AHEAD') ?? '30')
+    const defautKm = 4000
 
     const { data: vehicles, error } = await supabase
       .from('vehicles')
@@ -59,25 +63,46 @@ Deno.serve(async (req: Request) => {
       .eq('actif', true)
     if (error) throw error
 
-    // Kilométrage courant par véhicule (max des pleins)
-    const { data: logs } = await supabase.from('fuel_logs').select('vehicle_id, km')
+    // Kilométrage courant par véhicule : max de TOUTES les sources
+    // (pleins, carnet de bord des sorties, pleins AdBlue).
     const kmByVehicle: Record<string, number> = {}
-    for (const l of logs ?? []) {
-      kmByVehicle[l.vehicle_id] = Math.max(kmByVehicle[l.vehicle_id] ?? 0, l.km)
+    const bump = (id: string, km: number | null | undefined) => {
+      if (km == null) return
+      kmByVehicle[id] = Math.max(kmByVehicle[id] ?? 0, km)
     }
+    const [{ data: logs }, { data: trips }, { data: adblue }] = await Promise.all([
+      supabase.from('fuel_logs').select('vehicle_id, km'),
+      supabase.from('trips').select('vehicle_id, km_arrivee'),
+      supabase.from('adblue_logs').select('vehicle_id, km_compteur'),
+    ])
+    for (const l of logs ?? []) bump(l.vehicle_id, l.km)
+    for (const t of trips ?? []) bump(t.vehicle_id, t.km_arrivee)
+    for (const a of adblue ?? []) bump(a.vehicle_id, a.km_compteur)
 
     const alerts: { matricule: string; label: string; detail: string; overdue: boolean }[] = []
 
     for (const v of (vehicles as Vehicle[]) ?? []) {
       const km = kmByVehicle[v.id] ?? null
+      const preavisJours = v.preavis_jours ?? defautJours
+      const preavisKm = v.preavis_km ?? defautKm
       const push = (label: string, days: number | null) => {
         if (days === null) return
-        if (days <= warnDays) {
+        if (days <= preavisJours) {
           alerts.push({
             matricule: v.matricule,
             label,
             detail: days < 0 ? `dépassé de ${-days} j` : `dans ${days} j`,
             overdue: days < 0,
+          })
+        }
+      }
+      const pushKm = (label: string, remaining: number) => {
+        if (remaining <= preavisKm) {
+          alerts.push({
+            matricule: v.matricule,
+            label,
+            detail: remaining < 0 ? `dépassé de ${-remaining} km` : `dans ${remaining} km`,
+            overdue: remaining < 0,
           })
         }
       }
@@ -88,28 +113,12 @@ Deno.serve(async (req: Request) => {
       if (v.date_vidange && v.vidange_interval_mois) {
         push('Vidange (date)', daysUntil(addMonths(v.date_vidange, v.vidange_interval_mois)))
       }
-      // Échéances kilométriques
+      // Échéances kilométriques (préavis configurable par véhicule)
       if (km != null && v.km_vidange != null && v.vidange_interval_km) {
-        const remaining = v.km_vidange + v.vidange_interval_km - km
-        if (remaining <= 1000) {
-          alerts.push({
-            matricule: v.matricule,
-            label: 'Vidange (km)',
-            detail: remaining < 0 ? `dépassé de ${-remaining} km` : `dans ${remaining} km`,
-            overdue: remaining < 0,
-          })
-        }
+        pushKm('Vidange (km)', v.km_vidange + v.vidange_interval_km - km)
       }
       if (km != null && v.km_distribution != null && v.distribution_interval_km) {
-        const remaining = v.km_distribution + v.distribution_interval_km - km
-        if (remaining <= 5000) {
-          alerts.push({
-            matricule: v.matricule,
-            label: 'Distribution (km)',
-            detail: remaining < 0 ? `dépassé de ${-remaining} km` : `dans ${remaining} km`,
-            overdue: remaining < 0,
-          })
-        }
+        pushKm('Distribution (km)', v.km_distribution + v.distribution_interval_km - km)
       }
     }
 
@@ -132,7 +141,7 @@ Deno.serve(async (req: Request) => {
       .join('')
     const html = `
       <h2>🚚 Échéances de la flotte</h2>
-      <p>${alerts.length} échéance(s) dans les ${warnDays} prochains jours :</p>
+      <p>${alerts.length} échéance(s) proche(s) ou dépassée(s) (préavis par véhicule) :</p>
       <table style="border-collapse:collapse;font-family:Arial,sans-serif;font-size:14px">
         <thead><tr>
           <th style="padding:6px 10px;border:1px solid #e2e8f0;background:#f1f5f9">Matricule</th>

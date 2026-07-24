@@ -123,6 +123,7 @@ export function VehicleDetail({ vehicle, isAdmin, onBack, onChanged }: Props) {
           </h2>
           <p className="text-slate-500">
             {[vehicle.marque, vehicle.modele].filter(Boolean).join(' ')}
+            {vehicle.annee && ` (${vehicle.annee})`}
             {vehicle.chauffeur && ` · 👤 ${vehicle.chauffeur}`}
             {km != null && ` · ${km.toLocaleString('fr-FR')} km`}
           </p>

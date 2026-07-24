@@ -15,12 +15,15 @@ Stack : **React + Vite + TypeScript + Tailwind**, backend **Supabase**
   pour les comptes en lecture seule, et l'écriture est bloquée côté base (RLS).
 - **Notifications e-mail** des échéances proches (Supabase Edge Function + cron).
 - **Export PDF** (rapport de flotte + fiche véhicule imprimable).
-- **Fiche véhicule** : matricule, marque/modèle, chauffeur, conso de référence,
-  statut actif/archivé.
+- **Fiche véhicule** : matricule, marque/modèle, **année**, chauffeur, conso de
+  référence, statut actif/archivé.
 - **Échéances** avec badges de couleur : 🟢 OK · 🟠 bientôt · 🔴 dépassé pour
   vidange, distribution, assurance, visite technique et vignette.
   - Vidange & distribution gérées par **date *et* kilométrage** (la plus proche
     des deux l'emporte).
+  - **Préavis configurable par véhicule** : « prévenir X km à l'avance » (déf.
+    4000 km, pour vidange/distribution) et « X jours à l'avance » (déf. 30 j,
+    pour assurance/visite technique/vignette).
 - **Journal des pleins** : date, km, litres, prix/montant, plein complet ou non.
 - **Contrôle de consommation** : conso réelle par plein **et** moyenne globale
   robuste, comparées à la conso normale ; alerte au-delà du seuil (déf. +15 %).
@@ -89,6 +92,87 @@ L'application couvre l'ensemble du cahier des charges via des onglets :
 - **🧠 IA Analytique** — « pourquoi la marge baisse ? », simulations, longue durée vs ponctuelle.
 - **📇 Référentiels** — guides, chauffeurs, restaurants, hébergements, extras, transports, véhicules
   (création automatique du fournisseur associé).
+- **⛽ Contrôle Gasoil** — carnet de bord par sortie + suivi AdBlue (voir ci-dessous).
+
+## ⛽ Contrôle Gasoil (carnet de bord + AdBlue)
+
+Module de suivi carburant **par sortie / excursion** (SQL : `supabase/gasoil.sql`,
+logique testée : `src/lib/gasoil.ts` + `gasoil.test.ts`).
+
+- **Carnet de bord** — une ligne = une sortie : véhicule, **chauffeur** (variable
+  d'une sortie à l'autre), **excursion**, **km départ / km arrivée** (→ distance
+  auto), carburant **gasoil ou essence**, **litres mis par le chauffeur**, prix,
+  montant. Consommation, **coût en dinar** et **coût au km** calculés automatiquement.
+- **Alerte surconsommation** — chaque sortie est comparée à la conso de référence
+  du véhicule ; au-delà du seuil (déf. +15 %) la ligne passe en rouge. Détecte
+  aussi les incohérences (carburant mis sans distance = siphonnage probable,
+  conso anormalement basse = saisie douteuse).
+- **Suivi AdBlue** — à chaque plein : litres, km compteur et **autonomie habituelle
+  saisie manuellement** ; l'app compte les km parcourus et **alerte quand il reste
+  ~500 km** avant le prochain plein (dosage réel L/1000 km affiché en bonus).
+- **Base chauffeurs & liste d'excursions** — gérées dans le module (chauffeurs
+  partagés avec l'ERP), pour les menus déroulants et les comparaisons.
+- **Comparaison par excursion** — pour une **même excursion**, l'app compare les
+  km faits par les **différents chauffeurs** et signale les écarts (ex. +30 % de
+  km), avec un **champ « lieux de prise en charge / détours »** pour justifier une
+  distance/conso plus élevée (prises en charge à plusieurs hôtels, etc.).
+- **Coût gasoil par excursion (rentabilité)** — coût carburant réel consolidé par
+  excursion (moyenne par sortie, coût/km, total) à rapprocher du prix de vente.
+- **Photo du ticket de carburant** — justificatif joint à chaque sortie (depuis
+  l'appareil photo du téléphone), stocké dans Supabase Storage (bucket `tickets`).
+- **Classement chauffeurs** — tableau trié du plus gros consommateur au plus sobre
+  (conso moyenne, coût, coût/km, nombre d'anomalies).
+- **Rapport** — agrégats **par semaine / mois**, par véhicule et par chauffeur,
+  **export CSV** (Excel FR) et **rapport PDF** imprimable.
+
+## 📱 Application installable (PWA)
+
+L'app est une **PWA** : installable comme une vraie application, sans passer par
+un store, sur **Android, iPhone et ordinateur**.
+
+- **Android / Chrome / Edge** : un bouton **« ⬇️ Installer l'app »** apparaît dans
+  l'en-tête ; sinon menu ⋮ → *Installer l'application*.
+- **iPhone / Safari** : bouton **Partager** → *Sur l'écran d'accueil*.
+- **PC** : icône d'installation dans la barre d'adresse.
+
+Une fois installée : icône dédiée, ouverture en plein écran, et la **coquille de
+l'app fonctionne hors-ligne** (les données restent synchronisées avec Supabase
+dès que la connexion revient). Techniquement : `vite-plugin-pwa` (manifeste +
+service worker), icônes dans `public/icons/`.
+
+## 💻 Application de bureau téléchargeable (Windows / Mac / Linux)
+
+En plus de la PWA, l'app se package en **vraie application de bureau** (Electron)
+avec un **installeur téléchargeable** — tout en restant **connectée à Supabase**
+(les données restent en ligne, rien n'est enfermé sur le poste).
+
+### Télécharger l'installeur (recommandé)
+
+Les installeurs sont générés automatiquement par **GitHub Actions**
+(`.github/workflows/desktop.yml`) et attachés à une **Release** :
+
+1. Dans le dépôt GitHub → **Settings → Secrets and variables → Actions**, ajoute
+   `VITE_SUPABASE_URL` et `VITE_SUPABASE_ANON_KEY`.
+2. Crée une version : `git tag v0.1.0 && git push origin v0.1.0`
+   (ou onglet **Actions → Build desktop app → Run workflow**).
+3. Récupère l'installeur dans **Releases** : `Controle Gasoil-x.y.z.exe` (Windows),
+   `.dmg` (Mac) ou `.AppImage` (Linux).
+
+### Construire en local
+
+```bash
+cp .env.example .env      # renseigne les 2 variables Supabase
+npm install
+npm run dist:win          # → release/Controle Gasoil-x.y.z.exe   (sur Windows)
+npm run dist:mac          # → .dmg                                 (sur Mac)
+npm run dist:linux        # → .AppImage                            (sur Linux)
+```
+
+> Chaque OS se construit sur la machine correspondante (un `.exe` se génère sous
+> Windows). Le workflow GitHub Actions couvre les trois d'un coup.
+
+Développement desktop en direct : `npm run electron:dev` (fenêtre native +
+rechargement à chaud).
 
 ### Rôles & workflow (cloisonnement)
 
@@ -121,8 +205,8 @@ update public.profiles set erp_role = 'LOGISTIQUE'   where email = 'karima@...';
 
 Dans le **SQL Editor** de Supabase, exécute dans l'ordre :
 `supabase/schema.sql` → `supabase/erp.sql` → `supabase/rbac.sql` →
-`supabase/missions.sql` → `supabase/settings.sql` → `supabase/seed.sql` →
-`supabase/seed_dts.sql` → `supabase/compta_partenaires.sql`.
+`supabase/missions.sql` → `supabase/settings.sql` → `supabase/gasoil.sql` →
+`supabase/seed.sql` → `supabase/seed_dts.sql` → `supabase/compta_partenaires.sql`.
 
 ## Installation
 
