@@ -1,18 +1,22 @@
 import { defineConfig } from 'vite'
 import react from '@vitejs/plugin-react'
 import { VitePWA } from 'vite-plugin-pwa'
+import { viteSingleFile } from 'vite-plugin-singlefile'
 
 // Build desktop (Electron) : chemins relatifs pour file:// et pas de PWA.
 const isElectron = process.env.ELECTRON === '1'
 // Build GitHub Pages : servi sous /qzdsq/ (nom du dépôt).
 const isPages = process.env.PAGES === '1'
+// Build mono-fichier : un seul index.html autonome, ouvrable en double-clic.
+const isSingle = process.env.SINGLEFILE === '1'
 
 // https://vite.dev/config/
 export default defineConfig({
-  base: isElectron ? './' : isPages ? '/qzdsq/' : '/',
+  base: isElectron || isSingle ? './' : isPages ? '/qzdsq/' : '/',
   plugins: [
     react(),
-    ...(isElectron
+    ...(isSingle ? [viteSingleFile()] : []),
+    ...(isElectron || isSingle
       ? []
       : [
     VitePWA({
