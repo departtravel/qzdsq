@@ -6,6 +6,7 @@ import {
   consumptionSummary,
   currentKm,
   dateStatus,
+  vehicleStatuses,
   vidangeStatus,
   worstSeverity,
 } from './fleet'
@@ -108,6 +109,31 @@ describe('vidangeStatus (km)', () => {
       vidange_interval_mois: 12,
     })
     expect(vidangeStatus(v, 11000).severity).toBe('danger')
+  })
+})
+
+describe('km réel via carnet de bord (kmOverride)', () => {
+  it('distribution : le km des sorties déclenche l’alerte même sans plein', () => {
+    const v = makeVehicle({ km_distribution: 100000, distribution_interval_km: 150000, preavis_km: 4000 })
+    // prochaine à 250000 ; km via sorties = 248000 → reste 2000 ≤ 4000 → warn
+    const distrib = vehicleStatuses(v, [], 248000).find((s) => s.label === 'Distribution')!
+    expect(distrib.severity).toBe('warn')
+  })
+  it('distribution : danger si dépassé via sorties', () => {
+    const v = makeVehicle({ km_distribution: 100000, distribution_interval_km: 150000, preavis_km: 4000 })
+    const distrib = vehicleStatuses(v, [], 251000).find((s) => s.label === 'Distribution')!
+    expect(distrib.severity).toBe('danger')
+  })
+  it('prend le max entre pleins et sorties', () => {
+    const v = makeVehicle({ km_vidange: 10000, vidange_interval_km: 10000, preavis_km: 1000 })
+    // plein à 12000, sortie à 19500 → prochaine vidange 20000 → reste 500 → warn
+    const vid = vehicleStatuses(v, [makeFuel(12000, 40)], 19500).find((s) => s.label === 'Vidange')!
+    expect(vid.severity).toBe('warn')
+  })
+  it('buildReminders utilise kmByVehicle', () => {
+    const v = makeVehicle({ km_distribution: 0, distribution_interval_km: 10000, preavis_km: 1000 })
+    const rem = buildReminders([v], {}, { v1: 9500 }) // reste 500 km → alerte
+    expect(rem.some((r) => r.status.label === 'Distribution')).toBe(true)
   })
 })
 

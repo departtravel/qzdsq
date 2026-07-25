@@ -4,11 +4,12 @@ import { buildReminders } from '../lib/fleet'
 interface Props {
   vehicles: Vehicle[]
   logsByVehicle: Record<string, FuelLog[]>
+  kmByVehicle?: Record<string, number>
   onSelect: (v: Vehicle) => void
 }
 
-export function RemindersPanel({ vehicles, logsByVehicle, onSelect }: Props) {
-  const reminders = buildReminders(vehicles, logsByVehicle)
+export function RemindersPanel({ vehicles, logsByVehicle, kmByVehicle, onSelect }: Props) {
+  const reminders = buildReminders(vehicles, logsByVehicle, kmByVehicle)
   if (reminders.length === 0) {
     return (
       <div className="rounded-lg border border-green-200 bg-green-50 px-4 py-3 text-sm text-green-800">

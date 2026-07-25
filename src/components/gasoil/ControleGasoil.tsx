@@ -183,6 +183,11 @@ export function ControleGasoil() {
     if (error) throw new Error(error.message)
     await load()
   }
+  async function deleteChauffeur(id: string) {
+    if (!confirm('Supprimer ce chauffeur ?')) return
+    await supabase.from('chauffeurs').delete().eq('id', id)
+    await load()
+  }
   async function addExcursion(nom: string, kmRef: string) {
     const { error } = await supabase
       .from('gasoil_excursions')
@@ -300,6 +305,7 @@ export function ControleGasoil() {
           stats={statsChauffeurs}
           chauffeurs={chauffeurs}
           onAdd={addChauffeur}
+          onDelete={deleteChauffeur}
         />
       )}
 
@@ -500,6 +506,7 @@ function ChauffeursTab(props: {
   stats: ReturnType<typeof parChauffeur>
   chauffeurs: Chauffeur[]
   onAdd: (nom: string, prenom: string, tel: string) => Promise<void>
+  onDelete: (id: string) => Promise<void>
 }) {
   const [nom, setNom] = useState('')
   const [prenom, setPrenom] = useState('')
@@ -533,9 +540,14 @@ function ChauffeursTab(props: {
             </button>
           </form>
           {props.chauffeurs.length > 0 && (
-            <p className="mt-2 text-xs text-slate-500">
-              {props.chauffeurs.length} chauffeur(s) : {props.chauffeurs.map(nomComplet).join(', ')}
-            </p>
+            <ul className="mt-3 flex flex-wrap gap-2">
+              {props.chauffeurs.map((c) => (
+                <li key={c.id} className="flex items-center gap-2 rounded bg-slate-100 px-2 py-1 text-xs">
+                  {nomComplet(c)}
+                  <button onClick={() => props.onDelete(c.id)} className="text-slate-400 hover:text-red-600" title="Supprimer">✕</button>
+                </li>
+              ))}
+            </ul>
           )}
         </div>
       )}

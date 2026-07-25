@@ -9,12 +9,13 @@ import { RemindersPanel } from './RemindersPanel'
 interface Props {
   vehicles: Vehicle[]
   logsByVehicle: Record<string, FuelLog[]>
+  kmByVehicle: Record<string, number>
   isAdmin: boolean
   onSelect: (v: Vehicle) => void
   onAdd: () => void
 }
 
-export function Dashboard({ vehicles, logsByVehicle, isAdmin, onSelect, onAdd }: Props) {
+export function Dashboard({ vehicles, logsByVehicle, kmByVehicle, isAdmin, onSelect, onAdd }: Props) {
   const [search, setSearch] = useState('')
   const [showArchived, setShowArchived] = useState(false)
 
@@ -68,7 +69,7 @@ export function Dashboard({ vehicles, logsByVehicle, isAdmin, onSelect, onAdd }:
         </div>
       </div>
 
-      <RemindersPanel vehicles={vehicles.filter((v) => v.actif)} logsByVehicle={logsByVehicle} onSelect={onSelect} />
+      <RemindersPanel vehicles={vehicles.filter((v) => v.actif)} logsByVehicle={logsByVehicle} kmByVehicle={kmByVehicle} onSelect={onSelect} />
 
       <div className="flex flex-wrap items-center gap-3">
         <input
@@ -93,8 +94,8 @@ export function Dashboard({ vehicles, logsByVehicle, isAdmin, onSelect, onAdd }:
         <div className="grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-3">
           {filtered.map((v) => {
             const logs = logsByVehicle[v.id] ?? []
-            const km = currentKm(logs)
-            const statuses = vehicleStatuses(v, logs)
+            const km = kmByVehicle[v.id] ?? currentKm(logs)
+            const statuses = vehicleStatuses(v, logs, kmByVehicle[v.id])
             const worst = worstSeverity(statuses)
             const ring =
               worst === 'danger'

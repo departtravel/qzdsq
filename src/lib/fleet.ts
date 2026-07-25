@@ -228,8 +228,15 @@ export function consumptionSummary(vehicle: Vehicle, logs: FuelLog[]): DeadlineS
 //  Agrégation : statuts d'un véhicule + rappels de la flotte
 // ----------------------------------------------------------------
 
-export function vehicleStatuses(v: Vehicle, logs: FuelLog[]): DeadlineStatus[] {
-  const km = currentKm(logs)
+export function vehicleStatuses(
+  v: Vehicle,
+  logs: FuelLog[],
+  kmOverride?: number | null,
+): DeadlineStatus[] {
+  // km réel = le plus grand entre les pleins et le km fourni (carnet de bord).
+  const kmLogs = currentKm(logs)
+  const km =
+    kmOverride != null ? Math.max(kmOverride, kmLogs ?? 0) : kmLogs
   return [
     vidangeStatus(v, km),
     distributionStatus(v, km),
@@ -249,10 +256,11 @@ export interface Reminder {
 export function buildReminders(
   vehicles: Vehicle[],
   logsByVehicle: Record<string, FuelLog[]>,
+  kmByVehicle: Record<string, number | null> = {},
 ): Reminder[] {
   const reminders: Reminder[] = []
   for (const v of vehicles) {
-    for (const status of vehicleStatuses(v, logsByVehicle[v.id] ?? [])) {
+    for (const status of vehicleStatuses(v, logsByVehicle[v.id] ?? [], kmByVehicle[v.id])) {
       if (status.severity === 'danger' || status.severity === 'warn') {
         reminders.push({ vehicle: v, status })
       }

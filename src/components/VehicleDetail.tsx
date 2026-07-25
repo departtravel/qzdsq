@@ -28,6 +28,7 @@ import { VehicleForm } from './VehicleForm'
 interface Props {
   vehicle: Vehicle
   isAdmin: boolean
+  extraKm?: number | null
   onBack: () => void
   onChanged: () => void
 }
@@ -39,7 +40,7 @@ const rowColor: Record<Severity, string> = {
   unknown: '',
 }
 
-export function VehicleDetail({ vehicle, isAdmin, onBack, onChanged }: Props) {
+export function VehicleDetail({ vehicle, isAdmin, extraKm, onBack, onChanged }: Props) {
   const [logs, setLogs] = useState<FuelLog[]>([])
   const [maint, setMaint] = useState<MaintenanceLog[]>([])
   const [loading, setLoading] = useState(true)
@@ -61,7 +62,8 @@ export function VehicleDetail({ vehicle, isAdmin, onBack, onChanged }: Props) {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [vehicle.id])
 
-  const km = currentKm(logs)
+  const kmLogs = currentKm(logs)
+  const km = extraKm != null ? Math.max(extraKm, kmLogs ?? 0) : kmLogs
   const rows = computeConsumption(vehicle, logs)
 
   async function addLog(input: FuelLogInput) {

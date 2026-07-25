@@ -44,6 +44,7 @@ export default function App() {
 function FleetApp({ userId, email }: { userId: string; email: string }) {
   const [vehicles, setVehicles] = useState<Vehicle[]>([])
   const [logsByVehicle, setLogsByVehicle] = useState<Record<string, FuelLog[]>>({})
+  const [kmByVehicle, setKmByVehicle] = useState<Record<string, number>>({})
   const [role, setRole] = useState<Role>('viewer')
   const [section, setSection] = useState<Section>('flotte')
   const [view, setView] = useState<View>({ name: 'dashboard' })
@@ -66,9 +67,11 @@ function FleetApp({ userId, email }: { userId: string; email: string }) {
   const load = useCallback(async () => {
     setLoading(true)
     setError(null)
-    const [vRes, lRes] = await Promise.all([
+    const [vRes, lRes, tRes, aRes] = await Promise.all([
       supabase.from('vehicles').select('*').order('matricule'),
       supabase.from('fuel_logs').select('*'),
+      supabase.from('trips').select('vehicle_id, km_arrivee'),
+      supabase.from('adblue_logs').select('vehicle_id, km_compteur'),
     ])
     if (vRes.error) setError(vRes.error.message)
     setVehicles((vRes.data as Vehicle[]) ?? [])
@@ -77,6 +80,17 @@ function FleetApp({ userId, email }: { userId: string; email: string }) {
       ;(grouped[log.vehicle_id] ??= []).push(log)
     }
     setLogsByVehicle(grouped)
+
+    // Km réel par véhicule = max de toutes les sources (pleins, sorties, AdBlue).
+    const km: Record<string, number> = {}
+    const bump = (id: string, v: number | null | undefined) => {
+      if (v == null) return
+      km[id] = Math.max(km[id] ?? 0, v)
+    }
+    for (const l of (lRes.data as { vehicle_id: string; km: number }[]) ?? []) bump(l.vehicle_id, l.km)
+    for (const t of (tRes.data as { vehicle_id: string; km_arrivee: number }[]) ?? []) bump(t.vehicle_id, t.km_arrivee)
+    for (const a of (aRes.data as { vehicle_id: string; km_compteur: number }[]) ?? []) bump(a.vehicle_id, a.km_compteur)
+    setKmByVehicle(km)
     setLoading(false)
   }, [])
 
@@ -157,6 +171,7 @@ function FleetApp({ userId, email }: { userId: string; email: string }) {
           <VehicleDetail
             vehicle={selected}
             isAdmin={isAdmin}
+            extraKm={kmByVehicle[selected.id] ?? null}
             onBack={() => setView({ name: 'dashboard' })}
             onChanged={load}
           />
@@ -164,6 +179,7 @@ function FleetApp({ userId, email }: { userId: string; email: string }) {
           <Dashboard
             vehicles={vehicles}
             logsByVehicle={logsByVehicle}
+            kmByVehicle={kmByVehicle}
             isAdmin={isAdmin}
             onSelect={(v) => setView({ name: 'detail', id: v.id })}
             onAdd={() => setView({ name: 'new' })}
