@@ -43,7 +43,12 @@
       "createDesktopShortcut": true
     },
     "mac": {
-      "target": "dmg",
+      "target": [
+        {
+          "target": "dmg",
+          "arch": "universal"
+        }
+      ],
       "icon": "public/icons/icon-512.png"
     },
     "linux": {
