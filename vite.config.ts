@@ -4,10 +4,12 @@ import { VitePWA } from 'vite-plugin-pwa'
 
 // Build desktop (Electron) : chemins relatifs pour file:// et pas de PWA.
 const isElectron = process.env.ELECTRON === '1'
+// Build GitHub Pages : servi sous /qzdsq/ (nom du dépôt).
+const isPages = process.env.PAGES === '1'
 
 // https://vite.dev/config/
 export default defineConfig({
-  base: isElectron ? './' : '/',
+  base: isElectron ? './' : isPages ? '/qzdsq/' : '/',
   plugins: [
     react(),
     ...(isElectron
@@ -26,8 +28,6 @@ export default defineConfig({
         background_color: '#ffffff',
         display: 'standalone',
         orientation: 'portrait',
-        start_url: '/',
-        scope: '/',
         icons: [
           { src: 'icons/icon-192.png', sizes: '192x192', type: 'image/png' },
           { src: 'icons/icon-512.png', sizes: '512x512', type: 'image/png' },
