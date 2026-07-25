@@ -17,7 +17,7 @@ export function TripForm({ vehicles, chauffeurs, excursions, defaultKmByVehicle,
   const [vehicleId, setVehicleId] = useState(vehicles[0]?.id ?? '')
   const [date, setDate] = useState(today)
   const [chauffeurId, setChauffeurId] = useState('')
-  const [excursionId, setExcursionId] = useState('')
+  const [excursion, setExcursion] = useState('')
   const [kmDepart, setKmDepart] = useState('')
   const [kmArrivee, setKmArrivee] = useState('')
   const [carburant, setCarburant] = useState<Carburant>('gasoil')
@@ -73,15 +73,34 @@ export function TripForm({ vehicles, chauffeurs, excursions, defaultKmByVehicle,
         if (up.error) throw new Error(`Ticket : ${up.error.message}`)
         ticketUrl = supabase.storage.from('tickets').getPublicUrl(path).data.publicUrl
       }
+      // Excursion en saisie libre : on réutilise l'existante si le nom
+      // correspond, sinon on la crée pour la retrouver ensuite et pouvoir
+      // comparer les km entre chauffeurs sur cette même excursion.
+      const nomExcursion = excursion.trim()
+      let excursionId: string | null = null
+      if (nomExcursion) {
+        const existante = excursions.find(
+          (e) => e.nom.trim().toLowerCase() === nomExcursion.toLowerCase(),
+        )
+        if (existante) {
+          excursionId = existante.id
+        } else {
+          const { data } = await supabase
+            .from('gasoil_excursions')
+            .insert({ nom: nomExcursion })
+            .select('id')
+            .single()
+          excursionId = (data as { id: string } | null)?.id ?? null
+        }
+      }
       const chauffeur = chauffeurs.find((c) => c.id === chauffeurId)
-      const excursion = excursions.find((e) => e.id === excursionId)
       await onSave({
         vehicle_id: vehicleId,
         date,
         chauffeur_id: chauffeurId || null,
         chauffeur: chauffeur ? nomComplet(chauffeur) : null,
-        excursion_id: excursionId || null,
-        excursion: excursion ? excursion.nom : null,
+        excursion_id: excursionId,
+        excursion: nomExcursion || null,
         km_depart: Number(kmDepart),
         km_arrivee: Number(kmArrivee),
         carburant,
@@ -136,13 +155,19 @@ export function TripForm({ vehicles, chauffeurs, excursions, defaultKmByVehicle,
           </select>
         </div>
         <div>
-          <label className={label}>Excursion</label>
-          <select className={input} value={excursionId} onChange={(e) => setExcursionId(e.target.value)}>
-            <option value="">— aucune —</option>
+          <label className={label}>Excursion (à taper librement)</label>
+          <input
+            className={input}
+            list="excursions-list"
+            value={excursion}
+            onChange={(e) => setExcursion(e.target.value)}
+            placeholder="Ex : Matmata, Ksar Ghilane…"
+          />
+          <datalist id="excursions-list">
             {excursions.map((ex) => (
-              <option key={ex.id} value={ex.id}>{ex.nom}</option>
+              <option key={ex.id} value={ex.nom} />
             ))}
-          </select>
+          </datalist>
         </div>
         <div>
           <label className={label}>
