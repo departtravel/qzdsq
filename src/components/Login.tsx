@@ -33,7 +33,7 @@ export function Login() {
   return (
     <div className="flex min-h-screen items-center justify-center px-4">
       <form onSubmit={signIn} className="w-full max-w-sm rounded-lg bg-white p-8 shadow">
-        <h1 className="mb-1 text-xl font-bold text-blue-700">🚚 Gestion de Flotte</h1>
+        <h1 className="mb-1 text-xl font-bold text-blue-700">⛽ Contrôle Gasoil</h1>
         <p className="mb-6 text-sm text-slate-500">Connecte-toi pour continuer.</p>
 
         {error && (

@@ -6,73 +6,19 @@ import { Dashboard } from './components/Dashboard'
 import { VehicleDetail } from './components/VehicleDetail'
 import { VehicleForm } from './components/VehicleForm'
 import { Login } from './components/Login'
-import { Excursions } from './components/erp/Excursions'
-import { Reservations } from './components/erp/Reservations'
-import { Planning } from './components/erp/Planning'
-import { Comptabilite } from './components/erp/Comptabilite'
-import { DashboardDirection } from './components/erp/DashboardDirection'
-import { ImportOTA } from './components/erp/ImportOTA'
-import { IAAnalytics } from './components/erp/IAAnalytics'
-import { Referentiels } from './components/erp/Referentiels'
-import { OrdreMission } from './components/erp/OrdreMission'
-import { FicheReservation } from './components/erp/FicheReservation'
-import { Utilisateurs } from './components/erp/Utilisateurs'
-import { Parametres } from './components/erp/Parametres'
-import { RelevePartenaire } from './components/erp/RelevePartenaire'
 import { ControleGasoil } from './components/gasoil/ControleGasoil'
 import { InstallButton } from './components/InstallButton'
 import { SupabaseSetup } from './components/SupabaseSetup'
 
 type View = { name: 'dashboard' } | { name: 'detail'; id: string } | { name: 'new' }
-type Section =
-  | 'flotte'
-  | 'gasoil'
-  | 'excursions'
-  | 'reservations'
-  | 'planning'
-  | 'comptabilite'
-  | 'dashboard'
-  | 'importota'
-  | 'ia'
-  | 'referentiels'
-  | 'ordremission'
-  | 'fichereservation'
-  | 'utilisateurs'
-  | 'parametres'
-  | 'relevepartenaire'
+type Section = 'flotte' | 'gasoil'
 
 const ERP_SECTIONS: { key: Section; emoji: string; label: string }[] = [
   { key: 'gasoil', emoji: '⛽', label: 'Contrôle Gasoil' },
-  { key: 'excursions', emoji: '🧭', label: 'Excursions' },
-  { key: 'reservations', emoji: '📅', label: 'Réservations' },
-  { key: 'planning', emoji: '📆', label: 'Planning' },
-  { key: 'ordremission', emoji: '📋', label: 'Ordre de mission' },
-  { key: 'fichereservation', emoji: '🗒️', label: 'Réservations à effectuer' },
-  { key: 'comptabilite', emoji: '💰', label: 'Comptabilité' },
-  { key: 'relevepartenaire', emoji: '🧾', label: 'Relevé prestataire' },
-  { key: 'dashboard', emoji: '📊', label: 'Direction' },
-  { key: 'importota', emoji: '📥', label: 'Import OTA' },
-  { key: 'ia', emoji: '🧠', label: 'IA Analytique' },
-  { key: 'referentiels', emoji: '📇', label: 'Référentiels' },
-  { key: 'utilisateurs', emoji: '🔐', label: 'Utilisateurs' },
-  { key: 'parametres', emoji: '⚙️', label: 'Paramètres' },
 ]
 
 const ERP_COMPONENTS: Record<Exclude<Section, 'flotte'>, JSX.Element> = {
   gasoil: <ControleGasoil />,
-  excursions: <Excursions />,
-  reservations: <Reservations />,
-  planning: <Planning />,
-  ordremission: <OrdreMission />,
-  fichereservation: <FicheReservation />,
-  comptabilite: <Comptabilite />,
-  dashboard: <DashboardDirection />,
-  importota: <ImportOTA />,
-  ia: <IAAnalytics />,
-  referentiels: <Referentiels />,
-  utilisateurs: <Utilisateurs />,
-  parametres: <Parametres />,
-  relevepartenaire: <RelevePartenaire />,
 }
 
 export default function App() {
@@ -153,7 +99,7 @@ function FleetApp({ userId, email }: { userId: string; email: string }) {
       <header className="border-b bg-white">
         <div className="mx-auto flex max-w-6xl items-center justify-between gap-2 px-4 py-3">
           <div className="flex items-center gap-4">
-            <span className="text-lg font-bold text-blue-700">DTS Operation ERP</span>
+            <span className="text-lg font-bold text-blue-700">⛽ Contrôle Gasoil</span>
             <nav className="flex gap-1 text-sm">
               <button
                 onClick={() => { setSection('flotte'); setView({ name: 'dashboard' }) }}
