@@ -119,17 +119,31 @@ c) La digitalisation du métier via une PLATEFORME NATIONALE.
    Nous proposons la création d'une plateforme nationale par laquelle
    transiteraient l'ensemble des réservations des agences de voyages,
    placée sous le contrôle de l'ONTT et du Ministère des Finances.
-   Disons-le explicitement : l'objectif est de réduire drastiquement
-   l'économie en espèces (cash) qui échappe aujourd'hui totalement à
-   l'État. Car ce sont précisément ceux qui nous accusent qui
-   encaissent en liquide, souvent en devises, sans facture, sans
-   déclaration et hors du circuit bancaire — en contradiction avec la
-   réglementation fiscale et avec le code des changes (loi n° 76-18
-   de 1976). Une plateforme nationale traçable rendrait chaque
-   transaction visible, bancarisée et imposable, et ferait entrer les
-   devises dans le circuit officiel de la Banque Centrale. C'est
-   l'exact opposé de ce que permet la vente en espèces dans les
-   hôtels.
+   Disons-le explicitement : ce sont précisément ceux qui nous
+   accusent qui encaissent en liquide, et parfois en devises, sans
+   facture, sans déclaration et hors du circuit bancaire — en
+   contradiction avec la réglementation fiscale et avec le code des
+   changes (loi n° 76-18 de 1976). Une plateforme nationale est la
+   SEULE solution capable de mettre fin à cette économie en espèces
+   et à la fuite des devises vers le marché noir ; c'est aussi le
+   moyen le plus rapide de ramener un maximum de devises au pays par
+   les canaux officiels de la Banque Centrale.
+
+   Concrètement, nous proposons que le fonctionnement soit le suivant :
+   - Tout client partant en excursion, quelle qu'elle soit, doit être
+     enregistré sur la plateforme ;
+   - Chaque ordre de mission doit obligatoirement mentionner : le
+     nombre de personnes, l'excursion concernée, le tarif de vente et
+     la devise encaissée ;
+   - L'ensemble est contrôlable par des agents du Ministère des
+     Finances ;
+   - La plateforme délivre un document justificatif (à tamponner) ou
+     un code QR attestant que l'opération est bien passée par le
+     système officiel.
+
+   Ce mécanisme rendrait chaque transaction visible, bancarisée et
+   imposable — l'exact opposé de la vente en espèces non déclarée
+   pratiquée aujourd'hui dans les hôtels.
 
 d) La protection des sites archéologiques et des lieux visités.
    Nous appelons également la Fédération à se pencher sur la pollution
