@@ -284,7 +284,16 @@ async function checkCelia() {
   }
 }
 
+const GYG_REVIEWS_URL = "https://www.getyourguide.com/fr-fr/s/?q=supplier:129057";
+
 async function checkElyesGYG() {
+  addTaskList("elyes", "Avis GYG a verifier", [
+    `Clique ici pour voir les avis clients et contacter ceux < 3 etoiles : ${GYG_REVIEWS_URL}`
+  ]);
+
+  addTaskList("montana", "Avis GYG / Qualite a verifier", [
+    `Consulte les avis GYG et identifie ceux qui necessitent une intervention qualite : ${GYG_REVIEWS_URL}`
+  ]);
   try {
     const bookingTable = (await tableExists("Booking")) ? '"Booking"' :
                          (await tableExists("booking")) ? "booking" : null;
