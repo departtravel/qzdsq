@@ -383,7 +383,7 @@ async function sendEmails() {
 
 // ---- MAIN --------------------------------------------------
 async function main() {
-  console.log(`=== DTS Rapport Quotidien — ${now.toISOString()} ===");
+  console.log(`=== DTS Rapport Quotidien — ${now.toISOString()} ===`);
   console.log(`    Mode: ${SEND_EMAILS ? "EMAILS ACTIFS" : "CONSOLE UNIQUEMENT (pas de GMAIL_APP_PASSWORD)"}`);
 
   if (process.argv.includes("--schema")) {
