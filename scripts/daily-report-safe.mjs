@@ -83,9 +83,17 @@ tomorrowDate.setDate(tomorrowDate.getDate() + 1);
 const tomorrowStr = tomorrowDate.toISOString().split("T")[0];
 
 const findings = [];
+const taskLists = {}; // person -> [{ title, items: [string] }]
 
 function flag(person, level, message) {
   findings.push({ person, level, message });
+}
+
+function addTaskList(person, title, items) {
+  if (!taskLists[person]) taskLists[person] = [];
+  if (items.length > 0) {
+    taskLists[person].push({ title, items });
+  }
 }
 
 // ---- SCHEMA DISCOVERY (safe) --------------------------------
@@ -276,6 +284,132 @@ async function checkCelia() {
   }
 }
 
+async function checkElyesGYG() {
+  try {
+    const bookingTable = (await tableExists("Booking")) ? '"Booking"' :
+                         (await tableExists("booking")) ? "booking" : null;
+    if (!bookingTable) return;
+
+    const cols = await listColumns(bookingTable.replace(/"/g, ""));
+    const colNames = cols.map(c => c.column_name);
+
+    if (!colNames.includes("supplier") || !colNames.includes("startDate")) return;
+
+    const clientCol = colNames.includes("clientName") ? '"clientName"' : "'?'";
+    const priceCol = colNames.includes("price") ? "price" : "NULL";
+    const currCol = colNames.includes("priceCurrency") ? '"priceCurrency"' : "''";
+    const nbCol = colNames.includes("numberOfPeople") ? '"numberOfPeople"' : "NULL";
+    const phoneCol = colNames.includes("clientPhone") ? ', "clientPhone"' : "";
+    const emailCol = colNames.includes("clientEmail") ? ', "clientEmail"' : "";
+    const activityCol = colNames.includes("activity") ? ", activity" :
+                        colNames.includes("excursionName") ? ', "excursionName"' :
+                        colNames.includes("activityName") ? ', "activityName"' : "";
+
+    const gyg = await query(
+      `SELECT id, ${clientCol} as client, "startDate"::date as date_debut,
+              ${priceCol} as prix, ${currCol} as devise, ${nbCol} as nb_pers
+              ${phoneCol} ${emailCol} ${activityCol}
+       FROM ${bookingTable}
+       WHERE supplier ILIKE '%gyg%' OR supplier ILIKE '%getyourguide%' OR supplier ILIKE '%get your guide%'
+       AND "startDate"::date >= $1 AND "startDate"::date <= $2
+       ORDER BY "startDate" ASC
+       LIMIT 50`,
+      [todayStr, tomorrowStr]
+    );
+
+    if (gyg.length > 0) {
+      addTaskList("elyes", `Reservations GYG du ${todayStr} au ${tomorrowStr}`, gyg.map(b =>
+        `${b.client || "?"} — ${b.date_debut} — ${b.nb_pers || "?"} pers. — ${b.prix || "?"} ${b.devise || ""}` +
+        (b.clientPhone ? ` — Tel: ${b.clientPhone}` : "") +
+        (b.clientEmail ? ` — ${b.clientEmail}` : "") +
+        (b.activity || b.excursionName || b.activityName ? ` — ${b.activity || b.excursionName || b.activityName}` : "")
+      ));
+    }
+
+    const cancelledCol = colNames.includes("status") ? "status" :
+                         colNames.includes("cancelled") ? "cancelled" : null;
+    if (cancelledCol) {
+      const cancelled = await query(
+        `SELECT id, ${clientCol} as client, "startDate"::date as date_debut
+         FROM ${bookingTable}
+         WHERE (supplier ILIKE '%gyg%' OR supplier ILIKE '%getyourguide%')
+         AND (${cancelledCol === "status" ? `status ILIKE '%cancel%'` : `cancelled = true`})
+         AND "updatedAt"::date >= $1
+         ORDER BY "updatedAt" DESC
+         LIMIT 20`,
+        [yesterdayStr]
+      );
+      if (cancelled.length > 0) {
+        flag("elyes", "ORANGE", `${cancelled.length} annulation(s) GYG recente(s) : ${cancelled.map(b => b.client || b.id).join(", ")}`);
+      }
+    }
+  } catch (err) {
+    console.warn(`  [WARN] checkElyesGYG: ${err.message}`);
+  }
+}
+
+async function checkImedActivities() {
+  try {
+    const bookingTable = (await tableExists("Booking")) ? '"Booking"' :
+                         (await tableExists("booking")) ? "booking" : null;
+    if (!bookingTable) return;
+
+    const cols = await listColumns(bookingTable.replace(/"/g, ""));
+    const colNames = cols.map(c => c.column_name);
+
+    if (!colNames.includes("startDate")) return;
+
+    const activityPatterns = [
+      "djerba explore", "quad", "dromadaire", "camel",
+      "excursion", "activit", "safari", "plongee", "diving",
+      "jet ski", "jetski", "parasailing", "banana",
+      "thalasso", "spa", "pirate", "flamingo",
+      "krokodilfarm", "crocodile", "houmt souk", "guellala",
+      "midoun", "erriadh", "street art"
+    ];
+
+    const clientCol = colNames.includes("clientName") ? '"clientName"' : "'?'";
+    const priceCol = colNames.includes("price") ? "price" : "NULL";
+    const currCol = colNames.includes("priceCurrency") ? '"priceCurrency"' : "''";
+    const nbCol = colNames.includes("numberOfPeople") ? '"numberOfPeople"' : "NULL";
+    const supplierCol = colNames.includes("supplier") ? ", supplier" : "";
+
+    const actCol = colNames.includes("activity") ? "activity" :
+                   colNames.includes("excursionName") ? '"excursionName"' :
+                   colNames.includes("activityName") ? '"activityName"' :
+                   colNames.includes("productName") ? '"productName"' : null;
+
+    if (!actCol) {
+      console.log("  [INFO] Pas de colonne activite trouvee — check Imed ignore");
+      return;
+    }
+
+    const wherePatterns = activityPatterns.map((_, i) => `${actCol} ILIKE $${i + 3}`).join(" OR ");
+    const params = [todayStr, tomorrowStr, ...activityPatterns.map(p => `%${p}%`)];
+
+    const activities = await query(
+      `SELECT id, ${clientCol} as client, "startDate"::date as date_debut,
+              ${actCol} as activite, ${priceCol} as prix, ${currCol} as devise,
+              ${nbCol} as nb_pers ${supplierCol}
+       FROM ${bookingTable}
+       WHERE "startDate"::date >= $1 AND "startDate"::date <= $2
+       AND (${wherePatterns})
+       ORDER BY "startDate" ASC
+       LIMIT 50`,
+      params
+    );
+
+    if (activities.length > 0) {
+      addTaskList("imed", `Activites du ${todayStr} au ${tomorrowStr}`, activities.map(b =>
+        `${b.activite || "?"} — ${b.client || "?"} — ${b.date_debut} — ${b.nb_pers || "?"} pers. — ${b.prix || "?"} ${b.devise || ""}` +
+        (b.supplier ? ` (${b.supplier})` : "")
+      ));
+    }
+  } catch (err) {
+    console.warn(`  [WARN] checkImedActivities: ${err.message}`);
+  }
+}
+
 // ---- SCHEMA DUMP (for debugging) ---------------------------
 async function dumpSchema() {
   console.log("\n=== TABLES DISPONIBLES ===");
@@ -307,7 +441,8 @@ async function sendEmails() {
   for (const [person, email] of Object.entries(TEAM_EMAILS)) {
     if (person === "aymen" || person === "amine") continue; // Rapport CEO separe
     const personFindings = findings.filter(f => f.person === person);
-    if (personFindings.length === 0) continue;
+    const personTasks = taskLists[person] || [];
+    if (personFindings.length === 0 && personTasks.length === 0) continue;
 
     const rouges = personFindings.filter(f => f.level === "ROUGE");
     const oranges = personFindings.filter(f => f.level === "ORANGE");
@@ -317,7 +452,11 @@ async function sendEmails() {
       <div style="font-family:Arial,sans-serif;max-width:600px;">
         <h2 style="color:#1e3a5f;">DTS — Rapport du ${todayStr}</h2>
         <p>Bonjour <strong>${name}</strong>,</p>
-        <p>Voici les points a verifier :</p>
+        ${personTasks.length > 0 ? personTasks.map(t => `
+          <div style="background:#eff6ff;border-left:4px solid #2563eb;padding:12px;margin:10px 0;border-radius:4px;">
+            <strong style="color:#2563eb;">TACHES DU JOUR — ${t.title}</strong>
+            <ol style="margin:8px 0 0 0;padding-left:20px;">${t.items.map(item => `<li style="margin:4px 0;">${item}</li>`).join("")}</ol>
+          </div>`).join("") : ""}
         ${rouges.length > 0 ? `
           <div style="background:#fef2f2;border-left:4px solid #dc2626;padding:12px;margin:10px 0;border-radius:4px;">
             <strong style="color:#dc2626;">URGENT</strong>
@@ -328,6 +467,7 @@ async function sendEmails() {
             <strong style="color:#f59e0b;">A CORRIGER</strong>
             <ul>${oranges.map(f => `<li>${f.message}</li>`).join("")}</ul>
           </div>` : ""}
+        ${personFindings.length === 0 && personTasks.length > 0 ? "<p style='color:#16a34a;'>Aucune anomalie detectee.</p>" : ""}
         <p style="color:#64748b;font-size:12px;margin-top:20px;">— Rapport automatique DTS</p>
       </div>`;
 
@@ -335,7 +475,7 @@ async function sendEmails() {
       await transporter.sendMail({
         from: '"DTS Rapport" <agence.departtravel@gmail.com>',
         to: email,
-        subject: `DTS — ${rouges.length > 0 ? "URGENT" : "Rapport"} du ${todayStr}`,
+        subject: `DTS — ${rouges.length > 0 ? "URGENT — " : ""}${personTasks.length > 0 ? personTasks.length + " tache(s)" : "Rapport"} du ${todayStr}`,
         html,
       });
       console.log(`  Mail envoye a ${name} (${email})`);
@@ -348,10 +488,16 @@ async function sendEmails() {
   const rouges = findings.filter(f => f.level === "ROUGE");
   const oranges = findings.filter(f => f.level === "ORANGE");
 
+  const allTasks = Object.entries(taskLists);
   const ceoHtml = `
     <div style="font-family:Arial,sans-serif;max-width:700px;">
       <h2 style="color:#1e3a5f;">DTS — Rapport CEO du ${todayStr}</h2>
-      <p><strong>${rouges.length}</strong> ROUGE | <strong>${oranges.length}</strong> ORANGE | <strong>${findings.length}</strong> total</p>
+      <p><strong>${rouges.length}</strong> ROUGE | <strong>${oranges.length}</strong> ORANGE | <strong>${findings.length}</strong> anomalies | <strong>${allTasks.reduce((s, [, t]) => s + t.length, 0)}</strong> listes de taches</p>
+      ${allTasks.length > 0 ? `
+        <h3 style="color:#2563eb;">TACHES ENVOYEES</h3>
+        ${allTasks.map(([person, lists]) => lists.map(t =>
+          `<p><strong>${person.toUpperCase()}</strong> — ${t.title} (${t.items.length} items)</p>`
+        ).join("")).join("")}` : ""}
       ${rouges.length > 0 ? `
         <h3 style="color:#dc2626;">ROUGE</h3>
         <table style="width:100%;border-collapse:collapse;">
@@ -364,7 +510,7 @@ async function sendEmails() {
           <tr style="background:#fff7ed;"><th style="text-align:left;padding:8px;border:1px solid #ddd;">Qui</th><th style="text-align:left;padding:8px;border:1px solid #ddd;">Probleme</th></tr>
           ${oranges.map(f => `<tr><td style="padding:8px;border:1px solid #ddd;font-weight:bold;">${f.person.toUpperCase()}</td><td style="padding:8px;border:1px solid #ddd;">${f.message}</td></tr>`).join("")}
         </table>` : ""}
-      ${findings.length === 0 ? "<p style='color:#16a34a;font-size:1.2em;font-weight:bold;'>Tout est en ordre aujourd'hui.</p>" : ""}
+      ${findings.length === 0 && allTasks.length === 0 ? "<p style='color:#16a34a;font-size:1.2em;font-weight:bold;'>Tout est en ordre aujourd'hui.</p>" : ""}
       <p style="color:#64748b;font-size:12px;margin-top:30px;">— Rapport automatique DTS</p>
     </div>`;
 
@@ -392,19 +538,28 @@ async function main() {
     return;
   }
 
-  console.log("\n--- Checks en cours ---");
+  console.log("\n--- Checks anomalies ---");
   await checkBookings();
   await checkFinance();
   await checkTrips();
   await checkFuel();
   await checkCelia();
 
-  console.log(`\n--- Resultats: ${findings.length} anomalie(s) ---`);
+  console.log("\n--- Listes de taches ---");
+  await checkElyesGYG();
+  await checkImedActivities();
+
+  console.log(`\n--- Resultats: ${findings.length} anomalie(s), ${Object.keys(taskLists).length} liste(s) de taches ---`);
   if (findings.length === 0) {
-    console.log("  Tout est en ordre.");
+    console.log("  Aucune anomalie.");
   } else {
     for (const f of findings) {
       console.log(`  [${f.level}] ${f.person.toUpperCase()}: ${f.message}`);
+    }
+  }
+  for (const [person, lists] of Object.entries(taskLists)) {
+    for (const t of lists) {
+      console.log(`  [TACHES] ${person.toUpperCase()}: ${t.title} (${t.items.length} items)`);
     }
   }
 
